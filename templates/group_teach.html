@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Group_Teach_View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/allpages.css">
+    <link rel="stylesheet" href="/static/login.css">
+</head>
+
+<body>
+    <h1>Group_Teach_View</h1>
+    <h2>{{cclass['category']}}: {{cclass['class_id']}}: {{cclass['name']}}</h2>
+    <div class="col">
+        <div class="row title">
+            <div class="col">Class Code</div>
+            <div class="col">Number</div>
+            <div class="col">Name</div>
+            <div class="col">Eng Name</div>
+            <div class="col">Attendance</div>
+        </div>
+        {% if data != None %}
+        {% for homeroom in all_stud_list %}
+        {% for student in all_stud_list[homeroom] %}
+        <div class="row">
+            <div class="col">{{homeroom}}</div>
+            <div class="col">{{ student }}</div>
+            <div class="col">{{ all_stud_list[homeroom][student]['name'] }}</div>
+            <div class="col">{{ all_stud_list[homeroom][student]['eng_name'] }}</div>
+            <div class="col"><input type="checkbox" id="{{homeroom}}^{{student}}"></div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+        {% endif %}
+    </div>
+</body>
+
+</html>
