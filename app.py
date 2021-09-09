@@ -6,9 +6,9 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import csv
 import os
-from dotenv import load_dotenv
-from pprint import pprint
-load_dotenv()
+# from dotenv import load_dotenv
+# from pprint import pprint
+# load_dotenv()
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -202,5 +202,5 @@ def logout():
     return redirect('/')
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
