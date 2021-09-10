@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Homeroom_View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/allpages.css">
+    <link rel="stylesheet" href="/static/login.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Homeroom_View</h1>
+        <h2>{{homeroomCode[0]}}: {{homeroomCode[1]}}</h2>
+        <h2>Status: ({{currDate}})</h2>
+        <form action="/manage/date" id="dateSelForm" method="post">
+            <select name="date" id="date" class="form-select" onchange="chgDate();">
+                {% for date in dates %}
+                {% if date == currDate %}
+                <option value="{{date}}" selected="selected">{{date}}</option>
+                {% else %}
+                <option value="{{date}}">{{date}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </form>
+        <form action="/manage/homeroom_confirm" id="homeroom_confirm" method="post">
+            <input type="hidden" name="date" value="{{currDate}}">
+            <input type="hidden" name="category" value="{{currCategory}}">
+            <input type="hidden" name="signatureData" value="">
+        </form>
+        <div class="col">
+            <div class="row title">
+                <div class="col">Homeroom</div>
+                <div class="col">Number</div>
+                <div class="col">Name</div>
+                <div class="col">Eng Name</div>
+                <div class="col">GP_Class</div>
+                <div class="col">Attendance (Here=V, Abs=X)</div>
+            </div>
+            {% if data != None %}
+            {% for i in all_stud_list %}
+            <div class="row">
+                <div class="col">{{homeroomCode[0]}}{{homeroomCode[1]}}</div>
+                <div class="col">{{i}}</div>
+                <div class="col">{{ all_stud_list[i]['name'] }}</div>
+                <div class="col">{{ all_stud_list[i]['eng_name'] }}</div>
+                <div class="col">{{ all_stud_list[i]['gpClass'] }}:
+                    {{gpClasses['Class'][all_stud_list[i]['gpClass']]['name']}}</div>
+                <div class="col">
+                    <p class="highlightAbs n-{{all_stud_list[i]['status']}}">
+                        {% if all_stud_list[i]['status'] == 1 %}
+                        V
+                        {% elif all_stud_list[i]['status'] == 2 %}
+                        X
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+            <!-- show signature of confirmed classes -->
+            {% for c in range(confirmedClasses|length) %}
+            {% if c % 2 == 0 %}
+            <div class="row signatures">
+                {% endif %}
+                <div class="col half">
+                    <div class="row">{{confirmedClasses[c]}}: {{gpClasses['Class'][confirmedClasses[c]]['name']}}
+                    </div>
+                    <div class="row"><img src="{{gpClasses['Dates'][currDate][confirmedClasses[c]]}}" alt=""></div>
+                </div>
+                {% if c % 2 == 1 %}
+            </div>
+            {% endif %}
+            {% endfor %}
+            <!-- Show Class Data -->
+            <div class="classlist">
+                <h2>Classes in {{currCategory}}</h2>
+                <ul>
+                    {% for c in gpClasses['Class'] %}
+                    <li>
+                        <h3>{{c}}: {{gpClasses['Class'][c]['name']}}</h3>
+                    </li>
+                    <ul>
+                        <li>
+                            <h4>Classroom: {{ gpClasses['Class'][c]['classroom'] }}</h4>
+                        </li>
+                        <li>
+                            <h4>Teacher: {{ gpClasses['Class'][c]['teacher'] }}</h4>
+                        </li>
+                    </ul>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% if status == 1 %}
+            <h3>Please Sign Below</h3>
+            <div class="forSign"><canvas id="signature_pad"></canvas></div>
+            <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear Signature</button>
+            <button class="btn btn-primary" type="button" onclick="submitForm()">Submit</button>
+            {% else %}
+            <h3>Please wait for all {{currCategory}} teachers to enter data.</h3>
+            {% endif %}
+        </div>
+    </div>
+    {% if status == 1 %}
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <script>
+        var canvas = document.getElementById("signature_pad");
+        var signaturePad = new SignaturePad(canvas);
+        function resizeCanvas() {
+            var ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            signaturePad.clear(); // otherwise isEmpty() might return incorrect value
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+        function submitForm() {
+            if (!signaturePad.isEmpty()) {
+                signaturePad.off();
+                var data = signaturePad.toDataURL('image/png');
+                document.getElementsByName('signatureData')[0].value = data;
+                document.getElementsByTagName('form')[0].submit();
+            }
+            else {
+                alert("Please sign first");
+            }
+        }
+    </script>
+    {% endif %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
+            style="height:100%;" />
+    </div>
+    <script>
+        function loadingAnimation() {
+            $('.container').hide();
+            $('#loading').show();
+        }
+        function chgDate() {
+            loadingAnimation();
+            document.getElementById('dateSelForm').submit();
+        }
+    </script>
+</body>
+
+</html>
