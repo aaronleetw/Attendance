@@ -40,25 +40,8 @@
                 <div class="col">Number</div>
                 <div class="col">Name</div>
                 <div class="col">Eng Name</div>
-                <div class="col">Morning</div>
-                <div class="col">1</div>
-                <div class="col">2</div>
-                <div class="col">3</div>
-                <div class="col">4</div>
-                <div class="col">Nap</div>
-                <div class="col">5</div>
-                <div class="col">6</div>
-                <div class="col">7</div>
-                <div class="col">8</div>
-                <div class="col">9</div>
-            </div>
-            <div class="row title">
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
                 {% for i in periods %}
-                <div class="col">{{absData[currDate][i]['name']}}</div>
+                <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>{{i}}</div>
                 {% endfor %}
             </div>
             <div class="row title">
@@ -67,7 +50,18 @@
                 <div class="col"></div>
                 <div class="col"></div>
                 {% for i in periods %}
-                <div class="col">{{absData[currDate][i]['teacher']}}</div>
+                <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
+                    {{absData[currDate][i]['name']}}</div>
+                {% endfor %}
+            </div>
+            <div class="row title">
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+                {% for i in periods %}
+                <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
+                    {{absData[currDate][i]['teacher']}}</div>
                 {% endfor %}
             </div>
             {% if data != None %}
@@ -78,42 +72,32 @@
                 <div class="col">{{ homeroomData[i]['name'] }}</div>
                 <div class="col">{{ homeroomData[i]['eng_name'] }}</div>
                 {% for j in periods %}
-                {% if 'signature' in absData[currDate][j] %}
-                {% if i in absData[currDate][j] %}
-                <div class="col">
+                <div class="col" {% if currPeriod==j %} style="background-color: #ffdf81;" {% endif %}>
+                    {% if 'signature' in absData[currDate][j] %}
+                    {% if i in absData[currDate][j] %}
                     <p class="highlightAbs n-2">X</p>
-                </div>
-                {% else %}
-                {% if absData[currDate][j]['name'] != 'GP' %}
-                <div class="col">
+                    {% else %}
+                    {% if absData[currDate][j]['name'] != 'GP' %}
                     <p class="highlightAbs n-1">V</p>
-                </div>
-                {% else %}
-                {% if (homeroomData[i]['GP_Class'][absData[currDate][j]['teacher']] in
-                absData[currDate][j]['signature'])%}
-                <div class="col">
+                    {% else %}
+                    {% if (homeroomData[i]['GP_Class'][absData[currDate][j]['teacher']] in
+                    absData[currDate][j]['signature'])%}
                     <p class="highlightAbs n-1">V</p>
-                </div>
-                {% else %}
-                <div class="col">
+                    {% else %}
                     <p class="highlightAbs n-2"></p>
-                </div>
-                {% endif %}
-                {% endif %}
-                {% endif %}
-                {% elif absData[currDate][j]['name'] == 'GP' %}
-                <div class="col">
+                    {% endif %}
+                    {% endif %}
+                    {% endif %}
+                    {% elif absData[currDate][j]['name'] == 'GP' %}
                     <p class="highlightAbs"></p>
-                </div>
-                {% else %}
-                <div class="col">
+                    {% else %}
                     {% if 'confirm' in absData[currDate] %}
                     <p class="highlightAbs"></p>
                     {% else %}
                     <input type="checkbox" class="tobeform {{j}}^{{i}}">
                     {% endif %}
+                    {% endif %}
                 </div>
-                {% endif %}
                 {% endfor %}
             </div>
             {% endfor %}
@@ -123,14 +107,14 @@
                 <div class="col"></div>
                 <div class="col"></div>
                 {% for i in periods %}
-                <div class="col">
+                <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
                     {% if ('signature' in absData[currDate][i] or absData[currDate][i]['name'] == 'GP' or
                     'confirm' in absData[currDate]) %}
                     <button class="btn btn-primary afterSelButton" disabled="disabled"
-                        onclick="afterSelAbs('{{i|string}}')">Confirm</button>
+                        onclick="afterSelAbs('{{i|string}}')"></button>
                     {% else %}
                     <button class="btn btn-primary afterSelButton"
-                        onclick="afterSelAbs('{{i|string}}')">Confirm</button>
+                        onclick="afterSelAbs('{{i|string}}')">Confirm<br>{{absData[currDate][i]['name']}}</button>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -150,7 +134,10 @@
                 Teacher Confirm</button>
             {% endif %}
             <div id="finalCheck" hidden="hidden">
-                <h3>Please Sign Below</h3>
+                <h3>Please Sign Below <br>
+                    Period: <span id="showSignPeriod"></span> <br>
+                    Subject: <span id="showSignSubjectName"></span>
+                </h3>
                 <div class="forSign"><canvas id="signature_pad"></canvas></div>
                 <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear Signature</button>
                 <button class="btn btn-primary" type="button" onclick="submitForm()">Submit</button>
@@ -205,6 +192,11 @@
     </footer>
     <script>
         var signaturePad, hrCfrm = false;
+        var periodData = {}
+        {% for i in periods %}
+        periodData['{{i}}'] = '{{ absData[currDate][i]['name'] }}'
+        {% endfor %}
+
         function loadingAnimation() {
             $('.container').hide();
             $('#loading').show();
@@ -249,6 +241,8 @@
             $('#postHomeroomAbs #HR-period').val(period);
             $('.tobeform').attr('disabled', 'disabled');
             $('.afterSelButton').attr('disabled', 'disabled');
+            $('#showSignPeriod').text(period);
+            $('#showSignSubjectName').text(periodData[period]);
             $('.tobeform').each(function (i, obj) {
                 if ($(this).attr('class').split(' ')[1].split('^')[0] == period &&
                     $(this).is(":checked")) {

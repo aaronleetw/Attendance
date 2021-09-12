@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from flask import *
 import pyrebase
 from datetime import datetime
@@ -28,6 +29,10 @@ db = firebase.database()
 auth = firebase.auth()
 storage = firebase.storage()
 tz = pytz.timezone('Asia/Taipei')
+
+
+def next_item(odic, key):
+    return list(odic)[list(odic.keys()).index(key) + 1]
 
 
 def check_login_status():
@@ -167,6 +172,27 @@ def manageProcess(fCommand, fData):
             session['uid']).child("homeroom").get().val().split('^')
         homeroomData = db.child("Homerooms").child(homeroom[0]).child(
             homeroom[1]).get().val()
+        times = OrderedDict({
+            'm': '00:00',
+            '1': '08:15',
+            '2': '09:10',
+            '3': '10:05',
+            '4': '11:00',
+            'n': '11:55',
+            '5': '13:10',
+            '6': '14:05',
+            '7': '15:00',
+            '8': '15:53',
+            '9': '16:43',
+            'ph': '23:59'
+        })
+        currPeriod = ""
+        currTime = datetime.now(tz).strftime("%H:%M")
+        for i in times:
+            if (times[i] <= currTime and
+                    currTime <= times[next_item(times, i)]):
+                currPeriod = i
+                break
         absData = homeroomData["Absent"]
         homeroomData.pop('Absent')
         homeroomData.pop('placeholder')
@@ -178,7 +204,9 @@ def manageProcess(fCommand, fData):
                 currDate = i
                 if i >= datetime.now(tz).strftime("%Y-%m-%d"):
                     break
-        return render_template('homeroom.html', absData=absData, homeroomCode=homeroom, homeroomData=homeroomData, currDate=currDate, periods=['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9'])
+        print(currPeriod)
+        return render_template('homeroom.html', absData=absData, homeroomCode=homeroom, homeroomData=homeroomData,
+                               currDate=currDate, periods=['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9'], currPeriod=currPeriod)
     else:
         return redirect('/logout')
 
