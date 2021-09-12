@@ -30,6 +30,14 @@ div.forSign canvas {
     height: 100%;
 }
 
+.margin-bottom {
+    margin-bottom: 50px;
+}
+
+div.signDiv {
+    margin-bottom: 50px;
+}
+
 p.highlightAbs {
     margin-bottom: 0;
 }
@@ -42,6 +50,6 @@ p.highlightAbs.n-2 {
     color: red;
 }
 
-div.classlist {
-    text-align: left;
+.margin-top {
+    margin-top: 20px;
 }

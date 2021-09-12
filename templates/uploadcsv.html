@@ -34,11 +34,28 @@
                         <label for="csv">{{title}}</label>
                         <input type="file" class="form-control-file" id="csv" name="csv">
                     </div>
-                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button onclick="loadingAnimation()" type="submit" class="btn btn-primary">Upload</button>
                 </form>
+                <!-- show danger zone -->
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Warning! 警告！</h4>
+                    <p>If you are not the adminstrator, please do not click "upload" This might make the system
+                        unuseable.</p>
+                    <p>非管理員請勿點選! 可能會讓系統無法使用!</p>
+                </div>
             </div>
         </div>
     </div>
+    <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
+            style="height:100%;" />
+    </div>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script>
+        function loadingAnimation() {
+            $('.container').hide();
+            $('#loading').show();
+        }
+    </script>
     <!-- end csv form center -->
 </body>
 

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin_View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/allpages.css">
+    <link rel="stylesheet" href="/static/homeroom.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Admin_View</h1>
+        <h2>{{homeroomCode[0]}}: {{homeroomCode[1]}}</h2>
+        <h2>Status: ({{currDate}}, 星期{{absData[currDate]['dow']}})</h2>
+        <a href="/logout"><button class="btn btn-primary">Logout 登出</button></a>
+        <div class="container margin-bottom">
+            <form action="/manage/admin" id="adminSelForm" method="post">
+                <div class="row">
+                    <div class="col">
+                        <select name="grade" id="sel-grade" class="form-select" onchange="getHR()" required>
+                            <option value="">選擇年級</option>
+                            {% for grade in homerooms %}
+                            <option value="{{grade}}">{{grade}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select name="room" id="sel-room" class="form-select" disabled required>
+                            <option value="">請先選擇年級</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select name="date" id="date" class="form-select">
+                            {% for date in absData %}
+                            {% if date == currDate %}
+                            <option value="{{date}}" selected="selected">{{date}}</option>
+                            {% else %}
+                            <option value="{{date}}">{{date}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-1">
+                        <button class="btn btn-primary" onclick="loadingAnimation()">查詢</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col">
+            <div class="row title">
+                <div class="col">HR</div>
+                <div class="col">Number</div>
+                <div class="col">Name</div>
+                <div class="col">Eng Name</div>
+                <div class="col">Morning</div>
+                <div class="col">1</div>
+                <div class="col">2</div>
+                <div class="col">3</div>
+                <div class="col">4</div>
+                <div class="col">Nap</div>
+                <div class="col">5</div>
+                <div class="col">6</div>
+                <div class="col">7</div>
+                <div class="col">8</div>
+                <div class="col">9</div>
+            </div>
+            <div class="row title">
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+                {% for i in periods %}
+                <div class="col">{{absData[currDate][i]['name']}}</div>
+                {% endfor %}
+            </div>
+            <div class="row title">
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+                {% for i in periods %}
+                <div class="col">{{absData[currDate][i]['teacher']}}</div>
+                {% endfor %}
+            </div>
+            {% if data != None %}
+            {% for i in homeroomData %}
+            <div class="row">
+                <div class="col">{{homeroomCode[0]}}{{homeroomCode[1]}}</div>
+                <div class="col">{{i}}</div>
+                <div class="col">{{ homeroomData[i]['name'] }}</div>
+                <div class="col">{{ homeroomData[i]['eng_name'] }}</div>
+                {% for j in periods %}
+                {% if 'signature' in absData[currDate][j] %}
+                {% if i in absData[currDate][j] %}
+                <div class="col">
+                    <p class="highlightAbs n-2">X</p>
+                </div>
+                {% else %}
+                {% if absData[currDate][j]['name'] != 'GP' %}
+                <div class="col">
+                    <p class="highlightAbs n-1">V</p>
+                </div>
+                {% else %}
+                {% if (homeroomData[i]['GP_Class'][absData[currDate][j]['teacher']] in
+                absData[currDate][j]['signature'])%}
+                <div class="col">
+                    <p class="highlightAbs n-1">V</p>
+                </div>
+                {% else %}
+                <div class="col">
+                    <p class="highlightAbs n-2"></p>
+                </div>
+                {% endif %}
+                {% endif %}
+                {% endif %}
+                {% else %}
+                <div class="col">
+                    <p class="highlightAbs"></p>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% for c in range(periods|length + 1) %}
+            {% if c % 2 == 0 %}
+            <div class="row signatures">
+                {% endif %}
+                <div class="col half">
+                    {% if c == 0 %}
+                    <div class="row">Homeroom Teacher</div>
+                    <div class="row"><img src="{{absData[currDate]['confirm']}}" alt=""></div>
+                    {% else %}
+                    {% if absData[currDate][periods[c-1]]['name'] == 'GP' %}
+                    {% if 'signature' in absData[currDate][periods[c-1]] %}
+                    {% for i in absData[currDate][periods[c-1]]['signature'] %}
+                    <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: {{i}}</div>
+                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature'][i]}}" alt=""></div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: No Signature
+                    </div>
+                    <div class="row"></div>
+                    {% endif %}
+                    {% else %}
+                    <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['name']}}:
+                        {{absData[currDate][periods[c-1]]['teacher']}}
+                    </div>
+                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature']}}" alt=""></div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% if c % 2 == 1 %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="row margin-top">
+            <div class="col">
+                <h3>此排請勿點選</h3>
+            </div>
+            <div class="col">
+                <a href="/upload/homeroom"><button class="btn btn-primary">1. Add Homeroom</button></a>
+            </div>
+            <div class="col">
+                <a href="/upload/gp_classes"><button class="btn btn-primary">2. Add GP Classes</button></a>
+            </div>
+            <div class="col">
+                <a href="/upload/stud_in_group"><button class="btn btn-primary">3. Add GP Student List</button></a>
+            </div>
+            <div class="col">
+                <a href="/upload/period_list"><button class="btn btn-primary">4. Period List</button></a>
+            </div>
+            <div class="col">
+                <a href="/upload/dates"><button class="btn btn-primary">[WEEKLY] Dates</button></a>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
+            style="height:100%;" />
+    </div>
+    <script>
+        var homerooms = {};
+        {% for i in homerooms %}
+        homerooms['{{i}}'] = [];
+        {% for j in homerooms[i] %}
+        homerooms['{{i}}'].push({{ j }});
+        {% endfor %}
+        {% endfor %}
+        console.log(homerooms)
+        function loadingAnimation() {
+            $('.container').hide();
+            $('#loading').show();
+        }
+        function getHR() {
+            var grade = $('#sel-grade').val();
+            $('#sel-room').html('<option value="">請先選擇年級</option>');
+            if (grade === "") {
+                $('#sel-room').attr('disabled', 'disabled')
+                return
+            }
+            homerooms[grade].forEach(element => {
+                $('#sel-room').append(`<option value="${element}">${element}</option>`)
+            });
+            $('#sel-room').removeAttr('disabled')
+        }
+        function submitQuery() {
+            loadingAnimation();
+            document.getElementById('hrSelForm').submit();
+        }
+    </script>
+</body>
+
+</html>

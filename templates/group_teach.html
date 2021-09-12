@@ -16,10 +16,11 @@
     <div class="container">
         <h1>Group_Teach_View</h1>
         <h2>{{cclass['category']}}: {{cclass['class_id']}}: {{cclass['name']}}</h2>
-        <h2>Status: {{status}} ({{currDate}})</h2>
+        <h2>({{currDate}}) ({{dow}})</h2>
+        <a href="/logout"><button class="btn btn-primary">Logout 登出</button></a>
         <form action="/manage/date" id="dateSelForm" method="post">
             <select name="date" id="date" class="form-select" onchange="chgDate(this);">
-                {% for date in dates %}
+                {% for date in tmpAbsData %}
                 {% if date == currDate %}
                 <option value="{{date}}" selected="selected">{{date}}</option>
                 {% else %}
@@ -28,15 +29,12 @@
                 {% endfor %}
             </select>
         </form>
-        {% if status == 1 %}
-        <div class="alert alert-warning" role="alert">
-            Already Sumitted!
-        </div>
-        {% endif %}
-        {% if status == 0 %}
-        <form action="/manage/group_teach_publish" id="attendanceData" method="post">
+        {% set alr_fill = namespace(found=false) %}
+        {% for i in absData %}
+        <form action="/manage/group_teach_publish" id="attendanceData^{{i}}" method="post">
             <input type="hidden" name="date" value="{{currDate}}">
-            <input type="hidden" name="signatureData" value="">
+            <input type="hidden" name="period" value="{{i}}">
+            <input type="hidden" class="signatureData" name="signatureData" value="">
             <div class="col">
                 <div class="row title">
                     <div class="col">Grade</div>
@@ -44,58 +42,96 @@
                     <div class="col">Number</div>
                     <div class="col">Name</div>
                     <div class="col">Eng Name</div>
-                    <div class="col">Attendance (Check Absent)</div>
+                    <div class="col">Period {{i}}</div>
                 </div>
                 {% if data != None %}
-                {% for grade in all_stud_list %}
-                {% for homeroom in all_stud_list[grade] %}
-                {% for student in all_stud_list[grade][homeroom] %}
+                {% for grade in absData[i] %}
+                {% for homeroom in absData[i][grade] %}
+                {% for student in absData[i][grade][homeroom] %}
                 <div class="row">
                     <div class="col">{{grade}}</div>
                     <div class="col">{{homeroom}}</div>
                     <div class="col">{{ student }}</div>
-                    <div class="col">{{ all_stud_list[grade][homeroom][student]['name'] }}</div>
-                    <div class="col">{{ all_stud_list[grade][homeroom][student]['eng_name'] }}</div>
-                    <div class="col"><input type="checkbox" name="{{grade}}^{{homeroom}}^{{student}}"></div>
+                    <div class="col">{{ absData[i][grade][homeroom][student]['name'] }}</div>
+                    <div class="col">{{ absData[i][grade][homeroom][student]['eng_name'] }}</div>
+                    {% if absData[i][grade][homeroom][student]['alr_fill'] %}
+                    {% set alr_fill.found = true %}
+                    {% if absData[i][grade][homeroom][student]['absent'] %}
+                    <div class="col">
+                        <p class="highlightAbs n-2">X</p>
+                    </div>
+                    {% else %}
+                    <div class="col">
+                        <p class="highlightAbs n-1">V</p>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="col">
+                        {% if 'confirm' in absData[i][grade][homeroom] %}
+                        <p class="highlightAbs">--</p>
+                        {% else %}
+                        <input type="checkbox" class="{{grade}}^{{homeroom}}^{{student}}">
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
                 {% endfor %}
                 {% endfor %}
                 {% endif %}
-                <h3>Please Sign Below</h3>
-                <div class="forSign"><canvas id="signature_pad"></canvas></div>
-                <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear Signature</button>
-                <button class="btn btn-primary" type="button" onclick="submitForm()">Submit</button>
+                {% if alr_fill.found %}
+                <button class="btn btn-primary margin-bottom viewSignatureBtn" type="button"
+                    onclick="viewSignature('{{i}}')" disabled="disabled">
+                    Already Submitted</button>
+                {% else %}
+                <button class="btn btn-primary margin-bottom viewSignatureBtn" type="button"
+                    onclick="viewSignature('{{i}}')">
+                    ↑ Confirmed, Sign (Period {{i}}) ↑</button>
+                {% endif %}
+                <div class="signDiv" id="sign^{{i}}" hidden="hidden">
+                    <h3>Please Sign Below</h3>
+                    <div class="forSign"><canvas id="signature_pad^{{i}}"></canvas></div>
+                    <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear
+                        Signature</button><button class="btn btn-primary" type="button"
+                        onclick="submitForm()">Submit</button>
+                </div>
             </div>
         </form>
+        {% endfor %}
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <script src=" https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script>
-        var canvas = document.getElementById("signature_pad");
-        var signaturePad = new SignaturePad(canvas);
-        function resizeCanvas() {
-            var ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-            signaturePad.clear(); // otherwise isEmpty() might return incorrect value
-        }
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
+        var signaturePad, selPeriod;
         function submitForm() {
             if (!signaturePad.isEmpty()) {
                 signaturePad.off();
                 var data = signaturePad.toDataURL('image/png');
-                document.getElementsByName('signatureData')[0].value = data;
-                document.getElementById('attendanceData').submit();
+                document.getElementById("attendanceData^" + selPeriod).getElementsByClassName("signatureData")[0].value = data;
+                document.getElementById("attendanceData^" + selPeriod).submit();
             }
             else {
                 alert("Please sign first");
             }
         }
+        function viewSignature(period) {
+            selPeriod = period
+            $('.viewSignatureBtn').attr({ 'disabled': 'disabled' });
+            $('.viewSignatureBtn').removeClass('margin-bottom');
+            document.getElementById('sign^' + period).removeAttribute('hidden');
+            var canvas = document.getElementById("signature_pad^" + period);
+            signaturePad = new SignaturePad(canvas);
+            function resizeCanvas() {
+                var ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                signaturePad.clear(); // otherwise isEmpty() might return incorrect value
+            }
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
+        }
     </script>
-    {% endif %}
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
             style="height:100%;" />
     </div>

@@ -1,0 +1,22 @@
+div.container {
+    max-width: 90%;
+}
+
+.btn.afterSelButton {
+	padding: .200rem .50rem;
+}
+
+
+body {
+    text-align: center;
+}
+
+.viewSignatures .col .row .col {
+    border: 1px solid;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.row {
+    --bs-gutter-x: 0;
+}
