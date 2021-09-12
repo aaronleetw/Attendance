@@ -37,6 +37,8 @@ def check_login_status():
 
 
 def manageProcess(fCommand, fData):
+    if (check_login_status()):
+        return redirect('/logout')
     # this is to fix a bug where pyrebase doesnt load the first request
     db.child("Users").child(
         session['uid']).child("permission").get().val()
@@ -86,6 +88,7 @@ def manageProcess(fCommand, fData):
         print("got class")
         homerooms = cateData['Homerooms']
         currDate = ""
+        confirmed = []
         absData = {}
         for h in homerooms:
             h = h.split('^')
@@ -104,6 +107,7 @@ def manageProcess(fCommand, fData):
                             dow = tmpAbsData[currDate][j]
                             continue
                         elif j == "confirm":
+                            confirmed.append([h[0], h[1]])
                             continue
                         if (tmpAbsData[currDate][j]['name'] == 'GP' and
                                 tmpAbsData[currDate][j]['teacher'] == cclass['category']):
@@ -119,6 +123,7 @@ def manageProcess(fCommand, fData):
                                     dow = tmpAbsData[i][j]
                                     continue
                                 elif j == "confirm":
+                                    confirmed.append([h[0], h[1]])
                                     continue
                                 if (tmpAbsData[i][j]['name'] == 'GP' and
                                         tmpAbsData[i][j]['teacher'] == cclass['category']):
@@ -132,6 +137,7 @@ def manageProcess(fCommand, fData):
                         dow = tmpAbsData[currDate][j]
                         continue
                     elif j == "confirm":
+                        confirmed.append([h[0], h[1]])
                         continue
                     if (tmpAbsData[currDate][j]['name'] == 'GP' and
                             tmpAbsData[currDate][j]['teacher'] == cclass['category']):
@@ -155,7 +161,7 @@ def manageProcess(fCommand, fData):
                             "absent": num in tmpAbsData[currDate][p]
                         }
             print(absData)
-        return render_template('group_teach.html', cclass=cclass, absData=absData, dow=dow, currDate=currDate, tmpAbsData=tmpAbsData)
+        return render_template('group_teach.html', cclass=cclass, absData=absData, dow=dow, currDate=currDate, tmpAbsData=tmpAbsData, confirmed=confirmed)
     elif pl == 'homeroom':
         homeroom = db.child("Users").child(
             session['uid']).child("homeroom").get().val().split('^')
@@ -222,6 +228,8 @@ def manage_admin():
 
 @ app.route('/manage/group_teach_publish', methods=['POST'])
 def group_teach_publish():
+    if (check_login_status()):
+        return redirect('/logout')
     classes = db.child("Users").child(
         session['uid']).child("class").get().val()
     cclass = {}
@@ -265,6 +273,9 @@ def group_teach_publish():
 
 @ app.route('/manage/homeroom_abs', methods=['POST'])
 def homeroom_abs_publish():
+    if (check_login_status()):
+        return redirect('/logout')
+
     date = request.form['date']
     homeroom = request.form['homeroom'].split('^')
     period = request.form['period']
@@ -293,6 +304,8 @@ def homeroom_abs_publish():
 
 @app.route('/manage/homeroom_confirm', methods=['POST'])
 def homeroom_confirm():
+    if (check_login_status()):
+        return redirect('/logout')
     date = request.form['date']
     homeroom = request.form['homeroom'].split('^')
     signature = request.form['signatureData']
@@ -306,6 +319,7 @@ def homeroom_confirm():
                   ).put(os.path.join('temp', rand))
     db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child("Absent").child(date).update(
         {"confirm": str(storage.child(os.path.join('signatures', rand)).get_url(None))})
+    os.remove(os.path.join('temp', rand))
     return redirect('/manage')
 
 

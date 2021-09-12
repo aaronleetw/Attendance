@@ -67,7 +67,7 @@
                     {% endif %}
                     {% else %}
                     <div class="col">
-                        {% if 'confirm' in absData[i][grade][homeroom] %}
+                        {% if [grade,homeroom] in confirmed %}
                         <p class="highlightAbs">--</p>
                         {% else %}
                         <input type="checkbox" class="{{grade}}^{{homeroom}}^{{student}}">
@@ -135,6 +135,13 @@
     <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
             style="height:100%;" />
     </div>
+    <footer>
+        <hr>
+        <p style="text-align: center;">&copy; 2021 Attendance (β) | Made by <a target="_blank"
+                href="https://github.com/aaronleetw">Aaron Lee</a> for <a target="_blank"
+                href="https://www.fhjh.tp.edu.tw">Taipei Fuhsing Private School</a>
+        </p>
+    </footer>
     <script>
         function loadingAnimation() {
             $("div.container").hide();
