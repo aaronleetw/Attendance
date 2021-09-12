@@ -70,7 +70,7 @@
                         {% if [grade,homeroom] in confirmed %}
                         <p class="highlightAbs">--</p>
                         {% else %}
-                        <input type="checkbox" class="{{grade}}^{{homeroom}}^{{student}}">
+                        <input type="checkbox" class="tobeform {{grade}}^{{homeroom}}^{{student}}">
                         {% endif %}
                     </div>
                     {% endif %}
@@ -89,6 +89,9 @@
                     ↑ Confirmed, Sign (Period {{i}}) ↑</button>
                 {% endif %}
                 <div class="signDiv" id="sign^{{i}}" hidden="hidden">
+                    <div class="alert alert-warning" id="allPresentWarning" role="alert" hidden="hidden">
+                        <h4 class="alert-heading">請確認是否全班全到！Please check if everyone is present!</h4>
+                    </div>
                     <h3>Please Sign Below</h3>
                     <div class="forSign"><canvas id="signature_pad^{{i}}"></canvas></div>
                     <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear
@@ -119,6 +122,18 @@
             $('.viewSignatureBtn').attr({ 'disabled': 'disabled' });
             $('.viewSignatureBtn').removeClass('margin-bottom');
             document.getElementById('sign^' + period).removeAttribute('hidden');
+            var cnt = 0;
+            $('.tobeform').each(function (i, obj) {
+                if ($(this).is(":checked")) {
+                    cnt++;
+                    $('#postHomeroomAbs').append('<input type="checkbox" name="' + $(this).attr('class').split(' ')[1].split('^')[1]
+                        + '" checked="checked">');
+                }
+            });
+            if (cnt == 0) {
+                $('#allPresentWarning').removeAttr('hidden');
+            }
+
             var canvas = document.getElementById("signature_pad^" + period);
             signaturePad = new SignaturePad(canvas);
             function resizeCanvas() {

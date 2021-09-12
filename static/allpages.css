@@ -53,3 +53,41 @@ p.highlightAbs.n-2 {
 .margin-top {
     margin-top: 20px;
 }
+
+input[type="checkbox"]{
+    -webkit-appearance: initial;
+    appearance: initial;
+    background: rgb(207, 207, 207);
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    margin-top: 3px;
+    position: relative;
+}
+input[type="checkbox"]:checked {
+    background: red;
+}
+input[type="checkbox"]:checked:after {
+    /* Heres your symbol replacement */
+    content: "X";
+    color: #fff;
+    /* The following positions my tick in the center, 
+     * but you could just overlay the entire box
+     * with a full after element with a background if you want to */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    -moz-transform: translate(-50%,-50%);
+    -ms-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    /*
+     * If you want to fully change the check appearance, use the following:
+     * content: " ";
+     * width: 100%;
+     * height: 100%;
+     * background: blue;
+     * top: 0;
+     * left: 0;
+     */
+}

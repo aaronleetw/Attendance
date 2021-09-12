@@ -134,6 +134,10 @@
                 Teacher Confirm</button>
             {% endif %}
             <div id="finalCheck" hidden="hidden">
+                <!-- show warning -->
+                <div class="alert alert-warning" id="allPresentWarning" role="alert" hidden="hidden">
+                    <h4 class="alert-heading">請確認是否全班全到！Please check if everyone is present!</h4>
+                </div>
                 <h3>Please Sign Below <br>
                     Period: <span id="showSignPeriod"></span> <br>
                     Subject: <span id="showSignSubjectName"></span>
@@ -243,13 +247,18 @@
             $('.afterSelButton').attr('disabled', 'disabled');
             $('#showSignPeriod').text(period);
             $('#showSignSubjectName').text(periodData[period]);
+            var cnt = 0;
             $('.tobeform').each(function (i, obj) {
                 if ($(this).attr('class').split(' ')[1].split('^')[0] == period &&
                     $(this).is(":checked")) {
+                    cnt++;
                     $('#postHomeroomAbs').append('<input type="checkbox" name="' + $(this).attr('class').split(' ')[1].split('^')[1]
                         + '" checked="checked">');
                 }
             });
+            if (cnt == 0) {
+                $('#allPresentWarning').removeAttr('hidden');
+            }
             // show signature pad
             showSignaturePad()
         }
