@@ -50,11 +50,15 @@ p.highlightAbs.n-2 {
     color: red;
 }
 
+p.highlightAbs.n-3 {
+    color: rgb(15, 184, 0);
+}
+
 .margin-top {
     margin-top: 20px;
 }
 
-input[type="checkbox"]{
+input[type="checkbox"].absent, input[type="checkbox"].late {
     -webkit-appearance: initial;
     appearance: initial;
     background: rgb(207, 207, 207);
@@ -64,16 +68,12 @@ input[type="checkbox"]{
     margin-top: 3px;
     position: relative;
 }
-input[type="checkbox"]:checked {
+input[type="checkbox"].absent:checked {
     background: red;
 }
-input[type="checkbox"]:checked:after {
-    /* Heres your symbol replacement */
+input[type="checkbox"].absent:checked:after {
     content: "X";
-    color: #fff;
-    /* The following positions my tick in the center, 
-     * but you could just overlay the entire box
-     * with a full after element with a background if you want to */
+    color: white;
     position: absolute;
     left: 50%;
     top: 50%;
@@ -81,13 +81,18 @@ input[type="checkbox"]:checked:after {
     -moz-transform: translate(-50%,-50%);
     -ms-transform: translate(-50%,-50%);
     transform: translate(-50%,-50%);
-    /*
-     * If you want to fully change the check appearance, use the following:
-     * content: " ";
-     * width: 100%;
-     * height: 100%;
-     * background: blue;
-     * top: 0;
-     * left: 0;
-     */
+}
+input[type="checkbox"].late:checked {
+    background: rgb(15, 184, 0);
+}
+input[type="checkbox"].late:checked:after {
+    content: "φ";
+    color: #fff;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    -moz-transform: translate(-50%,-50%);
+    -ms-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
 }

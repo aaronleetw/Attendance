@@ -35,36 +35,37 @@
             <input type="hidden" id="hrCfrm-sign" name="signatureData" value="">
         </form>
         <div class="col">
-            <div class="row title">
-                <div class="col">HR</div>
-                <div class="col">Number</div>
-                <div class="col">Name</div>
-                <div class="col">Eng Name</div>
-                {% for i in periods %}
-                <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>{{i}}</div>
-                {% endfor %}
+            <div class="sticky-top" style="background-color:white;">
+                <div class="row title">
+                    <div class="col">HR</div>
+                    <div class="col">Number</div>
+                    <div class="col">Name</div>
+                    <div class="col">Eng Name</div>
+                    {% for i in periods %}
+                    <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>{{i}}</div>
+                    {% endfor %}
+                </div>
+                <div class="row title">
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    {% for i in periods %}
+                    <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
+                        {{absData[currDate][i]['name']}}</div>
+                    {% endfor %}
+                </div>
+                <div class="row title">
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    {% for i in periods %}
+                    <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
+                        {{absData[currDate][i]['teacher']}}</div>
+                    {% endfor %}
+                </div>
             </div>
-            <div class="row title">
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-                {% for i in periods %}
-                <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
-                    {{absData[currDate][i]['name']}}</div>
-                {% endfor %}
-            </div>
-            <div class="row title">
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-                {% for i in periods %}
-                <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
-                    {{absData[currDate][i]['teacher']}}</div>
-                {% endfor %}
-            </div>
-            {% if data != None %}
             {% for i in homeroomData %}
             <div class="row">
                 <div class="col">{{homeroomCode[0]}}{{homeroomCode[1]}}</div>
@@ -75,7 +76,11 @@
                 <div class="col" {% if currPeriod==j %} style="background-color: #ffdf81;" {% endif %}>
                     {% if 'signature' in absData[currDate][j] %}
                     {% if i in absData[currDate][j] %}
+                    {% if absData[currDate][j][i] == 1 %}
                     <p class="highlightAbs n-2">X</p>
+                    {% else %}
+                    <p class="highlightAbs n-3">φ</p>
+                    {% endif %}
                     {% else %}
                     {% if absData[currDate][j]['name'] != 'GP' %}
                     <p class="highlightAbs n-1">V</p>
@@ -94,8 +99,12 @@
                     {% if 'confirm' in absData[currDate] %}
                     <p class="highlightAbs"></p>
                     {% else %}
-                    <input type="checkbox" class="tobeform {{j}}^{{i}}">
+                    <input type="checkbox" class="tobeform 2^{{j}}^{{i}} late" id="late^{{j}}^{{i}}"
+                        onchange="unCheckAbs('{{j}}^{{i}}')">
+                    <input type="checkbox" class="tobeform 1^{{j}}^{{i}} absent" id="absent^{{j}}^{{i}}"
+                        onchange="unCheckLate('{{j}}^{{i}}')">
                     {% endif %}
+                    <!-- <input type="checkbox" class="tobeform {{j}}^{{i}}"> -->
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -119,7 +128,6 @@
                 </div>
                 {% endfor %}
             </div>
-            {% endif %}
             <form action="/manage/homeroom_abs" id="postHomeroomAbs" hidden="hidden" method="post">
                 <input type="text" id="HR-date" name="date" value="{{currDate}}">
                 <input type="text" id="HR-period" name="period" value="">
@@ -188,10 +196,10 @@
     <footer>
         <hr>
         <p style="text-align: center;">&copy; 2021 Attendance (β) | Made by <a target="_blank"
-                href="https://github.com/aaronleetw">Aaron Lee</a> for <a target="_blank"
+                href="https://github.com/aaronleetw">Aaron Lee 李翊愷</a> for <a target="_blank"
                 href="https://www.fhjh.tp.edu.tw">Taipei Fuhsing Private School</a>
             <br>
-            Consultants: Mr. Raymond Tsai, Alvin Tsao
+            Consultants: Mr. Raymond Tsai 蔡瑋倫老師, Alvin Tsao 曹庭睿
         </p>
     </footer>
     <script>
@@ -242,17 +250,18 @@
         }
         function afterSelAbs(period) {
             var tobeformArr = [];
-            $('#postHomeroomAbs #HR-period').val(period);
+            $('#postHomeroomAbs #HR-period').attr('value', period);
             $('.tobeform').attr('disabled', 'disabled');
             $('.afterSelButton').attr('disabled', 'disabled');
             $('#showSignPeriod').text(period);
             $('#showSignSubjectName').text(periodData[period]);
             var cnt = 0;
             $('.tobeform').each(function (i, obj) {
-                if ($(this).attr('class').split(' ')[1].split('^')[0] == period &&
+                if ($(this).attr('class').split(' ')[1].split('^')[1] == period &&
                     $(this).is(":checked")) {
                     cnt++;
-                    $('#postHomeroomAbs').append('<input type="checkbox" name="' + $(this).attr('class').split(' ')[1].split('^')[1]
+                    $('#postHomeroomAbs').append('<input type="checkbox" name="' + $(this).attr('class').split(' ')[1].split('^')[0] + '^'
+                        + $(this).attr('class').split(' ')[1].split('^')[2]
                         + '" checked="checked">');
                 }
             });
@@ -267,6 +276,12 @@
             $('.tobeform').attr('disabled', 'disabled');
             $('.afterSelButton').attr('disabled', 'disabled');
             showSignaturePad();
+        }
+        function unCheckLate(string) {
+            document.getElementById('late^' + string).checked = false;
+        }
+        function unCheckAbs(string) {
+            document.getElementById('absent^' + string).checked = false;
         }
     </script>
 </body>

@@ -97,7 +97,6 @@ def manageProcess(fCommand, fData):
         absData = {}
         for h in homerooms:
             h = h.split('^')
-            print(h)
             hrData = db.child("Homerooms").child(h[0]).child(h[1]).get().val()
             tmpAbsData = hrData['Absent']
             hrData.pop('Absent')
@@ -163,9 +162,8 @@ def manageProcess(fCommand, fData):
                             "eng_name": hrData[num]['eng_name'],
                             "alr_fill": ('signature' in tmpAbsData[currDate][p] and
                                          cclass['class_id'] in tmpAbsData[currDate][p]['signature']),
-                            "absent": num in tmpAbsData[currDate][p]
+                            "absent": False if not num in tmpAbsData[currDate][p] else tmpAbsData[currDate][p][num]
                         }
-            print(absData)
         return render_template('group_teach.html', cclass=cclass, absData=absData, dow=dow, currDate=currDate, tmpAbsData=tmpAbsData, confirmed=confirmed)
     elif pl == 'homeroom':
         homeroom = db.child("Users").child(
@@ -204,7 +202,6 @@ def manageProcess(fCommand, fData):
                 currDate = i
                 if i >= datetime.now(tz).strftime("%Y-%m-%d"):
                     break
-        print(currPeriod)
         return render_template('homeroom.html', absData=absData, homeroomCode=homeroom, homeroomData=homeroomData,
                                currDate=currDate, periods=['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9'], currPeriod=currPeriod)
     else:
@@ -270,7 +267,6 @@ def group_teach_publish():
             "homerooms": db.child("Classes").child(
                 "GP_Class").child(i).child("Homerooms").get().val()
         }
-    print("got class")
     date = request.form['date']
     period = request.form['period']
     signature = request.form['signatureData']
@@ -289,8 +285,8 @@ def group_teach_publish():
     formData.pop('period')
     for i in formData:
         i = i.split('^')
-        db.child("Homerooms").child(i[0]).child(i[1]).child(
-            "Absent").child(date).child(period).update({i[2]: 0})
+        db.child("Homerooms").child(i[1]).child(i[2]).child(
+            "Absent").child(date).child(period).update({i[3]: int(i[0])})
     for h in cclass['homerooms']:
         h = h.split('^')
         db.child("Homerooms").child(h[0]).child(h[1]).child(
@@ -322,8 +318,9 @@ def homeroom_abs_publish():
     formData.pop('homeroom')
     formData.pop('period')
     for i in formData:
+        i = i.split('^')
         db.child("Homerooms").child(homeroom[0]).child(
-            homeroom[1]).child("Absent").child(date).child(period).update({i: 0})
+            homeroom[1]).child("Absent").child(date).child(period).update({i[1]: int(i[0])})
     db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
         "Absent").child(date).child(period).update({'signature': str(storage.child(os.path.join('signatures', rand)).get_url(None))})
     os.remove(os.path.join('temp', rand))
@@ -451,7 +448,6 @@ def upload_period_list():
             periodCodes = csv_dict['Period Day'].tolist()
             for i in range(5):
                 tmp_csv = csv_dict[str(i+1)].tolist()
-                print(tmp_csv)
                 for j in range(len(tmp_csv)):
                     if not (periodCodes[j].endswith('-t')):
                         if type(tmp_csv[j]) == float:
@@ -490,8 +486,6 @@ def upload_dates():
                             for i in temp[t]:
                                 periodData = db.child("Classes").child(
                                     "Homeroom").child(t).child(i).get().val()
-                                print(type(t), t)
-                                print(type(i), i)
                                 db.child("Homerooms").child(t).child(i).child(
                                     "Absent").child(h).update({"dow": row[h]})
                                 db.child("Homerooms").child(t).child(i).child(

@@ -36,7 +36,7 @@
             <input type="hidden" name="period" value="{{i}}">
             <input type="hidden" class="signatureData" name="signatureData" value="">
             <div class="col">
-                <div class="row title">
+                <div class="row title sticky-top" style="background-color: white">
                     <div class="col">Grade</div>
                     <div class="col">Class Code</div>
                     <div class="col">Number</div>
@@ -56,9 +56,13 @@
                     <div class="col">{{ absData[i][grade][homeroom][student]['eng_name'] }}</div>
                     {% if absData[i][grade][homeroom][student]['alr_fill'] %}
                     {% set alr_fill.found = true %}
-                    {% if absData[i][grade][homeroom][student]['absent'] %}
+                    {% if absData[i][grade][homeroom][student]['absent'] == 1 %}
                     <div class="col">
                         <p class="highlightAbs n-2">X</p>
+                    </div>
+                    {% elif absData[i][grade][homeroom][student]['absent'] == 2 %}
+                    <div class="col">
+                        <p class="highlightAbs n-3">φ</p>
                     </div>
                     {% else %}
                     <div class="col">
@@ -70,7 +74,14 @@
                         {% if [grade,homeroom] in confirmed %}
                         <p class="highlightAbs">--</p>
                         {% else %}
-                        <input type="checkbox" class="tobeform {{grade}}^{{homeroom}}^{{student}}">
+                        <input type="checkbox" class="tobeform {{grade}}^{{homeroom}}^{{student}} late"
+                            id="late^{{i}}^{{grade}}^{{homeroom}}^{{student}}"
+                            name="2^{{grade}}^{{homeroom}}^{{student}}"
+                            onchange="unCheckAbs('{{i}}^{{grade}}^{{homeroom}}^{{student}}')">
+                        <input type="checkbox" class="tobeform {{grade}}^{{homeroom}}^{{student}} absent"
+                            id="absent^{{i}}^{{grade}}^{{homeroom}}^{{student}}"
+                            name="1^{{grade}}^{{homeroom}}^{{student}}"
+                            onchange="unCheckLate('{{i}}^{{grade}}^{{homeroom}}^{{student}}')">
                         {% endif %}
                     </div>
                     {% endif %}
@@ -108,6 +119,7 @@
         var signaturePad, selPeriod;
         function submitForm() {
             if (!signaturePad.isEmpty()) {
+                loadingAnimation();
                 signaturePad.off();
                 var data = signaturePad.toDataURL('image/png');
                 document.getElementById("attendanceData^" + selPeriod).getElementsByClassName("signatureData")[0].value = data;
@@ -146,6 +158,12 @@
             window.addEventListener("resize", resizeCanvas);
             resizeCanvas();
         }
+        function unCheckAbs(string) {
+            document.getElementById('absent^' + string).checked = false;
+        }
+        function unCheckLate(string) {
+            document.getElementById('late^' + string).checked = false;
+        }
     </script>
     <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
             style="height:100%;" />
@@ -153,11 +171,10 @@
     <footer>
         <hr>
         <p style="text-align: center;">&copy; 2021 Attendance (β) | Made by <a target="_blank"
-                href="https://github.com/aaronleetw">Aaron Lee</a> for <a target="_blank"
+                href="https://github.com/aaronleetw">Aaron Lee 李翊愷</a> for <a target="_blank"
                 href="https://www.fhjh.tp.edu.tw">Taipei Fuhsing Private School</a>
             <br>
-            Consultants: Mr. Raymond Tsai, Alvin Tsao
-
+            Consultants: Mr. Raymond Tsai 蔡瑋倫老師, Alvin Tsao 曹庭睿
         </p>
     </footer>
     <script>
