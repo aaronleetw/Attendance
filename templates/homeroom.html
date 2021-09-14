@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Homeroom_View</title>
+    <title>Attendance | Homeroom</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/allpages.css">
@@ -14,9 +14,9 @@
 
 <body>
     <div class="container">
-        <h1>Homeroom_View</h1>
+        <h1>Attendance | Homeroom</h1>
         <h2>{{homeroomCode[0]}}: {{homeroomCode[1]}}</h2>
-        <h2>Status: ({{currDate}}, 星期{{absData[currDate]['dow']}})</h2>
+        <h2>{{currDate}}, 依照 星期{{absData[currDate]['dow']}} 課表</h2>
         <a href="/logout"><button class="btn btn-primary">Logout 登出</button></a>
         <form action="/manage/date" id="dateSelForm" method="post">
             <select name="date" id="date" class="form-select" onchange="chgDate();">
@@ -137,10 +137,10 @@
             </form>
             {% if 'confirm' in absData[currDate] %}
             <button class="btn btn-primary margin-top afterSelButton" onclick="homeroomCfrm()" disabled="disabled">
-                Already Confirmed</button>
+                Homeroom Teacher Already Confirmed | 班導已確認</button>
             {% else %}
             <button class="btn btn-primary margin-top afterSelButton" onclick="homeroomCfrm()">Homeroom
-                Teacher Confirm</button>
+                Teacher Confirm | 班導已確認</button>
             {% endif %}
             <div id="finalCheck" hidden="hidden">
                 <!-- show warning -->

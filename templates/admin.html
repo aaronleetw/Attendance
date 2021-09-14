@@ -52,40 +52,42 @@
             </form>
         </div>
         <div class="col">
-            <div class="row title">
-                <div class="col">HR</div>
-                <div class="col">Number</div>
-                <div class="col">Name</div>
-                <div class="col">Eng Name</div>
-                <div class="col">Morning</div>
-                <div class="col">1</div>
-                <div class="col">2</div>
-                <div class="col">3</div>
-                <div class="col">4</div>
-                <div class="col">Nap</div>
-                <div class="col">5</div>
-                <div class="col">6</div>
-                <div class="col">7</div>
-                <div class="col">8</div>
-                <div class="col">9</div>
-            </div>
-            <div class="row title">
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-                {% for i in periods %}
-                <div class="col">{{absData[currDate][i]['name']}}</div>
-                {% endfor %}
-            </div>
-            <div class="row title">
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-                {% for i in periods %}
-                <div class="col">{{absData[currDate][i]['teacher']}}</div>
-                {% endfor %}
+            <div class="sticky-top" style="background-color: white;">
+                <div class="row title">
+                    <div class="col">HR</div>
+                    <div class="col">Number</div>
+                    <div class="col">Name</div>
+                    <div class="col">Eng Name</div>
+                    <div class="col">Morning</div>
+                    <div class="col">1</div>
+                    <div class="col">2</div>
+                    <div class="col">3</div>
+                    <div class="col">4</div>
+                    <div class="col">Nap</div>
+                    <div class="col">5</div>
+                    <div class="col">6</div>
+                    <div class="col">7</div>
+                    <div class="col">8</div>
+                    <div class="col">9</div>
+                </div>
+                <div class="row title">
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    {% for i in periods %}
+                    <div class="col">{{absData[currDate][i]['name']}}</div>
+                    {% endfor %}
+                </div>
+                <div class="row title">
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    {% for i in periods %}
+                    <div class="col">{{absData[currDate][i]['teacher']}}</div>
+                    {% endfor %}
+                </div>
             </div>
             {% if data != None %}
             {% for i in homeroomData %}
@@ -128,7 +130,7 @@
             {% endfor %}
             {% endif %}
             {% for c in range(periods|length + 1) %}
-            {% if c % 2 == 0 %}
+            {% if c % 4 == 0 %}
             <div class="row signatures">
                 {% endif %}
                 <div class="col half">
@@ -140,7 +142,8 @@
                     {% if 'signature' in absData[currDate][periods[c-1]] %}
                     {% for i in absData[currDate][periods[c-1]]['signature'] %}
                     <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: {{i}}</div>
-                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature'][i]}}" alt=""></div>
+                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature'][i]}}" alt=""><br>備註:
+                        {{absData[currDate][periods[c-1]]['notes']}}</div>
                     {% endfor %}
                     {% else %}
                     <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: No Signature
@@ -151,11 +154,12 @@
                     <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['name']}}:
                         {{absData[currDate][periods[c-1]]['teacher']}}
                     </div>
-                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature']}}" alt=""></div>
+                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature']}}"
+                            alt=""><br>備註:{{absData[currDate][periods[c-1]]['notes']}}</div>
                     {% endif %}
                     {% endif %}
                 </div>
-                {% if c % 2 == 1 %}
+                {% if c % 4 == 3 %}
             </div>
             {% endif %}
             {% endfor %}

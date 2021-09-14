@@ -18,7 +18,7 @@
             <div class="col-md-4 offset-md-4">
                 <h1 class="text-center">Upload {{title}}</h1>
                 <!-- upload csv -->
-                <form action="{{url}}" method="post" enctype="multipart/form-data">
+                <form action="{{url}}" id="uploadCsvForm" method="post" enctype="multipart/form-data">
                     <!-- input class code -->
                     <div class="form-group">
                         <label for="gradeCode">Grade Code</label>
@@ -34,7 +34,7 @@
                         <label for="csv">{{title}}</label>
                         <input type="file" class="form-control-file" id="csv" name="csv">
                     </div>
-                    <button onclick="loadingAnimation()" type="submit" class="btn btn-primary">Upload</button>
+                    <button onclick="loadingAnimation()" type="button" class="btn btn-primary">Upload</button>
                 </form>
                 <!-- show danger zone -->
                 <div class="alert alert-danger" role="alert">
@@ -61,6 +61,12 @@
     <script type="text/javascript" src="/static/jquery.min.js"></script>
     <script>
         function loadingAnimation() {
+            // if csv is empty
+            if ($("#csv").val() == "") {
+                alert("Please select a file!");
+                return;
+            }
+            $('#uploadCsvForm').submit();
             $('.container').hide();
             $('#loading').show();
         }

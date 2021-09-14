@@ -41,6 +41,10 @@ def check_login_status():
             (datetime.now(tz) - session['loginTime']).total_seconds() > 3600)
 
 
+def check_permission():
+    return db.child('Users').child(session['uid']).child('permission').get().val() == 'admin'
+
+
 def manageProcess(fCommand, fData):
     if (check_login_status()):
         return redirect('/logout')
@@ -65,7 +69,8 @@ def manageProcess(fCommand, fData):
         homeroomData = homerooms[currRoom[0]][currRoom[1]]
         absData = homeroomData["Absent"]
         homeroomData.pop('Absent')
-        homeroomData.pop('placeholder')
+        if 'placeholder' in homeroomData:
+            homeroomData.pop('placeholder')
         currDate = ""
         if fCommand != "":
             currDate = fData[1]
@@ -85,8 +90,6 @@ def manageProcess(fCommand, fData):
                 "GP_Class").child(i).get().val()
             cclass = {
                 "name": cateData['Class'][classes[i]]['name'],
-                "teacher": cateData['Class'][classes[i]]['teacher'],
-                "classroom": cateData['Class'][classes[i]]['classroom'],
                 "category": i,
                 "class_id": classes[i]
             }
@@ -100,7 +103,8 @@ def manageProcess(fCommand, fData):
             hrData = db.child("Homerooms").child(h[0]).child(h[1]).get().val()
             tmpAbsData = hrData['Absent']
             hrData.pop('Absent')
-            hrData.pop('placeholder')
+            if 'placeholder' in hrData:
+                hrData.pop('placeholder')
             periods = []
             dow = ""
             if currDate == "":
@@ -196,7 +200,8 @@ def manageProcess(fCommand, fData):
                 break
         absData = homeroomData["Absent"]
         homeroomData.pop('Absent')
-        homeroomData.pop('placeholder')
+        if 'placeholder' in homeroomData:
+            homeroomData.pop('placeholder')
         currDate = ""
         if fCommand == 'date':
             currDate = fData
@@ -221,7 +226,7 @@ def index():
         if check_login_status():
             try:
                 user = auth.sign_in_with_email_and_password(
-                    request.form['username'] + "@group-attendence.fhjh.tp.edu.tw", request.form['password'])
+                    request.form['username'] + "@group-attendance.fhjh.tp.edu.tw", request.form['password'])
                 session['is_logged_in'] = True
                 session['email'] = user['email']
                 session['uid'] = user['localId']
@@ -297,15 +302,16 @@ def group_teach_publish():
         h = h.split('^')
         db.child("Homerooms").child(h[0]).child(h[1]).child(
             "Absent").child(date).child(period).child("signature").update({cclass['class_id']: str(storage.child(os.path.join('signatures', rand)).get_url(None))})
+        currPeriodData = db.child("Homerooms").child(h[0]).child(h[1]).child(
+            "Absent").child(date).child(period).get().val()
+        if 'notes' in currPeriodData:
+            db.child("Homerooms").child(h[0]).child(h[1]).child(
+                "Absent").child(date).child(period).update({'notes': currPeriodData['notes']+'; '+notes})
+        else:
+            db.child("Homerooms").child(h[0]).child(h[1]).child(
+                "Absent").child(date).child(period).update({'notes': notes})
+
     # upload notes
-    currPeriodData = db.child("Homerooms").child(h[0]).child(h[1]).child(
-        "Absent").child(date).child(period).get().val()
-    if 'notes' in currPeriodData:
-        db.child("Homerooms").child(h[0]).child(h[1]).child(
-            "Absent").child(date).child(period).update({'notes': currPeriodData['notes']+'; '+notes})
-    else:
-        db.child("Homerooms").child(h[0]).child(h[1]).child(
-            "Absent").child(date).child(period).update({'notes': notes})
     os.remove(os.path.join('temp', rand))
     return redirect('/manage')
 
@@ -368,168 +374,218 @@ def homeroom_confirm():
     return redirect('/manage')
 
 
-@ app.route('/upload/homeroom', methods=['GET', 'POST'])
+@ app.route('/upload/1', methods=['GET', 'POST'])
 def upload_homeroom():
-    if request.method == 'GET':
-        return render_template('uploadcsv.html', title="Homeroom List", url="/upload/homeroom")
-    elif request.method == 'POST':
-        try:
-            # get csv
-            gradec = request.form['gradeCode']
-            classc = request.form['classcode']
-            csv_file = request.files['csv']
-            filepath = os.path.join('./temp', csv_file.filename)
-            csv_file.save(filepath)
-            with open(filepath) as file:
-                csv_dict = csv.DictReader(file)
-                for row in csv_dict:
-                    db.child("Homerooms").child(gradec).child(
-                        classc).child(row['number']).set(row)
-            # row['class'] row['number'] row['name'] row['eng_name']
-            os.remove(filepath)
-        except Exception as e:
-            os.remove(filepath)
-            return "Error. Please try again\n("+str(e)+")"
-        return "Successfully uploaded " + gradec + "-" + classc
-
-
-@ app.route('/upload/gp_classes', methods=['GET', 'POST'])
-def upload_gp_classes():
-    if request.method == 'GET':
-        return render_template('uploadcsv.html', title="Group Classes", url="/upload/gp_classes")
-    elif request.method == 'POST':
-        try:
-            csv_file = request.files['csv']
-            filepath = os.path.join('./temp', csv_file.filename)
-            csv_file.save(filepath)
-            csv_dict = pd.read_csv(filepath)
-            category_cnt = csv_dict.shape[1] - 1
-            for i in range(category_cnt):
-                tmp_csv = csv_dict[csv_dict.columns[i+1]].tolist()
-                for j in range(len(tmp_csv)):
-                    if type(tmp_csv[j]) == float:
-                        break
-                    if j % 4 == 0:
-                        db.child("Classes").child("GP_Class").child(csv_dict.columns[i+1]).child("Class").child(
-                            tmp_csv[j]).child("name").set(tmp_csv[j+1])
-                        db.child("Classes").child("GP_Class").child(csv_dict.columns[i+1]).child("Class").child(
-                            tmp_csv[j]).child("teacher").set(tmp_csv[j+2])
-                        db.child("Classes").child("GP_Class").child(csv_dict.columns[i+1]).child("Class").child(
-                            tmp_csv[j]).child("classroom").set(tmp_csv[j+3])
-            os.remove(filepath)
-        except Exception as e:
-            os.remove(filepath)
-            return "Error. Please try again\n("+str(e)+")"
-        return "Successfully uploaded"
-
-
-@ app.route('/upload/stud_in_group', methods=['GET', 'POST'])
-def upload_stud_in_group():
-    if request.method == 'GET':
-        return render_template('uploadcsv.html', title="Student in Group List", url="/upload/stud_in_group")
-    elif request.method == 'POST':
-        try:
-            gradec = request.form['gradeCode']
-            classc = request.form['classcode']
-            csv_file = request.files['csv']
-            filepath = os.path.join('./temp', csv_file.filename)
-            csv_file.save(filepath)
-            with open(filepath) as file:
-                csv_dict = csv.DictReader(file)
-                headers = csv_dict.fieldnames
-                headers = headers[1:]
-                for h in headers:
-                    db.child("Classes").child("GP_Class").child(
-                        h).child("Homerooms").update({gradec+'^'+classc: 0})
-                for row in csv_dict:
-                    for h in headers:
-                        db.child("Homerooms").child(gradec).child(classc).child(
-                            row['number']).child("GP_Class").update({h: row[h]})
-            os.remove(filepath)
-        except Exception as e:
-            os.remove(filepath)
-            return "Error. Please try again\n("+str(e)+")"
-        return "Successfully uploaded " + gradec + "-" + classc
-
-
-@ app.route('/upload/period_list', methods=['GET', 'POST'])
-def upload_period_list():
-    if request.method == 'GET':
-        return render_template('uploadcsv.html', title="Period List", url="/upload/period_list")
-    elif request.method == 'POST':
-        try:
-            # get csv
-            gradec = request.form['gradeCode']
-            classc = request.form['classcode']
-            csv_file = request.files['csv']
-            filepath = os.path.join('./temp', csv_file.filename)
-            csv_file.save(filepath)
-            csv_dict = pd.read_csv(filepath)
-            periodCodes = csv_dict['Period Day'].tolist()
-            for i in range(5):
-                tmp_csv = csv_dict[str(i+1)].tolist()
-                for j in range(len(tmp_csv)):
-                    if not (periodCodes[j].endswith('-t')):
-                        if type(tmp_csv[j]) == float:
-                            db.child("Classes").child("Homeroom").child(gradec).child(classc).child(
-                                str(i+1)).child(periodCodes[j]).update({'name': '--'})
+    if ((not check_login_status()) and check_permission()):
+        if request.method == 'GET':
+            return render_template('uploadcsv.html', title="Homeroom List", url="/upload/1")
+        elif request.method == 'POST':
+            try:
+                # get csv
+                gradec = request.form['gradeCode']
+                classc = request.form['classcode']
+                csv_file = request.files['csv']
+                filepath = os.path.join('./temp', csv_file.filename)
+                csv_file.save(filepath)
+                with open(filepath) as file:
+                    csv_dict = csv.DictReader(file)
+                    for row in csv_dict:
+                        if row['number'] == 'password':
+                            auth.create_user_with_email_and_password(
+                                gradec + '^' + classc + "@group-attendance.fhjh.tp.edu.tw", row['name'])
+                            user = auth.sign_in_with_email_and_password(
+                                gradec + '^' + classc + "@group-attendance.fhjh.tp.edu.tw", row['name'])
+                            db.child("Users").child(user['localId']).update({
+                                "permission": 'homeroom',
+                                "username": gradec + '^' + classc,
+                                "homeroom": gradec + '^' + classc
+                            })
                         else:
-                            db.child("Classes").child("Homeroom").child(gradec).child(classc).child(
-                                str(i+1)).child(periodCodes[j]).update({'name': tmp_csv[j]})
-                            if not(periodCodes[j] == 'm' or periodCodes[j] == 'n'):
-                                j += 1
+                            db.child("Homerooms").child(gradec).child(
+                                classc).child(row['number']).set(row)
+                # row['class'] row['number'] row['name'] row['eng_name']
+                os.remove(filepath)
+            except Exception as e:
+                os.remove(filepath)
+                return "Error. Please try again\n("+str(e)+")"
+            return "Successfully uploaded " + gradec + "-" + classc
+    else:
+        return redirect('/logout')
+
+
+@ app.route('/upload/2', methods=['GET', 'POST'])
+def upload_gp_classes():
+    if ((not check_login_status()) and check_permission()):
+        if request.method == 'GET':
+            return render_template('uploadcsv.html', title="Group Classes", url="/upload/2")
+        elif request.method == 'POST':
+            try:
+                csv_file = request.files['csv']
+                filepath = os.path.join('./temp', csv_file.filename)
+                csv_file.save(filepath)
+                csv_dict = pd.read_csv(filepath)
+                category_cnt = csv_dict.shape[1] - 1
+                for i in range(category_cnt):
+                    tmp_csv = csv_dict[csv_dict.columns[i+1]].tolist()
+                    for j in range(len(tmp_csv)):
+                        if type(tmp_csv[j]) == float:
+                            break
+                        if j % 5 == 0:
+                            db.child("Classes").child("GP_Class").child(csv_dict.columns[i+1]).child("Class").child(
+                                tmp_csv[j]).child("name").set(tmp_csv[j+1] + " : " + tmp_csv[j+2] + " (" + tmp_csv[j+3] + ")")
+                            auth.create_user_with_email_and_password(
+                                csv_dict.columns[i+1] + "^" + tmp_csv[j] + "@group-attendance.fhjh.tp.edu.tw", tmp_csv[j+4])
+                            user = auth.sign_in_with_email_and_password(
+                                csv_dict.columns[i+1] + "^" + tmp_csv[j] + "@group-attendance.fhjh.tp.edu.tw", tmp_csv[j+4])
+                            db.child("Users").child(user['localId']).update({
+                                "permission": 'group',
+                                "username": csv_dict.columns[i+1] + "^" + tmp_csv[j],
+                                "class": {
+                                    csv_dict.columns[i+1]: tmp_csv[j],
+                                }
+                            })
+                os.remove(filepath)
+            except Exception as e:
+                os.remove(filepath)
+                return "Error. Please try again\n("+str(e)+")"
+            return "Successfully uploaded"
+    else:
+        return redirect('/logout')
+
+
+@ app.route('/upload/3', methods=['GET', 'POST'])
+def upload_stud_in_group():
+    if ((not check_login_status()) and check_permission()):
+        if request.method == 'GET':
+            return render_template('uploadcsv.html', title="Student in Group List", url="/upload/3")
+        elif request.method == 'POST':
+            try:
+                gradec = request.form['gradeCode']
+                classc = request.form['classcode']
+                csv_file = request.files['csv']
+                filepath = os.path.join('./temp', csv_file.filename)
+                csv_file.save(filepath)
+                with open(filepath) as file:
+                    csv_dict = csv.DictReader(file)
+                    headers = csv_dict.fieldnames
+                    headers = headers[1:]
+                    for h in headers:
+                        db.child("Classes").child("GP_Class").child(
+                            h).child("Homerooms").update({gradec+'^'+classc: 0})
+                    for row in csv_dict:
+                        for h in headers:
+                            db.child("Homerooms").child(gradec).child(classc).child(
+                                row['number']).child("GP_Class").update({h: row[h]})
+                os.remove(filepath)
+            except Exception as e:
+                os.remove(filepath)
+                return "Error. Please try again\n("+str(e)+")"
+            return "Successfully uploaded " + gradec + "-" + classc
+    else:
+        return redirect('/logout')
+
+
+@ app.route('/upload/4', methods=['GET', 'POST'])
+def upload_period_list():
+    if ((not check_login_status()) and check_permission()):
+        if request.method == 'GET':
+            return render_template('uploadcsv.html', title="Period List", url="/upload/4")
+        elif request.method == 'POST':
+            try:
+                # get csv
+                gradec = request.form['gradeCode']
+                classc = request.form['classcode']
+                csv_file = request.files['csv']
+                filepath = os.path.join('./temp', csv_file.filename)
+                csv_file.save(filepath)
+                csv_dict = pd.read_csv(filepath)
+                periodCodes = csv_dict['Period Day'].tolist()
+                for i in range(5):
+                    tmp_csv = csv_dict[str(i+1)].tolist()
+                    for j in range(len(tmp_csv)):
+                        if not (periodCodes[j].endswith('-t')):
+                            if type(tmp_csv[j]) == float:
                                 db.child("Classes").child("Homeroom").child(gradec).child(classc).child(
-                                    str(i+1)).child(periodCodes[j-1]).update({'teacher': tmp_csv[j]})
-            os.remove(filepath)
-        except Exception as e:
-            os.remove(filepath)
-            return "Error. Please try again\n("+str(e)+")"
-        return "Successfully uploaded " + gradec + "-" + classc
+                                    str(i+1)).child(periodCodes[j]).update({'name': '--'})
+                            else:
+                                db.child("Classes").child("Homeroom").child(gradec).child(classc).child(
+                                    str(i+1)).child(periodCodes[j]).update({'name': tmp_csv[j]})
+                                if not(periodCodes[j] == 'm' or periodCodes[j] == 'n'):
+                                    j += 1
+                                    db.child("Classes").child("Homeroom").child(gradec).child(classc).child(
+                                        str(i+1)).child(periodCodes[j-1]).update({'teacher': tmp_csv[j]})
+                os.remove(filepath)
+            except Exception as e:
+                os.remove(filepath)
+                return "Error. Please try again\n("+str(e)+")"
+            return "Successfully uploaded " + gradec + "-" + classc
+    else:
+        return redirect('/logout')
 
 
 @ app.route('/upload/dates', methods=['GET', 'POST'])
 def upload_dates():
-    if request.method == 'GET':
-        return render_template('uploadcsv.html', title="School Days", url="/upload/dates")
-    elif request.method == 'POST':
-        try:
-            csv_file = request.files['csv']
-            filepath = os.path.join('./temp', csv_file.filename)
-            csv_file.save(filepath)
-            with open(filepath) as file:
-                csv_dict = csv.DictReader(file)
-                headers = csv_dict.fieldnames
-                temp = db.child("Homerooms").get().val()
-                for row in csv_dict:
-                    for h in headers:
-                        for t in temp:
-                            for i in temp[t]:
-                                periodData = db.child("Classes").child(
-                                    "Homeroom").child(t).child(i).get().val()
-                                db.child("Homerooms").child(t).child(i).child(
-                                    "Absent").child(h).update({"dow": row[h]})
-                                db.child("Homerooms").child(t).child(i).child(
-                                    "Absent").child(h).update(
-                                    periodData[int(row[h])]
-                                )
-            os.remove(filepath)
-        except Exception as e:
-            os.remove(filepath)
-            return "Error. Please try again\n("+str(e)+")"
-        return "Successfully uploaded dates"
+    if ((not check_login_status()) and check_permission()):
+        if request.method == 'GET':
+            return render_template('uploadcsv.html', title="School Days", url="/upload/dates")
+        elif request.method == 'POST':
+            try:
+                csv_file = request.files['csv']
+                filepath = os.path.join('./temp', csv_file.filename)
+                csv_file.save(filepath)
+                with open(filepath) as file:
+                    csv_dict = csv.DictReader(file)
+                    headers = csv_dict.fieldnames
+                    temp = db.child("Homerooms").get().val()
+                    for row in csv_dict:
+                        for h in headers:
+                            for t in temp:
+                                for i in temp[t]:
+                                    periodData = db.child("Classes").child(
+                                        "Homeroom").child(t).child(i).get().val()
+                                    db.child("Homerooms").child(t).child(i).child(
+                                        "Absent").child(h).update({"dow": row[h]})
+                                    db.child("Homerooms").child(t).child(i).child(
+                                        "Absent").child(h).update(
+                                        periodData[int(row[h])]
+                                    )
+                os.remove(filepath)
+            except Exception as e:
+                os.remove(filepath)
+                return "Error. Please try again\n("+str(e)+")"
+            return "Successfully uploaded dates"
+    else:
+        return redirect('/logout')
 
 
-# @ app.route('/upload/rm_all_data_of_class', methods=['GET', "POST"])
-# def rm_all_data_of_class():
-#     if request.method == 'GET':
-#         return render_template('uploadcsv.html', title="Remove all data of class", url="/upload/rm_all_data_of_class")
-#     elif request.method == 'POST':
-#         try:
-#             classc = request.form['classcode']
-#             db.child("Homerooms").child(classc).remove()
-#         except Exception as e:
-#             return "Error. Please try again\n("+str(e)+")"
-#         return "Successfully removed " + classc
+@app.route('/upload/admin_acc', methods=['GET', 'POST'])
+def upload_admin_acc():
+    if ((not check_login_status()) and check_permission()):
+        if request.method == 'GET':
+            return render_template('uploadcsv.html', title="Admin Accounts", url="/upload/admin_acc")
+        elif request.method == 'POST':
+            try:
+                csv_file = request.files['csv']
+                filepath = os.path.join('./temp', csv_file.filename)
+                csv_file.save(filepath)
+                with open(filepath) as file:
+                    csv_dict = csv.DictReader(file)
+                    for row in csv_dict:
+                        auth.create_user_with_email_and_password(
+                            row['username'] + '@group-attendance.fhjh.tp.edu.tw', row['password'])
+                        user = auth.sign_in_with_email_and_password(
+                            row['username'] + '@group-attendance.fhjh.tp.edu.tw', row['password'])
+                        db.child("Users").child(user['localId']).update({
+                            'permission': 'admin',
+                            'username': row['username']
+                        })
+                os.remove(filepath)
+            except Exception as e:
+                os.remove(filepath)
+                return "Error. Please try again\n("+str(e)+")"
+            return "Successfully uploaded admin accounts"
+    else:
+        return redirect('/logout')
 
 
 @ app.route('/logout', methods=['GET'])
