@@ -48,6 +48,7 @@
                 {% for grade in absData[i] %}
                 {% for homeroom in absData[i][grade] %}
                 {% for student in absData[i][grade][homeroom] %}
+                {% if student != 'notes' %}
                 <div class="row">
                     <div class="col">{{grade}}</div>
                     <div class="col">{{homeroom}}</div>
@@ -86,6 +87,7 @@
                     </div>
                     {% endif %}
                 </div>
+                {% endif %}
                 {% endfor %}
                 {% endfor %}
                 {% endfor %}
@@ -169,7 +171,7 @@
         }
     </script>
     <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
-            style="height:100%;" />
+            style="width:100%;" />
     </div>
     <footer>
         <hr>
