@@ -132,6 +132,7 @@
                 <input type="text" id="HR-date" name="date" value="{{currDate}}">
                 <input type="text" id="HR-period" name="period" value="">
                 <input type="text" id="HR-signatureData" name="signatureData" value="">
+                <input type="text" id="HR-notes" name="notes" value="">
                 <input type="text" id="HR-homeroom" name="homeroom" value="{{homeroomCode[0]}}^{{homeroomCode[1]}}">
             </form>
             {% if 'confirm' in absData[currDate] %}
@@ -146,16 +147,19 @@
                 <div class="alert alert-warning" id="allPresentWarning" role="alert" hidden="hidden">
                     <h4 class="alert-heading">請確認是否全班全到！Please check if everyone is present!</h4>
                 </div>
-                <h3>Please Sign Below <br>
+                <h3>Please Sign Below 請在底下簽名<br>
                     Period: <span id="showSignPeriod"></span> <br>
                     Subject: <span id="showSignSubjectName"></span>
                 </h3>
                 <div class="forSign"><canvas id="signature_pad"></canvas></div>
+                <h3>Notes 備註欄</h3>
+                <input type="textarea" class="form-control" name="notes" id="subjectNotes"
+                    placeholder="Enter Notes 請輸入備註" style="width: 80%; margin-left: 10%;" row="3">
                 <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear Signature</button>
                 <button class="btn btn-primary" type="button" onclick="submitForm()">Submit</button>
             </div>
             {% for c in range(periods|length + 1) %}
-            {% if c % 2 == 0 %}
+            {% if c % 4 == 0 %}
             <div class="row signatures">
                 {% endif %}
                 <div class="col half">
@@ -167,7 +171,8 @@
                     {% if 'signature' in absData[currDate][periods[c-1]] %}
                     {% for i in absData[currDate][periods[c-1]]['signature'] %}
                     <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: {{i}}</div>
-                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature'][i]}}" alt=""></div>
+                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature'][i]}}" alt=""><br>備註:
+                        {{absData[currDate][periods[c-1]]['notes']}}</div>
                     {% endfor %}
                     {% else %}
                     <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: No Signature
@@ -178,11 +183,12 @@
                     <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['name']}}:
                         {{absData[currDate][periods[c-1]]['teacher']}}
                     </div>
-                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature']}}" alt=""></div>
+                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature']}}" alt=""><br>備註:
+                        {{absData[currDate][periods[c-1]]['notes']}}</div>
                     {% endif %}
                     {% endif %}
                 </div>
-                {% if c % 2 == 1 %}
+                {% if c % 4 == 3 %}
             </div>
             {% endif %}
             {% endfor %}
@@ -226,7 +232,9 @@
                     $('#hrCfrm-sign').val(data);
                     document.getElementById('homeroom_confirm').submit()
                 } else {
+                    var notes = $('#subjectNotes').val();
                     document.getElementById('HR-signatureData').value = data;
+                    document.getElementById('HR-notes').value = notes;
                     document.getElementById('postHomeroomAbs').submit();
                 }
             }

@@ -153,6 +153,9 @@ def manageProcess(fCommand, fData):
                 if not h[0] in absData[p]:
                     absData[p][h[0]] = {}
                 absData[p][h[0]][h[1]] = {}
+                if 'notes' in tmpAbsData[currDate][p]:
+                    absData[p][h[0]][h[1]
+                                     ]['notes'] = tmpAbsData[currDate][p]['notes']
             for num in hrData:
                 if (cclass['category'] in hrData[num]['GP_Class'] and
                         hrData[num]['GP_Class'][cclass['category']] == cclass['class_id']):
@@ -270,6 +273,11 @@ def group_teach_publish():
     date = request.form['date']
     period = request.form['period']
     signature = request.form['signatureData']
+    formData = request.form.to_dict()
+    notes = ""
+    if 'notes' in request.form:
+        notes = request.form['notes']
+        formData.pop('notes')
     signature = signature.removeprefix('data:image/png;base64,')
     signature = bytes(signature, 'utf-8')
     rand = str(randint(100000000000000, 999999999999999))
@@ -278,8 +286,6 @@ def group_teach_publish():
         fh.write(base64.decodebytes(signature))
     storage.child(os.path.join('signatures', rand)
                   ).put(os.path.join('temp', rand))
-
-    formData = request.form.to_dict()
     formData.pop('signatureData')
     formData.pop('date')
     formData.pop('period')
@@ -291,6 +297,15 @@ def group_teach_publish():
         h = h.split('^')
         db.child("Homerooms").child(h[0]).child(h[1]).child(
             "Absent").child(date).child(period).child("signature").update({cclass['class_id']: str(storage.child(os.path.join('signatures', rand)).get_url(None))})
+    # upload notes
+    currPeriodData = db.child("Homerooms").child(h[0]).child(h[1]).child(
+        "Absent").child(date).child(period).get().val()
+    if 'notes' in currPeriodData:
+        db.child("Homerooms").child(h[0]).child(h[1]).child(
+            "Absent").child(date).child(period).update({'notes': currPeriodData['notes']+'; '+notes})
+    else:
+        db.child("Homerooms").child(h[0]).child(h[1]).child(
+            "Absent").child(date).child(period).update({'notes': notes})
     os.remove(os.path.join('temp', rand))
     return redirect('/manage')
 
@@ -299,11 +314,15 @@ def group_teach_publish():
 def homeroom_abs_publish():
     if (check_login_status()):
         return redirect('/logout')
-
     date = request.form['date']
     homeroom = request.form['homeroom'].split('^')
     period = request.form['period']
     signature = request.form['signatureData']
+    formData = request.form.to_dict()
+    notes = ""
+    if 'notes' in request.form:
+        notes = request.form['notes']
+        formData.pop('notes')
     signature = signature.removeprefix('data:image/png;base64,')
     signature = bytes(signature, 'utf-8')
     rand = str(randint(100000000000000, 999999999999999))
@@ -312,7 +331,6 @@ def homeroom_abs_publish():
         fh.write(base64.decodebytes(signature))
     storage.child(os.path.join('signatures', rand)
                   ).put(os.path.join('temp', rand))
-    formData = request.form.to_dict()
     formData.pop('signatureData')
     formData.pop('date')
     formData.pop('homeroom')
@@ -323,6 +341,8 @@ def homeroom_abs_publish():
             homeroom[1]).child("Absent").child(date).child(period).update({i[1]: int(i[0])})
     db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
         "Absent").child(date).child(period).update({'signature': str(storage.child(os.path.join('signatures', rand)).get_url(None))})
+    db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
+        "Absent").child(date).child(period).update({'notes': notes})
     os.remove(os.path.join('temp', rand))
     return redirect('/manage')
 

@@ -29,8 +29,8 @@
                 {% endfor %}
             </select>
         </form>
-        {% set alr_fill = namespace(found=false) %}
         {% for i in absData %}
+        {% set alr_fill = namespace(found=false) %}
         <form action="/manage/group_teach_publish" id="attendanceData^{{i}}" method="post">
             <input type="hidden" name="date" value="{{currDate}}">
             <input type="hidden" name="period" value="{{i}}">
@@ -105,6 +105,9 @@
                     </div>
                     <h3>Please Sign Below</h3>
                     <div class="forSign"><canvas id="signature_pad^{{i}}"></canvas></div>
+                    <h3>Notes 備註欄</h3>
+                    <input class="form-control" name="notes" id="subjectNotes^{{i}}" placeholder="Enter Notes 請輸入備註"
+                        style="width: 80%; margin-left: 10%;">
                     <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear
                         Signature</button><button class="btn btn-primary" type="button"
                         onclick="submitForm()">Submit</button>
