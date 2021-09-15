@@ -392,13 +392,13 @@ def upload_homeroom():
                     for row in csv_dict:
                         if row['number'] == 'password':
                             auth.create_user_with_email_and_password(
-                                gradec + '^' + classc + "@group-attendance.fhjh.tp.edu.tw", row['name'])
+                                gradec + classc + "@group-attendance.fhjh.tp.edu.tw", row['name'])
                             user = auth.sign_in_with_email_and_password(
-                                gradec + '^' + classc + "@group-attendance.fhjh.tp.edu.tw", row['name'])
+                                gradec + classc + "@group-attendance.fhjh.tp.edu.tw", row['name'])
                             db.child("Users").child(user['localId']).update({
                                 "permission": 'homeroom',
-                                "username": gradec + '^' + classc,
-                                "homeroom": gradec + '^' + classc
+                                "username": gradec + classc,
+                                "homeroom": gradec + classc
                             })
                         else:
                             db.child("Homerooms").child(gradec).child(
@@ -434,12 +434,12 @@ def upload_gp_classes():
                             db.child("Classes").child("GP_Class").child(csv_dict.columns[i+1]).child("Class").child(
                                 tmp_csv[j]).child("name").set(tmp_csv[j+1] + " : " + tmp_csv[j+2] + " (" + tmp_csv[j+3] + ")")
                             auth.create_user_with_email_and_password(
-                                csv_dict.columns[i+1] + "^" + tmp_csv[j] + "@group-attendance.fhjh.tp.edu.tw", tmp_csv[j+4])
+                                tmp_csv[j] + "@group-attendance.fhjh.tp.edu.tw", tmp_csv[j+4])
                             user = auth.sign_in_with_email_and_password(
-                                csv_dict.columns[i+1] + "^" + tmp_csv[j] + "@group-attendance.fhjh.tp.edu.tw", tmp_csv[j+4])
+                                tmp_csv[j] + "@group-attendance.fhjh.tp.edu.tw", tmp_csv[j+4])
                             db.child("Users").child(user['localId']).update({
                                 "permission": 'group',
-                                "username": csv_dict.columns[i+1] + "^" + tmp_csv[j],
+                                "username": tmp_csv[j],
                                 "class": {
                                     csv_dict.columns[i+1]: tmp_csv[j],
                                 }
