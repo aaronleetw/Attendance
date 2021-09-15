@@ -79,7 +79,10 @@ def manageProcess(fCommand, fData):
                 currDate = i
                 if i >= datetime.now(tz).strftime("%Y-%m-%d"):
                     break
-        return render_template('admin.html', homerooms=homerooms, absData=absData, homeroomCode=currRoom, homeroomData=homeroomData, currDate=currDate, periods=['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9'])
+        return render_template('admin.html', homerooms=homerooms, absData=absData,
+                               homeroomCode=currRoom, homeroomData=homeroomData, currDate=currDate, periods=['m', '1', '2', '3', '4',
+                                                                                                             'n', '5', '6', '7', '8', '9'], showUpload=db.child("Users").child(
+                                   session['uid']).child("showUpload").get().val())
     elif pl == 'group':
         classes = db.child("Users").child(
             session['uid']).child("class").get().val()
@@ -577,7 +580,8 @@ def upload_admin_acc():
                             row['username'] + '@group-attendance.fhjh.tp.edu.tw', row['password'])
                         db.child("Users").child(user['localId']).update({
                             'permission': 'admin',
-                            'username': row['username']
+                            'username': row['username'],
+                            'showUpload': row['permission']
                         })
                 os.remove(filepath)
             except Exception as e:
