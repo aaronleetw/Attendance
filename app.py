@@ -42,7 +42,8 @@ def check_login_status():
 
 
 def check_permission():
-    return db.child('Users').child(session['uid']).child('permission').get().val() == 'admin'
+    return (db.child('Users').child(session['uid']).child('permission').get().val() == 'admin' and
+            db.child("Users").child(session['uid']).child("showUpload").get().val() == '1')
 
 
 def manageProcess(fCommand, fData):
