@@ -164,13 +164,18 @@
                 {% endif %}
                 <div class="col half">
                     {% if c == 0 %}
-                    <div class="row">Homeroom Teacher</div>
+                    <div class="row">Homeroom Teacher 導師</div>
+                    {% if 'confirm' in absData[currDate] %}
                     <div class="row"><img src="{{absData[currDate]['confirm']}}" alt=""></div>
+                    {% else %}
+                    <div class="row"><span style="color:red;">No Signature 導師尚未簽名</span></div>
+                    {% endif %}
                     {% else %}
                     {% if absData[currDate][periods[c-1]]['name'] == 'GP' %}
                     {% if 'signature' in absData[currDate][periods[c-1]] %}
                     {% for i in absData[currDate][periods[c-1]]['signature'] %}
-                    <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: {{i}}</div>
+                    <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: {{i}}:
+                        {{absData[currDate][periods[c-1]]['names'][i]}}</div>
                     <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature'][i]}}" alt=""><br>備註:
                         {{absData[currDate][periods[c-1]]['notes']}}</div>
                     {% endfor %}

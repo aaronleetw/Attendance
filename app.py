@@ -9,7 +9,6 @@ import pandas as pd
 import base64
 from random import randint
 from dotenv import load_dotenv
-from pprint import pprint
 load_dotenv()
 app = Flask(__name__)
 
@@ -97,7 +96,6 @@ def manageProcess(fCommand, fData):
                 "category": i,
                 "class_id": classes[i]
             }
-        print("got class")
         homerooms = cateData['Homerooms']
         currDate = ""
         confirmed = []
@@ -272,7 +270,7 @@ def group_teach_publish():
     cclass = {}
     for i in classes:
         cclass = {
-            "name": db.child("Classes").child(i).child(
+            "name": db.child("Classes").child("GP_Class").child(i).child(
                 "Class").child(classes[i]).child("name").get().val(),
             "category": i,
             "class_id": classes[i],
@@ -306,6 +304,8 @@ def group_teach_publish():
         h = h.split('^')
         db.child("Homerooms").child(h[0]).child(h[1]).child(
             "Absent").child(date).child(period).child("signature").update({cclass['class_id']: str(storage.child(os.path.join('signatures', rand)).get_url(None))})
+        db.child("Homerooms").child(h[0]).child(h[1]).child(
+            "Absent").child(date).child(period).child("names").child(cclass['class_id']).set(cclass['name'])
         currPeriodData = db.child("Homerooms").child(h[0]).child(h[1]).child(
             "Absent").child(date).child(period).get().val()
         if 'notes' in currPeriodData:
