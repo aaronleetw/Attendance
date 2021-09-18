@@ -9,30 +9,42 @@
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/allpages.css">
     <link rel="stylesheet" href="/static/login.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-H6D61RSBHR');
+    </script>
 </head>
 
 <body>
     <!-- csv form center -->
     <div class="container">
         <div class="row">
-            <div class="col-md-4 offset-md-4">
-                <h1 class="text-center">Upload {{title}}</h1>
+            <div class="col"></div>
+            <div class="col-md-5">
+                <h1 class="text-center margin-top">Upload {{title}}</h1>
                 <!-- upload csv -->
                 <form action="{{url}}" id="uploadCsvForm" method="post" enctype="multipart/form-data">
                     <!-- input class code -->
-                    <div class="form-group">
-                        <label for="gradeCode">Grade Code</label>
-                        <input type="text" class="form-control" id="gradeCode" name="gradeCode"
-                            placeholder="Enter Grade Code">
+                    <div class="form-group margin-top row">
+                        <div class="col-3 center"><label for="gradeCode">Grade Code</label></div>
+                        <div class="col center-input"> <input type="text" class="form-control" id="gradeCode"
+                                name="gradeCode" placeholder="Enter Grade Code"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="classcode">Class Code</label>
-                        <input type="text" class="form-control" id="classcode" name="classcode"
-                            placeholder="Enter Class Code">
+                    <div class="form-group margin-top row">
+                        <div class="col-3 center"><label for="classcode">Class Code</label></div>
+                        <div class="col-9 center-input"><input type="text" class="form-control" id="classcode"
+                                name="classcode" placeholder="Enter Class Code"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="csv">{{title}}</label>
-                        <input type="file" class="form-control-file" id="csv" name="csv">
+                    <div class="form-group margin-top row">
+                        <div class="col-3 center"><label for="csv">{{title}}</label></div>
+                        <div class="col-9 center-input"><input type="file" class="form-control-file" id="csv"
+                                name="csv"></div>
                     </div>
                     <button onclick="loadingAnimation()" type="button" class="btn btn-primary">Upload</button>
                 </form>
@@ -44,6 +56,7 @@
                     <p>非管理員請勿點選! 可能會讓系統無法使用!</p>
                 </div>
             </div>
+            <div class="col"></div>
         </div>
     </div>
     <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""

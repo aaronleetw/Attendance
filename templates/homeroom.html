@@ -5,21 +5,32 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Attendance | Homeroom</title>
+    <title>Homeroom 班級 （{{homeroomCode[0]}}{{homeroomCode[1]}})</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/allpages.css">
     <link rel="stylesheet" href="/static/homeroom.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-H6D61RSBHR');
+    </script>
+
 </head>
 
 <body>
     <div class="container">
-        <h1>Attendance | Homeroom</h1>
-        <h2>{{homeroomCode[0]}}: {{homeroomCode[1]}}</h2>
-        <h2>{{currDate}}, 依照 星期{{absData[currDate]['dow']}} 課表</h2>
-        <a href="/logout"><button class="btn btn-primary">Logout 登出</button></a>
+        <h1 class="margin-top">Homeroom View | 班級主頁</h1>
+        <h2 class="margin-top">{{homeroomCode[0]}}{{homeroomCode[1]}}</h2>
+        <h2>[{{currDate}}]</h2>
+        <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
         <form action="/manage/date" id="dateSelForm" method="post">
-            <select name="date" id="date" class="form-select" onchange="chgDate();">
+            <select name="date" id="date" class="form-select logout" onchange="chgDate();">
                 {% for date in absData %}
                 {% if date == currDate %}
                 <option value="{{date}}" selected="selected">{{date}}</option>
@@ -37,10 +48,10 @@
         <div class="col">
             <div class="sticky-top" style="background-color:white;">
                 <div class="row title">
-                    <div class="col">HR</div>
-                    <div class="col">Number</div>
-                    <div class="col">Name</div>
-                    <div class="col">Eng Name</div>
+                    <div class="col">班級</div>
+                    <div class="col">座號</div>
+                    <div class="col">姓名</div>
+                    <div class="col">英文姓名</div>
                     {% for i in periods %}
                     <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>{{i}}</div>
                     {% endfor %}

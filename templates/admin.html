@@ -5,19 +5,29 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin_View</title>
+    <title>Admin 管理員</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/allpages.css">
     <link rel="stylesheet" href="/static/homeroom.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-H6D61RSBHR');
+    </script>
 </head>
 
 <body>
     <div class="container">
-        <h1>Admin_View</h1>
-        <h2>{{homeroomCode[0]}}: {{homeroomCode[1]}}</h2>
-        <h2>Status: ({{currDate}}, 星期{{absData[currDate]['dow']}})</h2>
-        <a href="/logout"><button class="btn btn-primary">Logout 登出</button></a>
+        <h1 class="margin-top">Admin View | 管理頁面</h1>
+        <h2 class="margin-top">{{homeroomCode[0]}} {{homeroomCode[1]}}</h2>
+        <h2>[{{currDate}}]</h2>
+        <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
         <div class="container margin-bottom">
             <form action="/manage/admin" id="adminSelForm" method="post">
                 <div class="row">
@@ -46,7 +56,7 @@
                         </select>
                     </div>
                     <div class="col-1">
-                        <button class="btn btn-primary" onclick="loadingAnimation()">查詢</button>
+                        <button type="button" class="btn btn-primary" onclick="loadingAnimation()">查詢</button>
                     </div>
                 </div>
             </form>
@@ -168,22 +178,22 @@
         {% if showUpload == '1' %}
         <div class="row margin-top">
             <div class="col">
-                <h3>此排請勿點選</h3>
+                <h3 style="color: red;">此排 [請勿] 隨意點選</h3>
             </div>
             <div class="col">
-                <a href="/upload/homeroom"><button class="btn btn-primary">1. Add Homeroom</button></a>
+                <a href="/upload/1"><button class="btn btn-danger">1. Add Homeroom</button></a>
             </div>
             <div class="col">
-                <a href="/upload/gp_classes"><button class="btn btn-primary">2. Add GP Classes</button></a>
+                <a href="/upload/2"><button class="btn btn-danger">2. Add GP Classes</button></a>
             </div>
             <div class="col">
-                <a href="/upload/stud_in_group"><button class="btn btn-primary">3. Add GP Student List</button></a>
+                <a href="/upload/3"><button class="btn btn-danger">3. Add GP Student List</button></a>
             </div>
             <div class="col">
-                <a href="/upload/period_list"><button class="btn btn-primary">4. Period List</button></a>
+                <a href="/upload/4"><button class="btn btn-danger">4. Period List</button></a>
             </div>
             <div class="col">
-                <a href="/upload/dates"><button class="btn btn-primary">[WEEKLY] Dates</button></a>
+                <a href="/upload/dates"><button class="btn btn-warning">[WEEKLY] Dates</button></a>
             </div>
         </div>
         {% endif %}
@@ -212,6 +222,11 @@
         {% endfor %}
         console.log(homerooms)
         function loadingAnimation() {
+            if ($("#sel-room").val() == "") {
+                alert("請選擇年級 / 班級！");
+                return;
+            }
+            document.getElementById('adminSelForm').submit();
             $('.container').hide();
             $('#loading').show();
         }

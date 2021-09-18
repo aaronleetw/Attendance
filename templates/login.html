@@ -4,37 +4,54 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login</title>
+    <title>Login | 登入</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/allpages.css">
     <link rel="stylesheet" href="/static/login.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-H6D61RSBHR');
+    </script>
 </head>
 
 <body>
     <!-- login form center -->
     <div class="container">
+        <h1 class="margin-top margin-bottom">Attendance 點名系統 (β) | Login 登入</h1>
         <div class="row">
-            <div class="col-md-4 offset-md-4">
-                <h1 class="text-center">Attendance (β) | Login</h1>
+            <div class="col"></div>
+            <div class="col-md-5">
                 <form action="/" method="post">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" class="form-control" name="username" id="username" placeholder="Username">
+                    <div class="form-group row" style="margin-bottom: 10px;">
+                        <div class="col-3 center"><label for="username" style="font-size: 19px">Username 帳號: </label>
+                        </div>
+                        <div class="col-9 center-input"><input type="text" class="form-control" name="username"
+                                id="username"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" class="form-control" name="password" id="password"
-                            placeholder="Password">
+                    <div class="form-group row" style="margin-bottom: 10px;">
+                        <div class="col-3 center"><label for="password" style="font-size: 19px">Password 密碼: </label>
+                        </div>
+                        <div class="col-9 center-input"><input type="password" class="form-control" name="password"
+                                id="password"></div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block" onclick="loadingAnimation()">Login</button>
+                    <button type="submit" class="btn btn-primary btn-block" onclick="loadingAnimation()">Login
+                        登入</button>
                 </form>
                 {% if error %}
                 <div class="alert alert-danger" role="alert">
+                    帳號或密碼錯誤，請重新輸入<br>
                     Incorrect username or password
                 </div>
                 {% endif %}
             </div>
+            <div class="col"></div>
         </div>
     </div>
     <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""

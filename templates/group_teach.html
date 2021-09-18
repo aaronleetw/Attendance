@@ -5,21 +5,31 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Group_Teach_View</title>
+    <title>Group 分組</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/allpages.css">
     <link rel="stylesheet" href="/static/login.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-H6D61RSBHR');
+    </script>
 </head>
 
 <body>
     <div class="container">
-        <h1>Group_Teach_View</h1>
-        <h2>{{cclass['category']}}: {{cclass['class_id']}}: {{cclass['name']}}</h2>
-        <h2>({{currDate}}) ({{dow}})</h2>
-        <a href="/logout"><button class="btn btn-primary">Logout 登出</button></a>
+        <h1 class="margin-top">Group Class View | 分組課頁面</h1>
+        <h2 class="margin-top">{{cclass['category']}}: {{cclass['class_id']}}: {{cclass['name']}}</h2>
+        <h2>[{{currDate}}]</h2>
+        <a href="/logout"><button class="btn btn-primary margin-top logout">Logout 登出</button></a>
         <form action="/manage/date" id="dateSelForm" method="post">
-            <select name="date" id="date" class="form-select" onchange="chgDate(this);">
+            <select name="date" id="date" class="form-select logout" onchange="chgDate(this);">
                 {% for date in tmpAbsData %}
                 {% if date == currDate %}
                 <option value="{{date}}" selected="selected">{{date}}</option>
@@ -35,7 +45,7 @@
             <input type="hidden" name="date" value="{{currDate}}">
             <input type="hidden" name="period" value="{{i}}">
             <input type="hidden" class="signatureData" name="signatureData" value="">
-            <div class="col">
+            <div class="col" style="margin-top: 30px;">
                 <div class="row title sticky-top" style="background-color: white">
                     <div class="col">Grade</div>
                     <div class="col">Class Code</div>
