@@ -126,10 +126,7 @@
                     {% if 'confirm' in absData[currDate] %}
                     <p class="highlightAbs"></p>
                     {% else %}
-                    <input type="checkbox" class="tobeform 2^{{j}}^{{i}} late" id="late^{{j}}^{{i}}"
-                        onchange="unCheckAbs('{{j}}^{{i}}')">
-                    <input type="checkbox" class="tobeform 1^{{j}}^{{i}} absent" id="absent^{{j}}^{{i}}"
-                        onchange="unCheckLate('{{j}}^{{i}}')">
+                    <p class="highlightAbs"></p>
                     {% endif %}
                     <!-- <input type="checkbox" class="tobeform {{j}}^{{i}}"> -->
                     {% endif %}
