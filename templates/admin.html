@@ -23,6 +23,7 @@
 </head>
 
 <body>
+    <div class="showTime">Current Time: <span id="showTime"></span></div>
     <div class="container">
         <h1 class="margin-top">Admin View | 管理頁面</h1>
         <h2 class="margin-top">{{homeroomCode[0]}} {{homeroomCode[1]}}</h2>
@@ -64,21 +65,13 @@
         <div class="col">
             <div class="sticky-top" style="background-color: white;">
                 <div class="row title">
-                    <div class="col">HR</div>
-                    <div class="col">Number</div>
-                    <div class="col">Name</div>
-                    <div class="col">Eng Name</div>
-                    <div class="col">Morning</div>
-                    <div class="col">1</div>
-                    <div class="col">2</div>
-                    <div class="col">3</div>
-                    <div class="col">4</div>
-                    <div class="col">Nap</div>
-                    <div class="col">5</div>
-                    <div class="col">6</div>
-                    <div class="col">7</div>
-                    <div class="col">8</div>
-                    <div class="col">9</div>
+                    <div class="col">班級</div>
+                    <div class="col">座號</div>
+                    <div class="col">姓名</div>
+                    <div class="col">英文姓名</div>
+                    {% for p in periods %}
+                    <div class="col">{{p}}</div>
+                    {% endfor %}
                 </div>
                 <div class="row title">
                     <div class="col"></div>
@@ -107,34 +100,40 @@
                 <div class="col">{{ homeroomData[i]['name'] }}</div>
                 <div class="col">{{ homeroomData[i]['eng_name'] }}</div>
                 {% for j in periods %}
-                {% if 'signature' in absData[currDate][j] %}
-                {% if i in absData[currDate][j] %}
-                <div class="col">
+                <div class="col" {% if currPeriod==j %} style="background-color: #ffdf81;" {% endif %}>
+                    {% if 'signature' in absData[currDate][j] %}
+                    {% if i in absData[currDate][j] %}
+                    {% if absData[currDate][j][i] == 1 %}
                     <p class="highlightAbs n-2">X</p>
-                </div>
-                {% else %}
-                {% if absData[currDate][j]['name'] != 'GP' %}
-                <div class="col">
+                    {% else %}
+                    <p class="highlightAbs n-3">𝜑</p>
+                    {% endif %}
+                    {% else %}
+                    {% if absData[currDate][j]['name'] != 'GP' %}
                     <p class="highlightAbs n-1">V</p>
-                </div>
-                {% else %}
-                {% if (homeroomData[i]['GP_Class'][absData[currDate][j]['teacher']] in
-                absData[currDate][j]['signature'])%}
-                <div class="col">
+                    {% else %}
+                    {% if (homeroomData[i]['GP_Class'][absData[currDate][j]['teacher']] in
+                    absData[currDate][j]['signature'])%}
                     <p class="highlightAbs n-1">V</p>
-                </div>
-                {% else %}
-                <div class="col">
+                    {% else %}
                     <p class="highlightAbs n-2"></p>
-                </div>
-                {% endif %}
-                {% endif %}
-                {% endif %}
-                {% else %}
-                <div class="col">
+                    {% endif %}
+                    {% endif %}
+                    {% endif %}
+                    {% elif absData[currDate][j]['name'] == 'GP' %}
                     <p class="highlightAbs"></p>
+                    {% else %}
+                    {% if 'confirm' in absData[currDate] %}
+                    <p class="highlightAbs"></p>
+                    {% else %}
+                    <input type="checkbox" class="tobeform 2^{{j}}^{{i}} late" id="late^{{j}}^{{i}}"
+                        onchange="unCheckAbs('{{j}}^{{i}}')">
+                    <input type="checkbox" class="tobeform 1^{{j}}^{{i}} absent" id="absent^{{j}}^{{i}}"
+                        onchange="unCheckLate('{{j}}^{{i}}')">
+                    {% endif %}
+                    <!-- <input type="checkbox" class="tobeform {{j}}^{{i}}"> -->
+                    {% endif %}
                 </div>
-                {% endif %}
                 {% endfor %}
             </div>
             {% endfor %}
@@ -247,6 +246,7 @@
             document.getElementById('hrSelForm').submit();
         }
     </script>
+    <script src="/static/time.js"></script>
 </body>
 
 </html>

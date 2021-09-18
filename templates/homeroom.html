@@ -24,6 +24,7 @@
 </head>
 
 <body>
+    <div class="showTime">Current Time: <span id="showTime"></span></div>
     <div class="container">
         <h1 class="margin-top">Homeroom View | 班級主頁</h1>
         <h2 class="margin-top">{{homeroomCode[0]}}{{homeroomCode[1]}}</h2>
@@ -90,7 +91,7 @@
                     {% if absData[currDate][j][i] == 1 %}
                     <p class="highlightAbs n-2">X</p>
                     {% else %}
-                    <p class="highlightAbs n-3">φ</p>
+                    <p class="highlightAbs n-3">𝜑</p>
                     {% endif %}
                     {% else %}
                     {% if absData[currDate][j]['name'] != 'GP' %}
@@ -155,19 +156,20 @@
             {% endif %}
             <div id="finalCheck" hidden="hidden">
                 <!-- show warning -->
-                <div class="alert alert-warning" id="allPresentWarning" role="alert" hidden="hidden">
+                <div class="alert alert-warning margin-top" id="allPresentWarning" role="alert" hidden="hidden">
                     <h4 class="alert-heading">請確認是否全班全到！Please check if everyone is present!</h4>
                 </div>
-                <h3>Please Sign Below 請在底下簽名<br>
+                <h3 class="margin-top">Please Sign Below 請在下方簽名<br>
                     Period: <span id="showSignPeriod"></span> <br>
                     Subject: <span id="showSignSubjectName"></span>
                 </h3>
                 <div class="forSign"><canvas id="signature_pad"></canvas></div>
-                <h3>Notes 備註欄</h3>
+                <h3 class="margin-top">Notes 備註欄</h3>
                 <input type="textarea" class="form-control" name="notes" id="subjectNotes"
                     placeholder="Enter Notes 請輸入備註" style="width: 80%; margin-left: 10%;" row="3">
-                <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear Signature</button>
-                <button class="btn btn-primary" type="button" onclick="submitForm()">Submit</button>
+                <button class="btn btn-secondary margin-top" type="button" onclick="signaturePad.clear()">Clear
+                    Signature 清除簽名</button>
+                <button class="btn btn-primary margin-top" type="button" onclick="submitForm()">Submit 提交</button>
             </div>
             {% for c in range(periods|length + 1) %}
             {% if c % 4 == 0 %}
@@ -308,6 +310,7 @@
             document.getElementById('absent^' + string).checked = false;
         }
     </script>
+    <script src="/static/time.js"></script>
 </body>
 
 </html>
