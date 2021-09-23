@@ -138,3 +138,13 @@ div.showTime {
     color:rgb(77, 77, 77);
     background:rgb(179, 255, 169);
 }
+
+.grecaptcha-badge {
+    display: none;
+}
+
+.disclaimer {
+    color: rgb(160, 160, 160);
+    font-size: 0.7524em;
+    margin-bottom: 20px;
+}

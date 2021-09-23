@@ -19,6 +19,7 @@
 
         gtag('config', 'G-H6D61RSBHR');
     </script>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 
 <body>
@@ -28,7 +29,7 @@
         <div class="row">
             <div class="col"></div>
             <div class="col-md-5">
-                <form action="/" method="post">
+                <form action="/" id="loginForm" method="post">
                     <div class="form-group row" style="margin-bottom: 10px;">
                         <div class="col-3 center"><label for="username" style="font-size: 19px">Username 帳號: </label>
                         </div>
@@ -41,9 +42,15 @@
                         <div class="col-9 center-input"><input type="password" class="form-control" name="password"
                                 id="password"></div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block" onclick="loadingAnimation()">Login
+                    <button class="btn btn-primary btn-block g-recaptcha"
+                        data-sitekey="6LevCYccAAAAAAQ8XL6Bay_Nn22OyX9-9Shhi62M" data-callback='loadingAnimation'>Login
                         登入</button>
                 </form>
+                <div class="disclaimer">
+                    This site is protected by reCAPTCHA and the Google
+                    <a target="_blank" href="https://policies.google.com/privacy">Privacy Policy</a> and
+                    <a target="_blank" href="https://policies.google.com/terms">Terms of Service</a> apply.
+                </div>
                 {% if error %}
                 <div class="alert alert-danger" role="alert">
                     帳號或密碼錯誤，請重新輸入<br>
@@ -69,6 +76,7 @@
     <script type=" text/javascript" src="/static/jquery.min.js"></script>
     <script>
         function loadingAnimation() {
+            $('#loginForm').submit();
             $('.container').hide();
             $('#loading').show();
         }

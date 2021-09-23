@@ -9,6 +9,7 @@ import pandas as pd
 import base64
 from random import randint
 from dotenv import load_dotenv
+import requests
 load_dotenv()
 app = Flask(__name__)
 
@@ -43,6 +44,17 @@ def check_login_status():
 def check_permission():
     return (db.child('Users').child(session['uid']).child('permission').get().val() == 'admin' and
             db.child("Users").child(session['uid']).child("showUpload").get().val() == '1')
+
+
+def verify_recaptcha(response):
+    data = {
+        'secret': os.environ.get('RECAPTCHA_SECRET'),
+        'response': response,
+        'remoteip': request.remote_addr
+    }
+    r = requests.post(
+        'https://www.google.com/recaptcha/api/siteverify', data=data)
+    return r.json()['success']
 
 
 def manageProcess(fCommand, fData):
@@ -218,7 +230,7 @@ def manageProcess(fCommand, fData):
         return redirect('/logout')
 
 
-@ app.route('/', methods=['GET', 'POST'])
+@ app.route('/', methods=['GET'])
 def index():
     if request.method == 'GET':
         if check_login_status():
@@ -227,15 +239,18 @@ def index():
     elif request.method == 'POST':
         if check_login_status():
             try:
-                user = auth.sign_in_with_email_and_password(
-                    request.form['username'] + "@group-attendance.fhjh.tp.edu.tw", request.form['password'])
-                session['is_logged_in'] = True
-                session['email'] = user['email']
-                session['uid'] = user['localId']
-                session['token'] = user['idToken']
-                session['refreshToken'] = user['refreshToken']
-                session['loginTime'] = datetime.now(tz)
-                return redirect('/manage')
+                if (verify_recaptcha(request.form['g-recaptcha-response'])):
+                    user = auth.sign_in_with_email_and_password(
+                        request.form['username'] + "@group-attendance.fhjh.tp.edu.tw", request.form['password'])
+                    session['is_logged_in'] = True
+                    session['email'] = user['email']
+                    session['uid'] = user['localId']
+                    session['token'] = user['idToken']
+                    session['refreshToken'] = user['refreshToken']
+                    session['loginTime'] = datetime.now(tz)
+                    return redirect('/manage')
+                else:
+                    return render_template('login.html', error=True)
             except Exception as e:
                 return render_template('login.html', error=True)
         else:
