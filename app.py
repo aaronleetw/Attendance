@@ -42,8 +42,8 @@ def check_login_status():
 
 
 def check_permission():
-    return (db.child('Users').child(session['uid']).child('permission').get().val() == 'admin' and
-            db.child("Users").child(session['uid']).child("showUpload").get().val() == '1')
+    return (db.child('Users').child(session['uid']).child('permission').get(session['token']).val() == 'admin' and
+            db.child("Users").child(session['uid']).child("showUpload").get(session['token']).val() == '1')
 
 
 def verify_recaptcha(response):
@@ -62,12 +62,12 @@ def manageProcess(fCommand, fData):
         return redirect('/logout')
     # this is to fix a bug where pyrebase doesnt load the first request
     db.child("Users").child(
-        session['uid']).child("permission").get().val()
+        session['uid']).child("permission").get(session['token']).val()
     # end bug fix
     pl = db.child("Users").child(
-        session['uid']).child("permission").get().val()
+        session['uid']).child("permission").get(session['token']).val()
     if pl == 'admin':
-        homerooms = db.child("Homerooms").get().val()
+        homerooms = db.child("Homerooms").get(session['token']).val()
         currRoom = []
         if fCommand == "admin":
             currRoom = fData[0].split("^")
@@ -94,15 +94,15 @@ def manageProcess(fCommand, fData):
         return render_template('admin.html', homerooms=homerooms, absData=absData,
                                homeroomCode=currRoom, homeroomData=homeroomData, currDate=currDate, periods=['m', '1', '2', '3', '4',
                                                                                                              'n', '5', '6', '7', '8', '9'], showUpload=db.child("Users").child(
-                                   session['uid']).child("showUpload").get().val())
+                                   session['uid']).child("showUpload").get(session['token']).val())
     elif pl == 'group':
         classes = db.child("Users").child(
-            session['uid']).child("class").get().val()
+            session['uid']).child("class").get(session['token']).val()
         cclass = {}
         cateData = {}
         for i in classes:
             cateData = db.child("Classes").child(
-                "GP_Class").child(i).get().val()
+                "GP_Class").child(i).get(session['token']).val()
             cclass = {
                 "name": cateData['Class'][classes[i]]['name'],
                 "category": i,
@@ -114,7 +114,8 @@ def manageProcess(fCommand, fData):
         absData = {}
         for h in homerooms:
             h = h.split('^')
-            hrData = db.child("Homerooms").child(h[0]).child(h[1]).get().val()
+            hrData = db.child("Homerooms").child(
+                h[0]).child(h[1]).get(session['token']).val()
             tmpAbsData = hrData['Absent']
             hrData.pop('Absent')
             if 'placeholder' in hrData:
@@ -188,9 +189,9 @@ def manageProcess(fCommand, fData):
         return render_template('group_teach.html', cclass=cclass, absData=absData, dow=dow, currDate=currDate, tmpAbsData=tmpAbsData, confirmed=confirmed)
     elif pl == 'homeroom':
         homeroom = db.child("Users").child(
-            session['uid']).child("homeroom").get().val().split('^')
+            session['uid']).child("homeroom").get(session['token']).val().split('^')
         homeroomData = db.child("Homerooms").child(homeroom[0]).child(
-            homeroom[1]).get().val()
+            homeroom[1]).get(session['token']).val()
         times = OrderedDict({
             'm': '00:00',
             '1': '08:15',
@@ -230,11 +231,11 @@ def manageProcess(fCommand, fData):
         return redirect('/logout')
 
 
-@ app.route('/', methods=['GET'])
+@ app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
         if check_login_status():
-            return render_template('login.html', error=False)
+            return render_template('login.html')
         return redirect('/manage')
     elif request.method == 'POST':
         if check_login_status():
@@ -250,9 +251,13 @@ def index():
                     session['loginTime'] = datetime.now(tz)
                     return redirect('/manage')
                 else:
-                    return render_template('login.html', error=True)
+                    flash(
+                        'reCAPTCHA 錯誤，請稍後再試一次<br>reCAPTCHA Failed. Please try again later.')
+                    return redirect('/')
             except Exception as e:
-                return render_template('login.html', error=True)
+                flash(
+                    '帳號或密碼錯誤，請重新輸入<br>Incorrect username or password')
+                return redirect('/')
         else:
             return redirect('/manage')
 
@@ -281,16 +286,16 @@ def group_teach_publish():
     if (check_login_status()):
         return redirect('/logout')
     classes = db.child("Users").child(
-        session['uid']).child("class").get().val()
+        session['uid']).child("class").get(session['token']).val()
     cclass = {}
     for i in classes:
         cclass = {
             "name": db.child("Classes").child("GP_Class").child(i).child(
-                "Class").child(classes[i]).child("name").get().val(),
+                "Class").child(classes[i]).child("name").get(session['token']).val(),
             "category": i,
             "class_id": classes[i],
             "homerooms": db.child("Classes").child(
-                "GP_Class").child(i).child("Homerooms").get().val()
+                "GP_Class").child(i).child("Homerooms").get(session['token']).val()
         }
     date = request.form['date']
     period = request.form['period']
@@ -307,28 +312,28 @@ def group_teach_publish():
     with open(os.path.join('temp', rand), "wb") as fh:
         fh.write(base64.decodebytes(signature))
     storage.child(os.path.join('signatures', rand)
-                  ).put(os.path.join('temp', rand))
+                  ).put(os.path.join('temp', rand), session['token'])
     formData.pop('signatureData')
     formData.pop('date')
     formData.pop('period')
     for i in formData:
         i = i.split('^')
         db.child("Homerooms").child(i[1]).child(i[2]).child(
-            "Absent").child(date).child(period).update({i[3]: int(i[0])})
+            "Absent").child(date).child(period).update({i[3]: int(i[0])}, session['token'])
     for h in cclass['homerooms']:
         h = h.split('^')
         db.child("Homerooms").child(h[0]).child(h[1]).child(
-            "Absent").child(date).child(period).child("signature").update({cclass['class_id']: str(storage.child(os.path.join('signatures', rand)).get_url(None))})
+            "Absent").child(date).child(period).child("signature").update({cclass['class_id']: str(storage.child(os.path.join('signatures', rand)).get_url(None))}, session['token'])
         db.child("Homerooms").child(h[0]).child(h[1]).child(
-            "Absent").child(date).child(period).child("names").child(cclass['class_id']).set(cclass['name'])
+            "Absent").child(date).child(period).child("names").child(cclass['class_id']).set(cclass['name'], session['token'])
         currPeriodData = db.child("Homerooms").child(h[0]).child(h[1]).child(
-            "Absent").child(date).child(period).get().val()
+            "Absent").child(date).child(period).get(session['token']).val()
         if 'notes' in currPeriodData:
             db.child("Homerooms").child(h[0]).child(h[1]).child(
-                "Absent").child(date).child(period).update({'notes': currPeriodData['notes']+'; '+notes})
+                "Absent").child(date).child(period).update({'notes': currPeriodData['notes']+'; '+notes}, session['token'])
         else:
             db.child("Homerooms").child(h[0]).child(h[1]).child(
-                "Absent").child(date).child(period).update({'notes': notes})
+                "Absent").child(date).child(period).update({'notes': notes}, session['token'])
 
     # upload notes
     os.remove(os.path.join('temp', rand))
@@ -355,7 +360,7 @@ def homeroom_abs_publish():
     with open(os.path.join('temp', rand), "wb") as fh:
         fh.write(base64.decodebytes(signature))
     storage.child(os.path.join('signatures', rand)
-                  ).put(os.path.join('temp', rand))
+                  ).put(os.path.join('temp', rand), session['token'])
     formData.pop('signatureData')
     formData.pop('date')
     formData.pop('homeroom')
@@ -363,11 +368,11 @@ def homeroom_abs_publish():
     for i in formData:
         i = i.split('^')
         db.child("Homerooms").child(homeroom[0]).child(
-            homeroom[1]).child("Absent").child(date).child(period).update({i[1]: int(i[0])})
+            homeroom[1]).child("Absent").child(date).child(period).update({i[1]: int(i[0])}, session['token'])
     db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
-        "Absent").child(date).child(period).update({'signature': str(storage.child(os.path.join('signatures', rand)).get_url(None))})
+        "Absent").child(date).child(period).update({'signature': str(storage.child(os.path.join('signatures', rand)).get_url(None))}, session['token'])
     db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
-        "Absent").child(date).child(period).update({'notes': notes})
+        "Absent").child(date).child(period).update({'notes': notes}, session['token'])
     os.remove(os.path.join('temp', rand))
     return redirect('/manage')
 
@@ -386,9 +391,9 @@ def homeroom_confirm():
     with open(os.path.join('temp', rand), "wb") as fh:
         fh.write(base64.decodebytes(signature))
     storage.child(os.path.join('signatures', rand)
-                  ).put(os.path.join('temp', rand))
+                  ).put(os.path.join('temp', rand), session['token'])
     db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child("Absent").child(date).update(
-        {"confirm": str(storage.child(os.path.join('signatures', rand)).get_url(None))})
+        {"confirm": str(storage.child(os.path.join('signatures', rand)).get_url(None))}, session['token'])
     os.remove(os.path.join('temp', rand))
     return redirect('/manage')
 
@@ -421,7 +426,7 @@ def upload_homeroom():
                             })
                         else:
                             db.child("Homerooms").child(gradec).child(
-                                classc).child(row['number']).set(row)
+                                classc).child(row['number']).set(row, session['token'])
                 # row['class'] row['number'] row['name'] row['eng_name']
                 os.remove(filepath)
             except Exception as e:
@@ -451,7 +456,7 @@ def upload_gp_classes():
                             break
                         if j % 5 == 0:
                             db.child("Classes").child("GP_Class").child(csv_dict.columns[i+1]).child("Class").child(
-                                tmp_csv[j]).child("name").set(tmp_csv[j+1] + " : " + tmp_csv[j+2] + " (" + tmp_csv[j+3] + ")")
+                                tmp_csv[j]).child("name").set(tmp_csv[j+1] + " : " + tmp_csv[j+2] + " (" + tmp_csv[j+3] + ")", session['token'])
                             auth.create_user_with_email_and_password(
                                 tmp_csv[j] + "@group-attendance.fhjh.tp.edu.tw", tmp_csv[j+4])
                             user = auth.sign_in_with_email_and_password(
@@ -462,7 +467,7 @@ def upload_gp_classes():
                                 "class": {
                                     csv_dict.columns[i+1]: tmp_csv[j],
                                 }
-                            })
+                            }, session['token'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)
@@ -490,11 +495,11 @@ def upload_stud_in_group():
                     headers = headers[1:]
                     for h in headers:
                         db.child("Classes").child("GP_Class").child(
-                            h).child("Homerooms").update({gradec+'^'+classc: 0})
+                            h).child("Homerooms").update({gradec+'^'+classc: 0}, session['token'])
                     for row in csv_dict:
                         for h in headers:
                             db.child("Homerooms").child(gradec).child(classc).child(
-                                row['number']).child("GP_Class").update({h: row[h]})
+                                row['number']).child("GP_Class").update({h: row[h]}, session['token'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)
@@ -525,14 +530,14 @@ def upload_period_list():
                         if not (periodCodes[j].endswith('-t')):
                             if type(tmp_csv[j]) == float:
                                 db.child("Classes").child("Homeroom").child(gradec).child(classc).child(
-                                    str(i+1)).child(periodCodes[j]).update({'name': '--'})
+                                    str(i+1)).child(periodCodes[j]).update({'name': '--'}, session['token'])
                             else:
                                 db.child("Classes").child("Homeroom").child(gradec).child(classc).child(
-                                    str(i+1)).child(periodCodes[j]).update({'name': tmp_csv[j]})
+                                    str(i+1)).child(periodCodes[j]).update({'name': tmp_csv[j]}, session['token'])
                                 if not(periodCodes[j] == 'm' or periodCodes[j] == 'n'):
                                     j += 1
                                     db.child("Classes").child("Homeroom").child(gradec).child(classc).child(
-                                        str(i+1)).child(periodCodes[j-1]).update({'teacher': tmp_csv[j]})
+                                        str(i+1)).child(periodCodes[j-1]).update({'teacher': tmp_csv[j]}, session['token'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)
@@ -555,19 +560,17 @@ def upload_dates():
                 with open(filepath) as file:
                     csv_dict = csv.DictReader(file)
                     headers = csv_dict.fieldnames
-                    temp = db.child("Homerooms").get().val()
+                    temp = db.child("Homerooms").get(session['token']).val()
                     for row in csv_dict:
                         for h in headers:
                             for t in temp:
                                 for i in temp[t]:
                                     periodData = db.child("Classes").child(
-                                        "Homeroom").child(t).child(i).get().val()
+                                        "Homeroom").child(t).child(i).get(session['token']).val()
                                     db.child("Homerooms").child(t).child(i).child(
-                                        "Absent").child(h).update({"dow": row[h]})
+                                        "Absent").child(h).update({"dow": row[h]}, session['token'])
                                     db.child("Homerooms").child(t).child(i).child(
-                                        "Absent").child(h).update(
-                                        periodData[int(row[h])]
-                                    )
+                                        "Absent").child(h).update(periodData[int(row[h])], session['token'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)
@@ -598,7 +601,7 @@ def upload_admin_acc():
                             'permission': 'admin',
                             'username': row['username'],
                             'showUpload': row['permission']
-                        })
+                        }, session['token'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)

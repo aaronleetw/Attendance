@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login | 登入</title>
+    <title>Attendance 點名系統 (β)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/allpages.css">
@@ -51,12 +51,15 @@
                     <a target="_blank" href="https://policies.google.com/privacy">Privacy Policy</a> and
                     <a target="_blank" href="https://policies.google.com/terms">Terms of Service</a> apply.
                 </div>
-                {% if error %}
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
                 <div class="alert alert-danger" role="alert">
-                    帳號或密碼錯誤，請重新輸入<br>
-                    Incorrect username or password
+                    {% for message in messages %}
+                    {% autoescape false %}{{message}}{% endautoescape %}
+                    {% endfor %}
                 </div>
                 {% endif %}
+                {% endwith %}
             </div>
             <div class="col"></div>
         </div>
@@ -64,15 +67,7 @@
     <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
             style="height:100%;" />
     </div>
-    <footer>
-        <hr>
-        <p style="text-align: center;">&copy; 2021 Attendance (β) | Made by <a target="_blank"
-                href="https://github.com/aaronleetw">Aaron Lee 李翊愷</a> for <a target="_blank"
-                href="https://www.fhjh.tp.edu.tw">Taipei Fuhsing Private School</a>
-            <br>
-            Consultants: Mr. Raymond Tsai 蔡瑋倫老師, Alvin Tsao 曹庭睿
-        </p>
-    </footer>
+    {% include 'footer.html' %}
     <script type=" text/javascript" src="/static/jquery.min.js"></script>
     <script>
         function loadingAnimation() {
