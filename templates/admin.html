@@ -135,6 +135,11 @@
             </div>
             {% endfor %}
             {% endif %}
+            {% if 'confirm' in absData[currDate] %}
+            <p style="color: blue; text-align: center;">Homeroom Teacher Confirmed 班導已確認</p>
+            {% else %}
+            <p style="color: red; text-align: center;">Homeroom Teacher NOT Confirmed 班導尚未確認</p>
+            {% endif %}
             {% for c in range(periods|length + 1) %}
             {% if c % 4 == 0 %}
             <div class="row signatures">
@@ -142,7 +147,11 @@
                 <div class="col half">
                     {% if c == 0 %}
                     <div class="row">Homeroom Teacher</div>
+                    {% if 'confirm' in absData[currDate] %}
                     <div class="row"><img src="{{absData[currDate]['confirm']}}" alt=""></div>
+                    {% else %}
+                    <div class="row"><span style="color:red;">No Signature 導師尚未簽名</span></div>
+                    {% endif %}
                     {% else %}
                     {% if absData[currDate][periods[c-1]]['name'] == 'GP' %}
                     {% if 'signature' in absData[currDate][periods[c-1]] %}
