@@ -23,7 +23,7 @@
 </head>
 
 <body>
-    <div class="showTime">Current Time: <span id="showTime"></span></div>
+    <div class="showTime"><span id="showTime"></span></div>
     <div class="container">
         <h1 class="margin-top">Group Class View | 分組課頁面</h1>
         <h2 class="margin-top">{{cclass['category']}}: {{cclass['class_id']}}: {{cclass['name']}}</h2>
@@ -188,8 +188,8 @@
             document.getElementById('late^' + string).checked = false;
         }
     </script>
-    <div id="loading" style="text-align:center; width:100%; max-height:100%; display:none;"><img
-            src="/static/loading.gif" alt="" style="width:100%;" />
+    <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
+            style="height:100%;" />
     </div>
     {% include 'footer.html' %}
     <script>

@@ -23,11 +23,16 @@
 </head>
 
 <body>
-    <div class="showTime">Current Time: <span id="showTime"></span></div>
+    <div class="showTime"><span id="showTime"></span></div>
     <div class="container">
         <h1 class="margin-top">Admin View | 管理頁面</h1>
         <h2 class="margin-top">{{homeroomCode[0]}} {{homeroomCode[1]}}</h2>
         <h2>[{{currDate}}]</h2>
+        {% if 'confirm' in absData[currDate] %}
+        <h2 style="color: rgb(61, 194, 0); text-align: center;">Homeroom Confirmed 班導已確認</h2>
+        {% else %}
+        <h2 style="color: red; text-align: center;">Homeroom NOT Confirmed 班導尚未確認</h2>
+        {% endif %}
         <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
         <div class="container margin-bottom">
             <form action="/manage/admin" id="adminSelForm" method="post">
@@ -135,18 +140,13 @@
             </div>
             {% endfor %}
             {% endif %}
-            {% if 'confirm' in absData[currDate] %}
-            <p style="color: blue; text-align: center;">Homeroom Teacher Confirmed 班導已確認</p>
-            {% else %}
-            <p style="color: red; text-align: center;">Homeroom Teacher NOT Confirmed 班導尚未確認</p>
-            {% endif %}
             {% for c in range(periods|length + 1) %}
             {% if c % 4 == 0 %}
             <div class="row signatures">
                 {% endif %}
                 <div class="col half">
                     {% if c == 0 %}
-                    <div class="row">Homeroom Teacher</div>
+                    <div class="row">Homeroom Teacher 導師</div>
                     {% if 'confirm' in absData[currDate] %}
                     <div class="row"><img src="{{absData[currDate]['confirm']}}" alt=""></div>
                     {% else %}
