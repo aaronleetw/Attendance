@@ -56,6 +56,12 @@ def verify_recaptcha(response):
     return r.json()['success']
 
 
+def removeprefix(s, prefix):
+    if s.startswith(prefix):
+        return s[len(prefix):]
+    return s
+
+
 def manageProcess(fCommand, fData):
     if (check_login_status()):
         return redirect('/logout')
@@ -304,7 +310,7 @@ def group_teach_publish():
     if 'notes' in request.form:
         notes = request.form['notes']
         formData.pop('notes')
-    signature = signature.removeprefix('data:image/png;base64,')
+    signature = removeprefix(signature, 'data:image/png;base64,')
     signature = bytes(signature, 'utf-8')
     rand = str(date + '^' + cclass['category'] +
                '^' + cclass['class_id'] + '^' + period)
@@ -353,7 +359,7 @@ def homeroom_abs_publish():
     if 'notes' in request.form:
         notes = request.form['notes']
         formData.pop('notes')
-    signature = signature.removeprefix('data:image/png;base64,')
+    signature = removeprefix(signature, 'data:image/png;base64,')
     signature = bytes(signature, 'utf-8')
     rand = str(date + '^' + homeroom[0] + '^' + homeroom[1] + '^' + period)
     rand += ".png"
@@ -384,7 +390,7 @@ def homeroom_confirm():
     date = request.form['date']
     homeroom = request.form['homeroom'].split('^')
     signature = request.form['signatureData']
-    signature = signature.removeprefix('data:image/png;base64,')
+    signature = removeprefix(signature, 'data:image/png;base64,')
     signature = bytes(signature, 'utf-8')
     rand = str(date + '^' + homeroom[0] + '^' + homeroom[1] + '^' + 'hrCfrm')
     rand += ".png"
