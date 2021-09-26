@@ -7,7 +7,6 @@ import csv
 import os
 import pandas as pd
 import base64
-from random import randint
 from dotenv import load_dotenv
 import requests
 load_dotenv()
@@ -307,7 +306,8 @@ def group_teach_publish():
         formData.pop('notes')
     signature = signature.removeprefix('data:image/png;base64,')
     signature = bytes(signature, 'utf-8')
-    rand = str(randint(100000000000000, 999999999999999))
+    rand = str(date + '^' + cclass['category'] +
+               '^' + cclass['class_id'] + '^' + period)
     rand += ".png"
     with open(os.path.join('temp', rand), "wb") as fh:
         fh.write(base64.decodebytes(signature))
@@ -355,7 +355,7 @@ def homeroom_abs_publish():
         formData.pop('notes')
     signature = signature.removeprefix('data:image/png;base64,')
     signature = bytes(signature, 'utf-8')
-    rand = str(randint(100000000000000, 999999999999999))
+    rand = str(date + '^' + homeroom[0] + '^' + homeroom[1] + '^' + period)
     rand += ".png"
     with open(os.path.join('temp', rand), "wb") as fh:
         fh.write(base64.decodebytes(signature))
