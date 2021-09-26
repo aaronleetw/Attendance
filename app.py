@@ -386,7 +386,7 @@ def homeroom_confirm():
     signature = request.form['signatureData']
     signature = signature.removeprefix('data:image/png;base64,')
     signature = bytes(signature, 'utf-8')
-    rand = str(randint(100000000000000, 999999999999999))
+    rand = str(date + '^' + homeroom[0] + '^' + homeroom[1] + '^' + 'hrCfrm')
     rand += ".png"
     with open(os.path.join('temp', rand), "wb") as fh:
         fh.write(base64.decodebytes(signature))
