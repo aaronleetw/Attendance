@@ -137,7 +137,7 @@ def upload_stud_in_group():
                     for row in csv_dict:
                         for h in headers:
                             db.child("Homerooms").child(gradec).child(classc).child(
-                                row['number']).child("GP_Class").update({h: row[h]}, session['token'])
+                                str(gradec + classc)).child("GP_Class").update({h: row[h]}, session['token'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)
@@ -201,6 +201,7 @@ def upload_dates():
                     temp = db.child("Homerooms").get(session['token']).val()
                     for row in csv_dict:
                         for h in headers:
+                            h = h.replace('/', '-')
                             for t in temp:
                                 for i in temp[t]:
                                     periodData = db.child("Classes").child(
