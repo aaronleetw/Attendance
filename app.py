@@ -72,10 +72,10 @@ def index():
                         'reCAPTCHA 錯誤，請稍後再試一次<br>reCAPTCHA Failed. Please try again later.')
                     return redirect('/')
             except Exception as e:
-              print("Error:", email, str(e), flush=True)
-              flash(
+                print("Error:", email, str(e), flush=True)
+                flash(
                     '帳號或密碼錯誤，請重新輸入<br>Incorrect username or password')
-              return redirect('/')
+                return redirect('/')
         else:
             return redirect('/manage')
 
