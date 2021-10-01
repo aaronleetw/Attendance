@@ -52,11 +52,13 @@ def index():
             return render_template('login.html')
         return redirect('/manage')
     elif request.method == 'POST':
+        email = request.form['username'] + "@group-attendance.fhjh.tp.edu.tw"
         if check_login_status():
             try:
                 if (verify_recaptcha(request.form['g-recaptcha-response'])):
                     user = auth.sign_in_with_email_and_password(
-                        request.form['username'] + "@group-attendance.fhjh.tp.edu.tw", request.form['password'])
+                        email, request.form['password'])
+                    print("Login SUCC:", email, flush=True)
                     session['is_logged_in'] = True
                     session['email'] = user['email']
                     session['uid'] = user['localId']
@@ -65,13 +67,15 @@ def index():
                     session['loginTime'] = datetime.now(tz)
                     return redirect('/manage')
                 else:
+                    print("ReC Error:", email, flush=True)
                     flash(
                         'reCAPTCHA 錯誤，請稍後再試一次<br>reCAPTCHA Failed. Please try again later.')
                     return redirect('/')
             except Exception as e:
-                flash(
+              print("Error:", email, str(e), flush=True)
+              flash(
                     '帳號或密碼錯誤，請重新輸入<br>Incorrect username or password')
-                return redirect('/')
+              return redirect('/')
         else:
             return redirect('/manage')
 
