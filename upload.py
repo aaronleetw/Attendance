@@ -137,7 +137,7 @@ def upload_stud_in_group():
                     for row in csv_dict:
                         for h in headers:
                             db.child("Homerooms").child(gradec).child(classc).child(
-                                str(gradec + classc)).child("GP_Class").update({h: row[h]}, session['token'])
+                                row[str(gradec+classc)]).child("GP_Class").update({h: row[h]}, session['token'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)
