@@ -60,7 +60,7 @@ def upload_homeroom():
                             db.child("Users").child(user['localId']).update({
                                 "permission": 'homeroom',
                                 "username": gradec + classc,
-                                "homeroom": gradec + classc
+                                "homeroom": gradec + '^' + classc
                             })
                         else:
                             db.child("Homerooms").child(gradec).child(
