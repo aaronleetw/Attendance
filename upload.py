@@ -207,9 +207,9 @@ def upload_dates():
                                     periodData = db.child("Classes").child(
                                         "Homeroom").child(t).child(i).get(session['token']).val()
                                     db.child("Homerooms").child(t).child(i).child(
-                                        "Absent").child(h).update({"dow": row[h]}, session['token'])
+                                        "Absent").child(h).update({"dow": row[h.replace('-', '/')]}, session['token'])
                                     db.child("Homerooms").child(t).child(i).child(
-                                        "Absent").child(h).update(periodData[int(row[h])], session['token'])
+                                        "Absent").child(h).update(periodData[int(row[h.replace('-', '/')])], session['token'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)
