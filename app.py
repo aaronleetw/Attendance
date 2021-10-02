@@ -43,7 +43,7 @@ def verify_recaptcha(response):
     }
     r = requests.post(
         'https://www.google.com/recaptcha/api/siteverify', data=data)
-    print(j.json())
+    print(r.json())
     return r.json()['success']
 
 
