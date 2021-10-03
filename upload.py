@@ -98,7 +98,7 @@ def upload_homeroom():
                                 if accs == []:
                                     break
                                 if (allUsers[key]['origUsername'] in accs):
-                                    db.child("Users").child(key).child("accounts").child("homeroom^"+gradec+classc+'^'+randint(10000)).update({
+                                    db.child("Users").child(key).child("accounts").child("homeroom^"+gradec+classc+'^'+randint(10000, 99999)).update({
                                         "homeroom": gradec + '^' + classc,
                                         "type": 'homeroom'
                                     }, session['token'])
@@ -142,7 +142,7 @@ def upload_gp_classes():
                                 if accs == []:
                                     break
                                 if (allUsers[key]['origUsername'] in accs):
-                                    db.child("Users").child(key).child("accounts").child("GP_Class^"+csv_dict.columns[i+1]+'^'+randint(10000)).update({
+                                    db.child("Users").child(key).child("accounts").child("GP_Class^"+csv_dict.columns[i+1]+'^'+randint(10000, 99999)).update({
                                         csv_dict.columns[i+1]: tmp_csv[j],
                                         "type": 'group'
                                     }, session['token'])
