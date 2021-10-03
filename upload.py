@@ -83,7 +83,7 @@ def upload_homeroom():
                 with open(filepath) as file:
                     csv_dict = csv.DictReader(file)
                     for row in csv_dict:
-                        if row['number'] == 'teacher' | | row['number'] == 'Teacher':
+                        if row['number'] == 'teacher' or row['number'] == 'Teacher':
                             accs = row['name'].split(',')
                             for key in allUsers:
                                 if accs == []:
