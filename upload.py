@@ -37,6 +37,14 @@ def check_permission():
             db.child("Users").child(session['uid']).child("showUpload").get(session['token']).val() == '1')
 
 
+def addZeroesUntil(str, number):
+    if len(str) >= number:
+        return str
+    else:
+        str = str + '0'
+        return addZeroesUntil(str, number)
+
+
 @upload.route('/upload/users', methods=['GET', 'POST'])
 def upload_users():
     if ((not check_login_status()) and check_permission()):
@@ -50,8 +58,9 @@ def upload_users():
                 with open(filepath) as file:
                     csv_dict = csv.DictReader(file)
                     for row in csv_dict:
+                        pwd = addZeroesUntil(row['password'], 6)
                         user = auth.create_user_with_email_and_password(
-                            row['username'] + "@group-attendance.fhjh.tp.edu.tw", row['password'])
+                            row['username'] + "@group-attendance.fhjh.tp.edu.tw", pwd)
                         db.child("Users").child(user['localId']).set({
                             'permission': 'realPerson',
                             'name': row['name'],
