@@ -242,15 +242,14 @@ def upload_dates():
                     temp = db.child("Homerooms").get(session['token']).val()
                     for row in csv_dict:
                         for h in headers:
-                            h = h.replace('/', '-')
                             for t in temp:
                                 for i in temp[t]:
                                     periodData = db.child("Classes").child(
                                         "Homeroom").child(t).child(i).get(session['token']).val()
                                     db.child("Homerooms").child(t).child(i).child(
-                                        "Absent").child(h).update({"dow": row[h.replace('-', '/')]}, session['token'])
+                                        "Absent").child(h).update({"dow": row[h]}, session['token'])
                                     db.child("Homerooms").child(t).child(i).child(
-                                        "Absent").child(h).update(periodData[int(row[h.replace('-', '/')])], session['token'])
+                                        "Absent").child(h).update(periodData[int(row[h])], session['token'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)
