@@ -84,13 +84,16 @@ def upload_homeroom():
                     csv_dict = csv.DictReader(file)
                     for row in csv_dict:
                         if row['number'] == 'teacher':
+                            accs = row['name'].split(',')
                             for key in allUsers:
-                                if (allUsers[key]['origUsername'] == row['name']):
+                                if accs == []:
+                                    break
+                                if (allUsers[key]['origUsername'] in accs):
                                     db.child("Users").child(key).child("accounts").child("homeroom^"+gradec+classc+'^'+randint(10000)).update({
                                         "homeroom": gradec + '^' + classc,
                                         "type": 'homeroom'
                                     }, session['token'])
-                                    break
+                                    accs.remove(allUsers[key]['origUsername'])
                         else:
                             db.child("Homerooms").child(gradec).child(
                                 classc).child(row['number']).set(row, session['token'])
@@ -125,13 +128,16 @@ def upload_gp_classes():
                         if j % 5 == 0:
                             db.child("Classes").child("GP_Class").child(csv_dict.columns[i+1]).child("Class").child(
                                 tmp_csv[j]).child("name").set(tmp_csv[j+1] + " : " + tmp_csv[j+2] + " (" + tmp_csv[j+3] + ")", session['token'])
+                            accs = tmp_csv[j+4].split(',')
                             for key in allUsers:
-                                if (allUsers[key]['origUsername'] == tmp_csv[j+4]):
+                                if accs == []:
+                                    break
+                                if (allUsers[key]['origUsername'] in accs):
                                     db.child("Users").child(key).child("accounts").child("GP_Class^"+csv_dict.columns[i+1]+'^'+randint(10000)).update({
                                         csv_dict.columns[i+1]: tmp_csv[j],
                                         "type": 'group'
                                     }, session['token'])
-                                    break
+                                    accs.remove(allUsers[key]['origUsername'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)
