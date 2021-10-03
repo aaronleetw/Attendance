@@ -31,11 +31,12 @@
         <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
         <form action="/select" id="subuser_form_sel" method="post">
             <select name="subuser_sel" id="subuser_sel" class="form-select logout" onchange="loadingAnimation();"
-                required>
+                required multiple>
                 <option value="" selected>Please select</option>
                 {% for key in data %}
                 {% if data[key]['type'] == 'homeroom' %}
-                <option value="homeroom^{{data[key]['homeroom']}}">Homeroom: {{data[key]['homeroom']}}</option>
+                <option value="homeroom^{{data[key]['homeroom']}}">HR: {{data[key]['homeroom']}}
+                </option>
                 {% else %}
                 {% for i in data[key] %}
                 {% if i == 'type' %}

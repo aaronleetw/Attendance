@@ -5,6 +5,11 @@ body {
     font-family: "Lato", "Noto Sans TC", "Microsoft JhengHei", "sans-serif";
 }
 
+select option {
+    font-family: "Font Awesome 5 Free", "Lato", "Noto Sans TC", "Microsoft JhengHei", "sans-serif";
+    font-weight: 900;
+}
+
 div.col .row .col {
     border: 1px solid black;
     display: inline-block;
@@ -149,4 +154,24 @@ div.showTime {
     color: rgb(160, 160, 160);
     font-size: 0.7524em;
     margin-bottom: 20px;
+}
+
+.input-group-prepend .input-group-text, .input-group-append .input-group-text {
+    padding: 12px;
+}
+
+.toggle-password {
+    cursor: pointer;
+}
+
+label {
+    text-align: left;
+}
+
+.input-group.hasSmall {
+    margin-bottom: 0 !important;
+}
+
+#chgPasswordForm .form-group {
+    margin-bottom: 0 !important;
 }

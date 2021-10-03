@@ -29,7 +29,7 @@
         <h2 class="margin-top">{{cclass['category']}}: {{cclass['class_id']}}: {{cclass['name']}}</h2>
         <h2>[{{currDate}}]</h2>
         <a href="/logout"><button class="btn btn-primary margin-top logout">Logout 登出</button></a>
-        <a href="/select"><button class="btn btn-primary margin-top logout">選擇其他帳號 Choose Subuser</button></a>
+        <a href="/select"><button class="btn btn-primary margin-top logout">Choose Subuser 選擇其他帳號</button></a>
         <form action="/manage/date" id="dateSelForm" method="post">
             <select name="date" id="date" class="form-select logout" onchange="chgDate(this);">
                 {% for date in tmpAbsData %}
