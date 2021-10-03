@@ -25,35 +25,26 @@
 <body>
     <div class="showTime"><span id="showTime"></span></div>
     <div class="container">
-        <h1 class="margin-top margin-bottom">Attendance 點名系統 (β) | Login 登入</h1>
+        <h1 class="margin-top margin-bottom">Attendance 點名系統 (β) | Reset Password 忘記密碼</h1>
         <div class="row">
             <div class="col"></div>
             <div class="col-md-5">
-                <form action="/" id="loginForm" method="post">
+                <form action="/iforgot" id="forgotPassword_sel" method="post">
                     <div class="form-group row" style="margin-bottom: 10px;">
                         <div class="col-3 center"><label for="username" style="font-size: 19px">Username 帳號: </label>
                         </div>
                         <div class="col-9 center-input"><input type="text" class="form-control" name="username"
                                 id="username"></div>
                     </div>
-                    <div class="form-group row" style="margin-bottom: 10px;">
-                        <div class="col-3 center"><label for="password" style="font-size: 19px">Password 密碼: </label>
-                        </div>
-                        <div class="col-9 center-input"><input type="password" class="form-control" name="password"
-                                id="password"></div>
-                    </div>
-                    <button class="btn btn-primary btn-block g-recaptcha" onclick="loadingAnimation()">Login
-                        登入</button>
+                    <button class="btn btn-warning btn-block g-recaptcha" onclick="loadingAnimation()">Confirm
+                        確認</button>
                 </form>
-                <a href="/iforgot">Forgot Password 忘記密碼</a>
-                <div class="disclaimer" hidden="hidden">
-                    This site is protected by reCAPTCHA and the Google
-                    <a target="_blank" href="https://policies.google.com/privacy">Privacy Policy</a> and
-                    <a target="_blank" href="https://policies.google.com/terms">Terms of Service</a> apply.
-                </div>
+                <p>This will send an email to the email address to verify your identity.<br>
+                    這會傳送一個郵件到指定的信箱，以驗證您的身份
+                </p>
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                <div class="alert alert-danger margin-top" role="alert">
+                <div class="alert alert-danger" role="alert">
                     {% for message in messages %}
                     {% autoescape false %}{{message}}{% endautoescape %}
                     {% endfor %}
@@ -71,7 +62,7 @@
     <script type=" text/javascript" src="/static/jquery.min.js"></script>
     <script>
         function loadingAnimation() {
-            $('#loginForm').submit();
+            $('#forgotPassword_sel').submit();
             $('.container').hide();
             $('#loading').show();
         }

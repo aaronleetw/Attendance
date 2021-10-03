@@ -6,6 +6,7 @@ import csv
 import os
 import pandas as pd
 from dotenv import load_dotenv
+from random import randint
 load_dotenv()
 
 upload = Blueprint('upload', __name__)
@@ -36,6 +37,35 @@ def check_permission():
             db.child("Users").child(session['uid']).child("showUpload").get(session['token']).val() == '1')
 
 
+@upload.route('/upload/users', methods=['GET', 'POST'])
+def upload_users():
+    if ((not check_login_status()) and check_permission()):
+        if request.method == 'GET':
+            return render_template('uploadcsv.html', title="All Indiviual Users", url="/upload/users")
+        elif request.method == 'POST':
+            try:
+                csv_file = request.files['csv']
+                filepath = os.path.join('./temp', csv_file.filename)
+                csv_file.save(filepath)
+                with open(filepath) as file:
+                    csv_dict = csv.DictReader(file)
+                    for row in csv_dict:
+                        user = auth.create_user_with_email_and_password(
+                            row['username'] + "@group-attendance.fhjh.tp.edu.tw", row['password'])
+                        db.child("Users").child(user['localId']).set({
+                            'permission': 'realPerson',
+                            'name': row['name'],
+                            'origUsername': row['username'],
+                        }, session['token'])
+                os.remove(filepath)
+            except Exception as e:
+                os.remove(filepath)
+                return "Error. Please try again\n("+str(e)+")"
+            return "Successfully uploaded users"
+    else:
+        return redirect('/logout')
+
+
 @upload.route('/upload/1', methods=['GET', 'POST'])
 def upload_homeroom():
     if ((not check_login_status()) and check_permission()):
@@ -49,19 +79,18 @@ def upload_homeroom():
                 csv_file = request.files['csv']
                 filepath = os.path.join('./temp', csv_file.filename)
                 csv_file.save(filepath)
+                allUsers = db.child("Users").get(session['token']).val()
                 with open(filepath) as file:
                     csv_dict = csv.DictReader(file)
                     for row in csv_dict:
-                        if row['number'] == 'password':
-                            auth.create_user_with_email_and_password(
-                                gradec + classc + "@group-attendance.fhjh.tp.edu.tw", row['name'])
-                            user = auth.sign_in_with_email_and_password(
-                                gradec + classc + "@group-attendance.fhjh.tp.edu.tw", row['name'])
-                            db.child("Users").child(user['localId']).update({
-                                "permission": 'homeroom',
-                                "username": gradec + classc,
-                                "homeroom": gradec + '^' + classc
-                            })
+                        if row['number'] == 'teacher':
+                            for key in allUsers:
+                                if (allUsers[key]['origUsername'] == row['name']):
+                                    db.child("Users").child(key).child("accounts").child("homeroom^"+gradec+classc+'^'+randint(10000)).update({
+                                        "homeroom": gradec + '^' + classc,
+                                        "type": 'homeroom'
+                                    }, session['token'])
+                                    break
                         else:
                             db.child("Homerooms").child(gradec).child(
                                 classc).child(row['number']).set(row, session['token'])
@@ -87,6 +116,7 @@ def upload_gp_classes():
                 csv_file.save(filepath)
                 csv_dict = pd.read_csv(filepath)
                 category_cnt = csv_dict.shape[1] - 1
+                allUsers = db.child("Users").get(session['token']).val()
                 for i in range(category_cnt):
                     tmp_csv = csv_dict[csv_dict.columns[i+1]].tolist()
                     for j in range(len(tmp_csv)):
@@ -95,17 +125,13 @@ def upload_gp_classes():
                         if j % 5 == 0:
                             db.child("Classes").child("GP_Class").child(csv_dict.columns[i+1]).child("Class").child(
                                 tmp_csv[j]).child("name").set(tmp_csv[j+1] + " : " + tmp_csv[j+2] + " (" + tmp_csv[j+3] + ")", session['token'])
-                            auth.create_user_with_email_and_password(
-                                tmp_csv[j] + "@group-attendance.fhjh.tp.edu.tw", tmp_csv[j+4])
-                            user = auth.sign_in_with_email_and_password(
-                                tmp_csv[j] + "@group-attendance.fhjh.tp.edu.tw", tmp_csv[j+4])
-                            db.child("Users").child(user['localId']).update({
-                                "permission": 'group',
-                                "username": tmp_csv[j],
-                                "class": {
-                                    csv_dict.columns[i+1]: tmp_csv[j],
-                                }
-                            }, session['token'])
+                            for key in allUsers:
+                                if (allUsers[key]['origUsername'] == tmp_csv[j+4]):
+                                    db.child("Users").child(key).child("accounts").child("GP_Class^"+csv_dict.columns[i+1]+'^'+randint(10000)).update({
+                                        csv_dict.columns[i+1]: tmp_csv[j],
+                                        "type": 'group'
+                                    }, session['token'])
+                                    break
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)

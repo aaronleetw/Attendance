@@ -51,8 +51,7 @@ def manageProcess(fCommand, fData):
     db.child("Users").child(
         session['uid']).child("permission").get(session['token']).val()
     # end bug fix
-    pl = db.child("Users").child(
-        session['uid']).child("permission").get(session['token']).val()
+    pl = session['subuser_type']
     if pl == 'admin':
         homerooms = db.child("Homerooms").get(session['token']).val()
         currRoom = []
@@ -80,21 +79,15 @@ def manageProcess(fCommand, fData):
                     break
         return render_template('admin.html', homerooms=homerooms, absData=absData,
                                homeroomCode=currRoom, homeroomData=homeroomData, currDate=currDate, periods=['m', '1', '2', '3', '4',
-                                                                                                             'n', '5', '6', '7', '8', '9'], showUpload=db.child("Users").child(
-                                   session['uid']).child("showUpload").get(session['token']).val())
+                                                                                                             'n', '5', '6', '7', '8', '9'], showUpload=session['showUpload'])
     elif pl == 'group':
-        classes = db.child("Users").child(
-            session['uid']).child("class").get(session['token']).val()
-        cclass = {}
-        cateData = {}
-        for i in classes:
-            cateData = db.child("Classes").child(
-                "GP_Class").child(i).get(session['token']).val()
-            cclass = {
-                "name": cateData['Class'][classes[i]]['name'],
-                "category": i,
-                "class_id": classes[i]
-            }
+        cateData = db.child("Classes").child(
+            "GP_Class").child(session['category']).get(session['token']).val()
+        cclass = {
+            "name": cateData['Class'][session['class']]['name'],
+            "category": session['category'],
+            "class_id": session['class']
+        }
         homerooms = cateData['Homerooms']
         currDate = ""
         confirmed = []
@@ -175,8 +168,7 @@ def manageProcess(fCommand, fData):
                         }
         return render_template('group_teach.html', cclass=cclass, absData=absData, dow=dow, currDate=currDate, tmpAbsData=tmpAbsData, confirmed=confirmed)
     elif pl == 'homeroom':
-        homeroom = db.child("Users").child(
-            session['uid']).child("homeroom").get(session['token']).val().split('^')
+        homeroom = session['homeroom'].split('^')
         homeroomData = db.child("Homerooms").child(homeroom[0]).child(
             homeroom[1]).get(session['token']).val()
         times = OrderedDict({
@@ -241,18 +233,14 @@ def manage_admin():
 def group_teach_publish():
     if (check_login_status()):
         return redirect('/logout')
-    classes = db.child("Users").child(
-        session['uid']).child("class").get(session['token']).val()
-    cclass = {}
-    for i in classes:
-        cclass = {
-            "name": db.child("Classes").child("GP_Class").child(i).child(
-                "Class").child(classes[i]).child("name").get(session['token']).val(),
-            "category": i,
-            "class_id": classes[i],
-            "homerooms": db.child("Classes").child(
-                "GP_Class").child(i).child("Homerooms").get(session['token']).val()
-        }
+    cclass = {
+        "name": db.child("Classes").child("GP_Class").child(session['category']).child(
+            "Class").child(session['class']).child("name").get(session['token']).val(),
+        "category": session['category'],
+        "class_id": session['class'],
+        "homerooms": db.child("Classes").child(
+            "GP_Class").child(session['category']).child("Homerooms").get(session['token']).val()
+    }
     date = request.form['date']
     period = request.form['period']
     signature = request.form['signatureData']
