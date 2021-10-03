@@ -91,7 +91,7 @@ def index():
                         'reCAPTCHA 錯誤，請稍後再試一次<br>reCAPTCHA Failed. Please try again later.')
                     return redirect('/')
             except Exception as e:
-                print("Error:", email, str(e), flush=True)
+                print("Error*Login:", email, str(e), flush=True)
                 flash(
                     '帳號或密碼錯誤，請重新輸入<br>Incorrect username or password')
                 return redirect('/')
@@ -131,8 +131,10 @@ def selSubUser():
                     'reCAPTCHA 錯誤，請稍後再試一次<br>reCAPTCHA Failed. Please try again later.')
                 return redirect('/select')
         except Exception as e:
-            print("Error:", data, str(e), flush=True)
-            flash(str(e))
+            print("Error*select:", session['email'], str(json.loads(e.args[1])[
+                  'error']['message']), flush=True)
+            flash(str(json.loads(e.args[1])[
+                  'error']['message']))
             return redirect('/select')
 
 
@@ -185,21 +187,23 @@ def chgPassword():
                             data, usr['idToken'])
                     except:
                         pass
-                print("Error:", oldEmail, str(e), flush=True)
-                flash(str(e))
+                print("Error*chgPassword:", oldEmail, str(json.loads(e.args[1])[
+                    'error']['message']), flush=True)
+                flash(str(json.loads(e.args[1])[
+                    'error']['message']))
                 return redirect('/chgPassword')
 
 
-@app.route('/iforgot', methods=['GET', 'POST'])
-def iforgot():
+@app.route('/forgotPassword', methods=['GET', 'POST'])
+def forgotPassword():
     if request.method == 'GET':
-        return render_template('iforgot.html')
+        return render_template('forgotPassword.html')
     elif request.method == 'POST':
         email = request.form['username']
         try:
             if (verify_recaptcha("")):
                 auth.send_password_reset_email(email)
-                print("iforgot email sent:", email, flush=True)
+                print("forgotPassword email sent:", email, flush=True)
                 flash(
                     '重置密碼信件已寄出，請至信箱收取<br>Password reset email has been sent to your email. Please check your email.')
                 return redirect('/')
@@ -207,11 +211,13 @@ def iforgot():
                 print("ReC Error:", email, flush=True)
                 flash(
                     'reCAPTCHA 錯誤，請稍後再試一次<br>reCAPTCHA Failed. Please try again later.')
-                return redirect('/iforgot')
+                return redirect('/forgotPassword')
         except Exception as e:
-            print("Error:", email, str(e), flush=True)
-            flash(str(e))
-            return redirect('/iforgot')
+            print("Error*forgotPassword:", email, str(json.loads(e.args[1])[
+                  'error']['message']), flush=True)
+            flash(str(json.loads(e.args[1])[
+                  'error']['message']))
+            return redirect('/forgotPassword')
 
 
 @app.route('/resetPassword', methods=['GET', 'POST'])
@@ -234,8 +240,10 @@ def resetPassword():
                     'reCAPTCHA 錯誤，請稍後再試一次<br>reCAPTCHA Failed. Please try again later.')
                 return redirect('/resetPassword')
         except Exception as e:
-            print("Error:", str(e), flush=True)
-            flash(str(e))
+            print("Error*resetPassword:", session['oobCode'], str(json.loads(e.args[1])[
+                  'error']['message']), flush=True)
+            flash(str(json.loads(e.args[1])[
+                  'error']['message']))
             return redirect('/resetPassword')
 
 
