@@ -222,14 +222,15 @@ def forgotPassword():
 
 @app.route('/resetPassword', methods=['GET', 'POST'])
 def resetPassword():
+    if request.args.get('oobCode') is None:
+        return abort(404)
     if request.method == 'GET':
-        session['oobCode'] = request.args.get('oobCode')
-        return render_template('verifiedChgPassword.html')
+        return render_template('verifiedChgPassword.html', oobCode=request.args.get('oobCode'))
     else:
         try:
             if (verify_recaptcha("")):
                 auth.verify_password_reset_code(
-                    session['oobCode'], request.form['password'])
+                    request.args.get('oobCode'), request.form['password'])
                 print("resetPassword success:", flush=True)
                 session.clear()
                 flash('重置密碼成功，請重新登入<br>Password reset success. Please login again.')
@@ -240,11 +241,11 @@ def resetPassword():
                     'reCAPTCHA 錯誤，請稍後再試一次<br>reCAPTCHA Failed. Please try again later.')
                 return redirect('/resetPassword')
         except Exception as e:
-            print("Error*resetPassword:", session['oobCode'], str(json.loads(e.args[1])[
+            print("Error*resetPassword:", request.args.get('oobCode'), str(json.loads(e.args[1])[
                   'error']['message']), flush=True)
             flash(str(json.loads(e.args[1])[
                   'error']['message']))
-            return redirect('/resetPassword')
+            return redirect('/resetPassword?mode=resetPassword&oobCode=' + request.args.get('oobCode'))
 
 
 @ app.route('/logout', methods=['GET'])
