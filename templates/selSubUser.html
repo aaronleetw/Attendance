@@ -31,7 +31,7 @@
         <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
         <form action="/select" id="subuser_form_sel" method="post">
             <select name="subuser_sel" id="subuser_sel" class="form-select logout" onchange="loadingAnimation();"
-                required multiple>
+                required>
                 <option value="" selected>Please select</option>
                 {% for key in data %}
                 {% if data[key]['type'] == 'homeroom' %}
