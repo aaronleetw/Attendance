@@ -146,7 +146,7 @@
                 {% endif %}
                 <div class="col half">
                     {% if c == 0 %}
-                    <div class="row">Homeroom Teacher 導師</div>
+                    <div class="row needborder">Homeroom Teacher 導師</div>
                     {% if 'confirm' in absData[currDate] %}
                     <div class="row"><img src="{{absData[currDate]['confirm']}}" alt=""></div>
                     {% else %}
@@ -156,18 +156,22 @@
                     {% if absData[currDate][periods[c-1]]['name'] == 'GP' %}
                     {% if 'signature' in absData[currDate][periods[c-1]] %}
                     {% for i in absData[currDate][periods[c-1]]['signature'] %}
-                    <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: {{i}}:
+                    <div class="row needborder">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: {{i}}:
                         {{absData[currDate][periods[c-1]]['names'][i]}}</div>
-                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature'][i]}}" alt=""><br>備註:
-                        {{absData[currDate][periods[c-1]]['notes']}}</div>
+                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature'][i]}}" alt="">
+                        {% if loop.index == loop.length %}
+                        <br>備註: {{absData[currDate][periods[c-1]]['notes']}}
+                        {% endif %}
+                    </div>
                     {% endfor %}
                     {% else %}
-                    <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: No Signature
+                    <div class="row needborder">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['teacher']}}: No
+                        Signature
                     </div>
                     <div class="row"></div>
                     {% endif %}
                     {% else %}
-                    <div class="row">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['name']}}:
+                    <div class="row needborder">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['name']}}:
                         {{absData[currDate][periods[c-1]]['teacher']}}
                     </div>
                     <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature']}}"
