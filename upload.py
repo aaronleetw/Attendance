@@ -1,48 +1,7 @@
-from flask import *
-import pyrebase
-from datetime import datetime
-import pytz
-import csv
-import os
-import pandas as pd
-from dotenv import load_dotenv
-from random import randint
+from functions import *
 load_dotenv()
 
 upload = Blueprint('upload', __name__)
-config = {
-    "apiKey": os.environ.get('apiKey'),
-    "authDomain": os.environ.get('authDomain'),
-    "databaseURL": os.environ.get('databaseURL'),
-    "storageBucket": os.environ.get('storageBucket'),
-    "serviceAccount": os.environ.get('serviceAccount'),
-    "messagingSenderId": os.environ.get('messagingSenderId'),
-    "appId": os.environ.get('appId'),
-    "measurementId": os.environ.get('measurementId'),
-}
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
-auth = firebase.auth()
-tz = pytz.timezone('Asia/Taipei')
-
-
-def check_login_status():
-    return ('is_logged_in' not in session or
-            session['is_logged_in'] == False or
-            (datetime.now(tz) - session['loginTime']).total_seconds() > 3600)
-
-
-def check_permission():
-    return (db.child('Users').child(session['uid']).child('permission').get(session['token']).val() == 'admin' and
-            db.child("Users").child(session['uid']).child("showUpload").get(session['token']).val() == '1')
-
-
-def addZeroesUntil(str, number):
-    if len(str) >= number:
-        return str
-    else:
-        str = str + '0'
-        return addZeroesUntil(str, number)
 
 
 @upload.route('/upload/users', methods=['GET', 'POST'])

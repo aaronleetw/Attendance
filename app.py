@@ -1,10 +1,4 @@
-from flask import *
-import pyrebase
-from datetime import datetime
-import pytz
-import os
-from dotenv import load_dotenv
-import requests
+from functions import *
 from manage import manage
 from upload import upload
 load_dotenv()
@@ -13,39 +7,6 @@ app.register_blueprint(manage)
 app.register_blueprint(upload)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-config = {
-    "apiKey": os.environ.get('apiKey'),
-    "authDomain": os.environ.get('authDomain'),
-    "databaseURL": os.environ.get('databaseURL'),
-    "storageBucket": os.environ.get('storageBucket'),
-    "serviceAccount": os.environ.get('serviceAccount'),
-    "messagingSenderId": os.environ.get('messagingSenderId'),
-    "appId": os.environ.get('appId'),
-    "measurementId": os.environ.get('measurementId'),
-}
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
-auth = firebase.auth()
-tz = pytz.timezone('Asia/Taipei')
-
-
-def check_login_status():
-    return ('is_logged_in' not in session or
-            session['is_logged_in'] == False or
-            (datetime.now(tz) - session['loginTime']).total_seconds() > 3600)
-
-
-def verify_recaptcha(response):
-    return True
-    data = {
-        'secret': os.environ.get('RECAPTCHA_SECRET'),
-        'response': response,
-        'remoteip': request.remote_addr
-    }
-    r = requests.post(
-        'https://www.google.com/recaptcha/api/siteverify', data=data)
-    print(r.json())
-    return r.json()['success']
 
 
 @ app.route('/', methods=['GET', 'POST'])
@@ -106,6 +67,7 @@ def selSubUser():
         session.clear()
         flash("Timeout. 遇時，請重新登入")
         return redirect('/')
+    refresh_token()
     if 'subuser_type' in session and session['subuser_type'] == 'admin':
         return redirect('/manage')
     if request.method == 'GET':
@@ -143,6 +105,7 @@ def chgPassword():
     data = {}
     if request.method == 'GET':
         if not check_login_status():
+            refresh_token()
             return render_template('chgPassword.html')
         else:
             return abort(404)
@@ -150,6 +113,7 @@ def chgPassword():
         oldEmail = session['email']
         delUser = False
         if not check_login_status():
+            refresh_token()
             try:
                 if (verify_recaptcha("")):
                     oldUsr = auth.sign_in_with_email_and_password(

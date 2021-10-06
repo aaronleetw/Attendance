@@ -1,41 +1,6 @@
-from flask import *
-from typing import OrderedDict
-from flask import *
-import pyrebase
-from datetime import datetime
-import pytz
-import os
-import base64
-from dotenv import load_dotenv
-load_dotenv()
-
+from functions import *
 
 manage = Blueprint('manage', __name__)
-config = {
-    "apiKey": os.environ.get('apiKey'),
-    "authDomain": os.environ.get('authDomain'),
-    "databaseURL": os.environ.get('databaseURL'),
-    "storageBucket": os.environ.get('storageBucket'),
-    "serviceAccount": os.environ.get('serviceAccount'),
-    "messagingSenderId": os.environ.get('messagingSenderId'),
-    "appId": os.environ.get('appId'),
-    "measurementId": os.environ.get('measurementId'),
-}
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
-auth = firebase.auth()
-storage = firebase.storage()
-tz = pytz.timezone('Asia/Taipei')
-
-
-def next_item(odic, key):
-    return list(odic)[list(odic.keys()).index(key) + 1]
-
-
-def check_login_status():
-    return ('is_logged_in' not in session or
-            session['is_logged_in'] == False or
-            (datetime.now(tz) - session['loginTime']).total_seconds() > 3600)
 
 
 def removeprefix(s, prefix):
@@ -51,6 +16,7 @@ def manageProcess(fCommand, fData):
     db.child("Users").child(
         session['uid']).child("permission").get(session['token']).val()
     # end bug fix
+    refresh_token()
     pl = session['subuser_type']
     if pl == 'admin':
         homerooms = db.child("Homerooms").get(session['token']).val()
@@ -233,6 +199,7 @@ def manage_admin():
 def group_teach_publish():
     if (check_login_status()):
         return redirect('/logout')
+    refresh_token()
     cclass = {
         "name": db.child("Classes").child("GP_Class").child(session['category']).child(
             "Class").child(session['class']).child("name").get(session['token']).val(),
@@ -289,6 +256,7 @@ def group_teach_publish():
 def homeroom_abs_publish():
     if (check_login_status()):
         return redirect('/logout')
+    refresh_token()
     date = request.form['date']
     homeroom = request.form['homeroom'].split('^')
     period = request.form['period']
@@ -326,6 +294,7 @@ def homeroom_abs_publish():
 def homeroom_confirm():
     if (check_login_status()):
         return redirect('/logout')
+    refresh_token()
     date = request.form['date']
     homeroom = request.form['homeroom'].split('^')
     signature = request.form['signatureData']
