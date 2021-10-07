@@ -114,7 +114,8 @@
                     ↑ Confirm 確認 (Period {{i}}) ↑</button>
                 {% endif %}
                 <div class="signDiv" id="sign^{{i}}" hidden="hidden">
-                    <div class="alert alert-warning margin-top" id="allPresentWarning" role="alert" hidden="hidden">
+                    <div class="alert alert-warning margin-top" id="allPresentWarning-{{i}}" role="alert"
+                        hidden="hidden">
                         <h4 class="alert-heading">請確認是否全班全到！Please check if everyone is present!</h4>
                     </div>
                     <h3 class="margin-top">Please Sign Below 請在下方簽名</h3>
@@ -161,7 +162,7 @@
                 }
             });
             if (cnt == 0) {
-                $('#allPresentWarning').removeAttr('hidden');
+                $('#allPresentWarning-' + period).removeAttr('hidden');
             }
 
             var canvas = document.getElementById("signature_pad^" + period);
@@ -181,6 +182,7 @@
                 }
             });
             resizeCanvas();
+            $('html,body').unbind().animate({ scrollTop: document.getElementById("sign^" + period).offsetTop - $(".sticky-top").outerHeight() - 10 }, 'slow');
         }
         function unCheckAbs(string) {
             document.getElementById('absent^' + string).checked = false;

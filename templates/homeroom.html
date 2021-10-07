@@ -280,6 +280,7 @@
                 }
             });
             resizeCanvas();
+            $('html,body').unbind().animate({ scrollTop: $("#finalCheck").offset().top - $(".sticky-top").outerHeight() - 10 }, 'slow');
         }
         function afterSelAbs(period) {
             var tobeformArr = [];
