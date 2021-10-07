@@ -46,6 +46,7 @@
             <input type="hidden" name="date" value="{{currDate}}">
             <input type="hidden" name="homeroom" value="{{homeroomCode[0]}}^{{homeroomCode[1]}}">
             <input type="hidden" id="hrCfrm-sign" name="signatureData" value="">
+            <input type="hidden" id="hrCfrm-notes" name="notes" value="">
         </form>
         <div class="col">
             <div class="sticky-top" style="background-color:white;">
@@ -181,6 +182,7 @@
                     <div class="row needborder">Homeroom Teacher 導師</div>
                     {% if 'confirm' in absData[currDate] %}
                     <div class="row"><img src="{{absData[currDate]['confirm']}}" alt=""></div>
+                    <div class="row">備註: {{absData[currDate]['notes']}}</div>
                     {% else %}
                     <div class="row"><span style="color:red;">No Signature 導師尚未簽名</span></div>
                     {% endif %}
@@ -246,6 +248,7 @@
                 var data = signaturePad.toDataURL('image/png');
                 if (hrCfrm) {
                     $('#hrCfrm-sign').val(data);
+                    $('#hrCfrm-notes').val($('#subjectNotes').val());
                     document.getElementById('homeroom_confirm').submit()
                 } else {
                     var notes = $('#subjectNotes').val();

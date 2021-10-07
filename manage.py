@@ -295,8 +295,13 @@ def homeroom_confirm():
     if (check_login_status()):
         return redirect('/logout')
     refresh_token()
-    date = request.form['date']
     homeroom = request.form['homeroom'].split('^')
+    date = request.form['date']
+    if 'notes' in request.form:
+        notes = request.form['notes']
+        db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
+            "Absent").child(date).update({"notes": notes}, session['token'])
+
     signature = request.form['signatureData']
     signature = removeprefix(signature, 'data:image/png;base64,')
     signature = bytes(signature, 'utf-8')

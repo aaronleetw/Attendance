@@ -149,6 +149,7 @@
                     <div class="row needborder">Homeroom Teacher 導師</div>
                     {% if 'confirm' in absData[currDate] %}
                     <div class="row"><img src="{{absData[currDate]['confirm']}}" alt=""></div>
+                    <div class="row">備註: {{absData[currDate]['notes']}}</div>
                     {% else %}
                     <div class="row"><span style="color:red;">No Signature 導師尚未簽名</span></div>
                     {% endif %}
