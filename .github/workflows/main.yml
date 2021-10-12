@@ -39,5 +39,7 @@ jobs:
         script: | 
           cd /home/ubuntu/Attendance
           git pull
+          source ./Attendance/bin/activate
           pip install -r ./requirements.txt
+          deactivate
           sudo systemctl restart Attendance.service
