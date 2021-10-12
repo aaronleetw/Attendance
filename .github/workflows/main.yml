@@ -28,7 +28,7 @@ jobs:
 
     - name: Test for Syntax Errors
       run: |
-        py -m py_compile app.py 
+        python -m py_compile app.py 
 
     - name: CD
       uses: appleboy/ssh-action@master
@@ -39,4 +39,5 @@ jobs:
         script: | 
           cd /home/ubuntu/Attendance
           git pull
+          pip install -r ./requirements.txt
           sudo systemctl restart Attendance.service
