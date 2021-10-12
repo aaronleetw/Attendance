@@ -78,6 +78,8 @@ def manageProcess(fCommand, fData):
                         elif j == "confirm":
                             confirmed.append([h[0], h[1]])
                             continue
+                        elif j == "notes":
+                            continue
                         if (tmpAbsData[currDate][j]['name'] == 'GP' and
                                 tmpAbsData[currDate][j]['teacher'] == cclass['category']):
                             periods.append(j)
@@ -93,6 +95,8 @@ def manageProcess(fCommand, fData):
                                     continue
                                 elif j == "confirm":
                                     confirmed.append([h[0], h[1]])
+                                    continue
+                                elif j == 'notes':
                                     continue
                                 if (tmpAbsData[i][j]['name'] == 'GP' and
                                         tmpAbsData[i][j]['teacher'] == cclass['category']):
