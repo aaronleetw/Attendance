@@ -240,6 +240,8 @@ def group_teach_publish():
             "Absent").child(date).child(period).update({i[3]: int(i[0])}, session['token'])
     for h in cclass['homerooms']:
         h = h.split('^')
+        if "confirm" in db.child("Homerooms").child(h[0]).child(h[1]).child("Absent").child(date).get().val():
+            continue
         db.child("Homerooms").child(h[0]).child(h[1]).child(
             "Absent").child(date).child(period).child("signature").update({cclass['class_id']: str(storage.child(os.path.join('signatures', rand)).get_url(None))}, session['token'])
         db.child("Homerooms").child(h[0]).child(h[1]).child(
@@ -269,6 +271,8 @@ def homeroom_abs_publish():
     signature = request.form['signatureData']
     formData = request.form.to_dict()
     notes = ""
+    if "confirm" in db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child("Absent").child(date).get().val():
+        return redirect('/manage')
     if 'notes' in request.form:
         notes = request.form['notes']
         formData.pop('notes')
