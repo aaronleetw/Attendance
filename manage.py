@@ -187,16 +187,16 @@ def manageRoot():
     return manageProcess("", "")
 
 
-@manage.route('/manage/date', methods=['POST'])
-def manage_date():
-    return manageProcess("date", request.form['date'])
+@manage.route('/manage/date/<date>', methods=['GET'])
+def manage_date(date):
+    return manageProcess("date", date)
 
 
-@manage.route('/manage/admin', methods=['POST'])
-def manage_admin():
+@manage.route('/manage/admin/<g>/<r>/<date>', methods=['GET'])
+def manage_admin(g, r, date):
     data = [
-        request.form['grade'] + '^' + request.form['room'],
-        request.form['date']
+        g + '^' + r,
+        date
     ]
     return manageProcess("admin", data)
 

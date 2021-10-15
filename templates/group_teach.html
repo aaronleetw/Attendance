@@ -30,17 +30,15 @@
         <h2>[{{currDate}}]</h2>
         <a href="/logout"><button class="btn btn-primary margin-top logout">Logout 登出</button></a>
         <a href="/select"><button class="btn btn-primary margin-top logout">Choose Subuser 選擇其他帳號</button></a>
-        <form action="/manage/date" id="dateSelForm" method="post">
-            <select name="date" id="date" class="form-select logout" onchange="chgDate(this);">
-                {% for date in tmpAbsData %}
-                {% if date == currDate %}
-                <option value="{{date}}" selected="selected">{{date}}</option>
-                {% else %}
-                <option value="{{date}}">{{date}}</option>
-                {% endif %}
-                {% endfor %}
-            </select>
-        </form>
+        <select name="date" id="date" class="form-select logout" onchange="chgDate();">
+            {% for date in tmpAbsData %}
+            {% if date == currDate %}
+            <option value="{{date}}" selected="selected">{{date}}</option>
+            {% else %}
+            <option value="{{date}}">{{date}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
         {% for i in absData %}
         {% set alr_fill = namespace(found=false) %}
         <form action="/manage/group_teach_publish" id="attendanceData^{{i}}" method="post">
@@ -202,7 +200,12 @@
         }
         function chgDate(sel) {
             loadingAnimation();
-            document.getElementById('dateSelForm').submit();
+            var url = '/manage/date/' + $('#date').val()
+            var new_form = document.createElement('form');
+            new_form.method = 'GET';
+            new_form.action = url;
+            document.body.appendChild(new_form);
+            new_form.submit();
         }
     </script>
     <script src="/static/time.js"></script>

@@ -9,6 +9,12 @@ app.register_blueprint(upload)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 
+@app.after_request
+def add_header(response):
+    response.headers['SameSite'] = "Strict"
+    return response
+
+
 @ app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':

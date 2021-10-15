@@ -34,38 +34,43 @@
         <h2 style="color: red; text-align: center;">Homeroom NOT Confirmed 班導尚未確認</h2>
         {% endif %}
         <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
+        <form action="/swapClass" method="post" id="swapClassForm" hidden>
+            <input type="text" name="homeroom" value="{{homeroomCode[0]}}^{{homeroomCode[1]}}">
+            <input type="text" name="date" value="{{currDate}}">
+            <input type="text" name="type" value="seewindow">
+        </form>
+        <a href="/swapClass/{{homeroomCode[0]}}/{{homeroomCode[1]}}/{{currDate}}"><button
+                class="btn btn-warning logout margin-top">Swap Classes 改、換課</button></a>
         <div class="container margin-bottom">
-            <form action="/manage/admin" id="adminSelForm" method="post">
-                <div class="row">
-                    <div class="col">
-                        <select name="grade" id="sel-grade" class="form-select" onchange="getHR()" required>
-                            <option value="">選擇年級</option>
-                            {% for grade in homerooms %}
-                            <option value="{{grade}}">{{grade}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col">
-                        <select name="room" id="sel-room" class="form-select" disabled required>
-                            <option value="">請先選擇年級</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <select name="date" id="date" class="form-select">
-                            {% for date in absData %}
-                            {% if date == currDate %}
-                            <option value="{{date}}" selected="selected">{{date}}</option>
-                            {% else %}
-                            <option value="{{date}}">{{date}}</option>
-                            {% endif %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-1">
-                        <button type="button" class="btn btn-primary" onclick="loadingAnimation()">查詢</button>
-                    </div>
+            <div class="row">
+                <div class="col">
+                    <select name="grade" id="sel-grade" class="form-select" onchange="getHR()" required>
+                        <option value="">選擇年級</option>
+                        {% for grade in homerooms %}
+                        <option value="{{grade}}">{{grade}}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-            </form>
+                <div class="col">
+                    <select name="room" id="sel-room" class="form-select" disabled required>
+                        <option value="">請先選擇年級</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <select name="date" id="date" class="form-select">
+                        {% for date in absData %}
+                        {% if date == currDate %}
+                        <option value="{{date}}" selected="selected">{{date}}</option>
+                        {% else %}
+                        <option value="{{date}}">{{date}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-1">
+                    <button type="button" class="btn btn-primary" onclick="redirAdmin()">查詢</button>
+                </div>
+            </div>
         </div>
         <div class="col">
             <div class="sticky-top" style="background-color: white;">
@@ -84,7 +89,11 @@
                     <div class="col"></div>
                     <div class="col"></div>
                     {% for i in periods %}
-                    <div class="col">{{absData[currDate][i]['name']}}</div>
+                    <div class="col">{{absData[currDate][i]['name']}}
+                        {% if 'changed' in absData[currDate][i] %}
+                        <span style="color: red;">(換)</span>
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
                 <div class="row title">
@@ -102,7 +111,7 @@
             <div class="row">
                 <div class="col">{{homeroomCode[0]}}{{homeroomCode[1]}}</div>
                 <div class="col">{{i}}</div>
-                <div class="col">{{ homeroomData[i]['name'] }}</div>
+                <div class="col">{{ homeroomData[i]['name'] }} </div>
                 <div class="col">{{ homeroomData[i]['eng_name'] }}</div>
                 {% for j in periods %}
                 <div class="col" {% if currPeriod==j %} style="background-color: #ffdf81;" {% endif %}>
@@ -222,16 +231,6 @@
         homerooms['{{i}}'].push({{ j }});
         {% endfor %}
         {% endfor %}
-        console.log(homerooms)
-        function loadingAnimation() {
-            if ($("#sel-room").val() == "") {
-                alert("請選擇年級 / 班級！");
-                return;
-            }
-            document.getElementById('adminSelForm').submit();
-            $('.container').hide();
-            $('#loading').show();
-        }
         function getHR() {
             var grade = $('#sel-grade').val();
             $('#sel-room').html('<option value="">請先選擇年級</option>');
@@ -244,9 +243,19 @@
             });
             $('#sel-room').removeAttr('disabled')
         }
-        function submitQuery() {
-            loadingAnimation();
-            document.getElementById('hrSelForm').submit();
+        function redirAdmin() {
+            if ($("#sel-room").val() == "") {
+                alert("請選擇年級 / 班級！");
+                return;
+            }
+            var url = "/manage/admin/" + $('#sel-grade').val() + "/" + $('#sel-room').val() + "/" + $('#date').val();
+            var new_form = document.createElement('form');
+            new_form.method = 'GET';
+            new_form.action = url;
+            document.body.appendChild(new_form);
+            new_form.submit();
+            $('.container').hide();
+            $('#loading').show();
         }
     </script>
     <script src="/static/time.js"></script>
