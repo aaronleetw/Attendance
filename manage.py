@@ -269,6 +269,15 @@ def homeroom_abs_publish():
     homeroom = request.form['homeroom'].split('^')
     period = request.form['period']
     signature = request.form['signatureData']
+    if (request.form['stype'] == 'edit'):
+        oldData = list(db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
+            "Absent").child(date).child(period).shallow().get(session['token']).val())
+        print(oldData, type(oldData))
+        for k in oldData:
+            if k == 'name' or k == 'teacher':
+                continue
+            db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
+                "Absent").child(date).child(period).child(k).remove(session['token'])
     formData = request.form.to_dict()
     notes = ""
     if "confirm" in db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child("Absent").child(date).get(session['token']).val():
@@ -288,6 +297,7 @@ def homeroom_abs_publish():
     formData.pop('date')
     formData.pop('homeroom')
     formData.pop('period')
+    formData.pop('stype')
     for i in formData:
         i = i.split('^')
         db.child("Homerooms").child(homeroom[0]).child(
