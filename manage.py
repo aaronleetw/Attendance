@@ -201,6 +201,49 @@ def manage_admin(g, r, date):
     return manageProcess("admin", data)
 
 
+@manage.route('/swapClass/<g>/<r>/<date>', methods=["GET"])
+def viewSwapClass(g, r, date):
+    if (check_login_status()):
+        return redirect('/logout')
+    refresh_token()
+    homeroom = [g, r]
+    data = db.child("Homerooms").child(g).child(
+        r).child("Absent").child(date).get(session['token']).val()
+    data.pop('dow')
+    if 'confirm' in data:
+        data.pop('notes')
+        data.pop('confirm')
+    realData = {}
+    for d in data:
+        if 'signature' in data[d] or 'confirm' in data[d]:
+            realData[d] = 'aCfrm'
+        else:
+            realData[d] = data[d]
+    return render_template("swapclass.html", data=realData, homeroom=homeroom, date=date)
+
+
+@manage.route('/swapClass', methods=['POST'])
+def swapClass():
+    if (check_login_status()):
+        return redirect('/logout')
+    refresh_token()
+    formData = request.form.to_dict()
+    date = formData.pop('date')
+    homeroom = formData.pop('homeroom').split('^')
+    print(homeroom)
+    origData = db.child("Homerooms").child(homeroom[0]).child(
+        homeroom[1]).child("Absent").child(date).get(session['token']).val()
+    for k in formData:
+        k = k.split('^')
+        if ((not k[1] in origData[k[0]]) or formData[k[0]+'^'+k[1]] == origData[k[0]][k[1]]):
+            continue
+        db.child("Homerooms").child(homeroom[0]).child(
+            homeroom[1]).child("Absent").child(date).child(k[0]).update({k[1]: formData[k[0]+'^'+k[1]]}, session['token'])
+        db.child("Homerooms").child(homeroom[0]).child(
+            homeroom[1]).child("Absent").child(date).child(k[0]).update({'changed': '1'}, session['token'])
+    return redirect('/manage/admin/' + homeroom[0] + '/' + homeroom[1] + '/' + date)
+
+
 @manage.route('/manage/group_teach_publish', methods=['POST'])
 def group_teach_publish():
     if (check_login_status()):

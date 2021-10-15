@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin 管理員 - Attendance 點名</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/allpages.css">
+    <link rel="stylesheet" href="/static/homeroom.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-H6D61RSBHR');
+    </script>
+    <style>
+        td {
+            border: 1px solid black;
+        }
+
+        table {
+            width: 60%;
+            margin-left: 20%;
+        }
+
+        .gray {
+            color: gray;
+        }
+
+        input {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="showTime"><span id="showTime"></span></div>
+    <div class="container">
+        <h1 class="margin-top">Swap Class | 改、換課</h1>
+        <h2 class="margin-top">{{homeroom[0]}} {{homeroom[1]}}</h2>
+        <h2>[{{date}}]</h2>
+        <a href="/manage/admin/{{homeroom[0]}}/{{homeroom[1]}}/{{date}}"><button
+                class="btn btn-danger logout margin-top" onclick="loadingAnimation()">Cancel 取消</button></a>
+        <form action="/swapClass" method="POST">
+            <input type="text" name="homeroom" value="{{homeroom[0]}}^{{homeroom[1]}}" hidden>
+            <input type="text" name="date" value="{{date}}" hidden>
+            <table>
+                <tr>
+                    <td>Period 節</td>
+                    <td>Class 課</td>
+                    <td>Teacher 老師</td>
+                </tr>
+                {% for d in data %}
+                <tr>
+                    {% if data[d] == 'aCfrm' %}
+                    <td class="gray">{{d}}</td>
+                    <td class="gray">Cannot Change</td>
+                    <td class="gray">無法變更</td>
+                    {% else %}
+                    <td>{{d}}</td>
+                    <td><input type="text" name="{{d}}^name" value="{{data[d]['name']}}"></td>
+                    <td><input type="text" name="{{d}}^teacher" value="{{data[d]['teacher']}}"></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+            <p class="margin-top" style="margin-bottom: 0;">如果是分組課，請記得要去每個會變動的班更改</p>
+            <button class="btn btn-primary margin-top" onclick="loadingAnimation()">Submit 確認更改</button>
+        </form>
+    </div>
+    <script src="/static/time.js"></script>
+    <div id="loading" style="text-align:center; width:100%; display:none;"><img src="/static/loading.gif" alt=""
+            style="height:100%;" /></div>
+    {% include 'footer.html' %}
+    <script>
+        function loadingAnimation() {
+            document.getElementById("loading").style.display = "block";
+            document.getElementsByClassName("container")[0].style.display = "none";
+        }
+    </script>
+</body>
