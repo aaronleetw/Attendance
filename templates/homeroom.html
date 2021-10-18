@@ -32,13 +32,16 @@
         <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
         <a href="/select"><button class="btn btn-primary margin-top logout">Choose Subuser 選擇其他帳號</button></a>
         <select name="date" id="date" class="form-select logout" onchange="chgDate();">
-            {% for date in absData %}
-            {% if date == currDate %}
-            <option value="{{date}}" selected="selected">{{date}}</option>
-            {% else %}
-            <option value="{{date}}">{{date}}</option>
-            {% endif %}
-            {% endfor %}
+            {% for date in range(dateKeys|length) %}
+            {% if dateKeys[date] == currDate %}
+            {% if date-2 >= 0 %}<option value="{{dateKeys[date-2]}}">{{dateKeys[date-2]}}</option>{% endif %}
+            {% if date-1 >= 0 %}<option value="{{dateKeys[date-1]}}">{{dateKeys[date-1]}}</option>{% endif %}
+            <option value="{{dateKeys[date]}}" selected="selected">{{dateKeys[date]}} ★</option>
+            {% for i in range(1,5) %}
+            {% if date+i < dateKeys|length %}<option value="{{dateKeys[date+i]}}">{{dateKeys[date+i]}}</option>{%endif%}
+                {% endfor %}
+                {% endif %}
+                {% endfor %}
         </select>
         <form action="/manage/homeroom_confirm" id="homeroom_confirm" method="post">
             <input type="hidden" name="date" value="{{currDate}}">

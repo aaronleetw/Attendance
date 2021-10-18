@@ -138,7 +138,7 @@ def manageProcess(fCommand, fData):
                                          cclass['class_id'] in tmpAbsData[currDate][p]['signature']),
                             "absent": False if not num in tmpAbsData[currDate][p] else tmpAbsData[currDate][p][num]
                         }
-        return render_template('group_teach.html', cclass=cclass, absData=absData, dow=dow, currDate=currDate, tmpAbsData=tmpAbsData, confirmed=confirmed)
+        return render_template('group_teach.html', dateKeys=sorted(tmpAbsData.keys()), cclass=cclass, absData=absData, dow=dow, currDate=currDate, tmpAbsData=tmpAbsData, confirmed=confirmed)
     elif pl == 'homeroom':
         homeroom = session['homeroom'].split('^')
         homeroomData = db.child("Homerooms").child(homeroom[0]).child(
@@ -177,7 +177,7 @@ def manageProcess(fCommand, fData):
                 if i >= datetime.now(tz).strftime("%Y-%m-%d"):
                     break
         return render_template('homeroom.html', absData=absData, homeroomCode=homeroom, homeroomData=homeroomData,
-                               currDate=currDate, periods=['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9'], currPeriod=currPeriod)
+                               currDate=currDate, dateKeys=sorted(absData.keys()), periods=['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9'], currPeriod=currPeriod)
     else:
         return redirect('/logout')
 

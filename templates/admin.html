@@ -34,13 +34,6 @@
         <h2 style="color: red; text-align: center;">Homeroom NOT Confirmed 班導尚未確認</h2>
         {% endif %}
         <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
-        <form action="/swapClass" method="post" id="swapClassForm" hidden>
-            <input type="text" name="homeroom" value="{{homeroomCode[0]}}^{{homeroomCode[1]}}">
-            <input type="text" name="date" value="{{currDate}}">
-            <input type="text" name="type" value="seewindow">
-        </form>
-        <a href="/swapClass/{{homeroomCode[0]}}/{{homeroomCode[1]}}/{{currDate}}"><button
-                class="btn btn-warning logout margin-top">Swap Classes 改、換課</button></a>
         <div class="container margin-bottom">
             <div class="row">
                 <div class="col">
@@ -60,7 +53,7 @@
                     <select name="date" id="date" class="form-select">
                         {% for date in absData %}
                         {% if date == currDate %}
-                        <option value="{{date}}" selected="selected">{{date}}</option>
+                        <option value="{{date}}" selected="selected">{{date}} ★</option>
                         {% else %}
                         <option value="{{date}}">{{date}}</option>
                         {% endif %}

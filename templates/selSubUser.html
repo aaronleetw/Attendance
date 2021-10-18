@@ -35,13 +35,13 @@
                 <option value="" selected>Please select</option>
                 {% for key in data %}
                 {% if data[key]['type'] == 'homeroom' %}
-                <option value="homeroom^{{data[key]['homeroom']}}">HR: {{data[key]['homeroom']}}
+                <option value="homeroom^{{data[key]['homeroom']}}">🏠 {{data[key]['homeroom']}}
                 </option>
                 {% else %}
                 {% for i in data[key] %}
                 {% if i == 'type' %}
                 {% else %}
-                <option value="group^{{i}}^{{data[key][i]}}">GP: {{i}}: {{data[key][i]}}</option>
+                <option value="group^{{i}}^{{data[key][i]}}">🧑‍🏫 {{i}}: {{data[key][i]}}</option>
                 {% endif %}
                 {% endfor %}
                 {% endif %}
