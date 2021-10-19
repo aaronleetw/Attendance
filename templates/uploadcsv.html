@@ -12,13 +12,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-H6D61RSBHR');
-    </script>
+    <script src="/static/gtag.js"></script>
 </head>
 
 <body>
@@ -64,18 +58,7 @@
     </div>
     {% include 'footer.html' %}
     <script type="text/javascript" src="/static/jquery.min.js"></script>
-    <script>
-        function loadingAnimation() {
-            // if csv is empty
-            if ($("#csv").val() == "") {
-                alert("Please select a file!");
-                return;
-            }
-            $('#uploadCsvForm').submit();
-            $('.container').hide();
-            $('#loading').show();
-        }
-    </script>
+    <script src="/static/pagejs/uploadcsv.js"></script>
     <script src="/static/time.js"></script>
 </body>
 
