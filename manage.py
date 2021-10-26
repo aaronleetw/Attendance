@@ -3,12 +3,6 @@ from functions import *
 manage = Blueprint('manage', __name__)
 
 
-def removeprefix(s, prefix):
-    if s.startswith(prefix):
-        return s[len(prefix):]
-    return s
-
-
 def manageProcess(fCommand, fData):
     if (check_login_status()):
         return redirect('/logout')
@@ -134,8 +128,8 @@ def manageProcess(fCommand, fData):
                         absData[p][h[0]][h[1]][num] = {
                             "name": hrData[num]['name'],
                             "eng_name": hrData[num]['eng_name'],
-                            "alr_fill": ('signature' in tmpAbsData[currDate][p] and
-                                         cclass['class_id'] in tmpAbsData[currDate][p]['signature']),
+                            "alr_fill": (('signature' in tmpAbsData[currDate][p]) and
+                                         (cclass['class_id'] in tmpAbsData[currDate][p]['signature'] or 'STUD_AFFAIR_OFFICE' in tmpAbsData[currDate][p]['signature'])),
                             "absent": False if not num in tmpAbsData[currDate][p] else tmpAbsData[currDate][p][num]
                         }
         return render_template('group_teach.html', dateKeys=sorted(tmpAbsData.keys()), cclass=cclass, absData=absData, dow=dow, currDate=currDate, tmpAbsData=tmpAbsData, confirmed=confirmed)
@@ -254,8 +248,6 @@ def group_teach_publish():
         else:
             db.child("Homerooms").child(h[0]).child(h[1]).child(
                 "Absent").child(date).child(period).update({'notes': notes}, session['token'])
-
-    # upload notes
     os.remove(os.path.join('temp', rand))
     return redirect('/manage')
 
@@ -269,15 +261,6 @@ def homeroom_abs_publish():
     homeroom = request.form['homeroom'].split('^')
     period = request.form['period']
     signature = request.form['signatureData']
-    if (request.form['stype'] == 'edit'):
-        oldData = list(db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
-            "Absent").child(date).child(period).shallow().get(session['token']).val())
-        print(oldData, type(oldData))
-        for k in oldData:
-            if k == 'name' or k == 'teacher':
-                continue
-            db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
-                "Absent").child(date).child(period).child(k).remove(session['token'])
     formData = request.form.to_dict()
     notes = ""
     if "confirm" in db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child("Absent").child(date).get(session['token']).val():
@@ -308,6 +291,52 @@ def homeroom_abs_publish():
         "Absent").child(date).child(period).update({'notes': notes}, session['token'])
     os.remove(os.path.join('temp', rand))
     return redirect('/manage')
+
+
+@manage.route('/manage/edit_abs', methods=['POST'])
+def edit_abs():
+    if (check_login_status() or not check_permission()):
+        return redirect('/logout')
+    refresh_token()
+    date = request.form['date']
+    homeroom = request.form['homeroom'].split('^')
+    period = request.form['period']
+    signature = "https://firebasestorage.googleapis.com/v0/b/attendance-be176.appspot.com/o/stud_affairs.png?alt=media"
+    formData = request.form.to_dict()
+    notes = ""
+    oldData = list(db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
+        "Absent").child(date).child(period).shallow().get(session['token']).val())
+    for k in oldData:
+        if k == 'name' or k == 'teacher':
+            continue
+        db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
+            "Absent").child(date).child(period).child(k).remove(session['token'])
+    cfrmstatus = db.child("Homerooms").child(homeroom[0]).child(
+        homeroom[1]).child("Absent").child(date).get(session['token']).val()
+    if "confirm" in cfrmstatus:
+        db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
+            "Absent").child(date).update({'notes': cfrmstatus['notes'] + '; (確認後學務處有更改)'}, session['token'])
+    if 'notes' in request.form:
+        notes = request.form['notes']
+        formData.pop('notes')
+    formData.pop('date')
+    formData.pop('homeroom')
+    formData.pop('period')
+    for i in formData:
+        i = i.split('^')
+        db.child("Homerooms").child(homeroom[0]).child(
+            homeroom[1]).child("Absent").child(date).child(period).update({i[1]: int(i[0])}, session['token'])
+    db.child("Homerooms").child(homeroom[0]).child(homeroom[1]).child(
+        "Absent").child(date).child(period).update({'notes': notes}, session['token'])
+    if cfrmstatus[period]['name'] == 'GP':
+        db.child("Homerooms").child(homeroom[0]).child(
+            homeroom[1]).child("Absent").child(date).child(period).child("signature").set({'STUD_AFFAIR_OFFICE': signature}, session['token'])
+        db.child("Homerooms").child(homeroom[0]).child(
+            homeroom[1]).child("Absent").child(date).child(period).child("names").set({'STUD_AFFAIR_OFFICE': "學務處已編輯"}, session['token'])
+    else:
+        db.child("Homerooms").child(homeroom[0]).child(
+            homeroom[1]).child("Absent").child(date).child(period).child("signature").set(signature, session['token'])
+    return redirect('/manage/admin/'+homeroom[0]+'/'+homeroom[1]+'/'+date)
 
 
 @manage.route('/manage/homeroom_confirm', methods=['POST'])

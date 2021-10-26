@@ -57,7 +57,6 @@ function showSignaturePad() {
     resizeCanvas();
 }
 function afterSelAbs(period) {
-    var tobeformArr = [];
     $('#postHomeroomAbs #HR-period').attr('value', period);
     $('.tobeform').attr('disabled', 'disabled');
     $('.afterSelButton').attr('disabled', 'disabled');

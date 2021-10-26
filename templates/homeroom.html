@@ -94,7 +94,7 @@
                     <p class="highlightAbs n-1 view-n-{{i}}">V</p>
                     {% else %}
                     {% if (homeroomData[i]['GP_Class'][absData[currDate][j]['teacher']] in
-                    absData[currDate][j]['signature'])%}
+                    absData[currDate][j]['signature'] or 'STUD_AFFAIR_OFFICE' in absData[currDate][j]['signature'])%}
                     <p class="highlightAbs n-1 view-n-{{i}}">V</p>
                     {% else %}
                     <p class="highlightAbs n-2 view-n-{{i}}"></p>
@@ -125,11 +125,9 @@
                 <div class="col"></div>
                 {% for i in periods %}
                 <div id="btns-{{i}}" class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
-                    {% if (absData[currDate][i]['name'] == 'GP' or 'confirm' in absData[currDate]) %}
-                    <button class="btn btn-danger afterSelButton" disabled="disabled"></button>
-                    {% elif ('signature' in absData[currDate][i]) %}
-                    <button class="btn btn-danger afterSelButton" onclick="edit('{{i|string}}')">Edit
-                        <br>{{absData[currDate][i]['name']}}</button>
+                    {% if (absData[currDate][i]['name'] == 'GP' or 'confirm' in absData[currDate] or 'signature' in
+                    absData[currDate][i]) %}
+                    <button class="btn btn-primary afterSelButton" disabled="disabled"></button>
                     {% else %}
                     <button class="btn btn-primary afterSelButton"
                         onclick="afterSelAbs('{{i|string}}', 'newSubmit')">Confirm<br>{{absData[currDate][i]['name']}}</button>
@@ -242,28 +240,6 @@
         {% for i in periods %}
         periodData['{{i}}'] = '{{ absData[currDate][i]['name'] }}'
         {% endfor %}
-
-        function edit(string) {
-            $('.view-' + string).each(function (i, obj) {
-                var num = $(this.firstElementChild).attr('class').split(' ')[2].replace('view-n-', '');
-                if ($(this.firstElementChild).attr('class').split(' ')[1] == "n-1") {
-                    $(this).html("")
-                    $(this).append("<input type=\"checkbox\" class=\"tobeform 2^" + string + "^" + num + " late\" id=\"late^" + string + "^" + num + "\" onchange=\"unCheckAbs('" + string + "^" + num + "')\">");
-                    $(this).append("\n<input type=\"checkbox\" class=\"tobeform 1^" + string + "^" + num + " absent\" id=\"absent^" + string + "^" + num + "\" onchange=\"unCheckLate('" + string + "^" + num + "')\">");
-                } else if ($(this.firstElementChild).attr('class').split(' ')[1] == "n-2") {
-                    $(this).html("")
-                    $(this).append("<input type=\"checkbox\" class=\"tobeform 2^" + string + "^" + num + " late\" id=\"late^" + string + "^" + num + "\" onchange=\"unCheckAbs('" + string + "^" + num + "')\">");
-                    $(this).append("\n<input type=\"checkbox\" class=\"tobeform 1^" + string + "^" + num + " absent\" id=\"absent^" + string + "^" + num + "\" onchange=\"unCheckLate('" + string + "^" + num + "')\" checked>");
-                } else {
-                    $(this).html("")
-                    $(this).append("<input type=\"checkbox\" class=\"tobeform 2^" + string + "^" + num + " late\" id=\"late^" + string + "^" + num + "\" onchange=\"unCheckAbs('" + string + "^" + num + "')\" checked>");
-                    $(this).append("\n<input type=\"checkbox\" class=\"tobeform 1^" + string + "^" + num + " absent\" id=\"absent^" + string + "^" + num + "\" onchange=\"unCheckLate('" + string + "^" + num + "')\" checked>");
-                }
-            });
-            $('#btns-' + string).html("")
-            $('.afterSelButton').attr('disabled', 'disabled');
-            $('#btns-' + string).append("<button class=\"btn btn-secondary editSaveButton\" onclick=\"afterSelAbs('" + string + "', 'edit')\">Save</button>");
-        }
     </script>
     <script src="/static/pagejs/homeroom.js"></script>
     <script src="/static/time.js"></script>

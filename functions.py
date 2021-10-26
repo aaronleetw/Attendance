@@ -76,3 +76,10 @@ def addZeroesUntil(str, number):
     else:
         str = str + '0'
         return addZeroesUntil(str, number)
+
+
+# MANAGE
+def removeprefix(s, prefix):
+    if s.startswith(prefix):
+        return s[len(prefix):]
+    return s
