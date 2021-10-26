@@ -81,23 +81,23 @@
                 <div class="col">{{ homeroomData[i]['name'] }}</div>
                 <div class="col">{{ homeroomData[i]['eng_name'] }}</div>
                 {% for j in periods %}
-                <div class="col" {% if currPeriod==j %} style="background-color: #ffdf81;" {% endif %}>
+                <div class="col view-{{j}}" {% if currPeriod==j %} style="background-color: #ffdf81;" {% endif %}>
                     {% if 'signature' in absData[currDate][j] %}
                     {% if i in absData[currDate][j] %}
                     {% if absData[currDate][j][i] == 1 %}
-                    <p class="highlightAbs n-2">X</p>
+                    <p class="highlightAbs n-2 view-n-{{i}}">X</p>
                     {% else %}
-                    <p class="highlightAbs n-3">𝜑</p>
+                    <p class="highlightAbs n-3 view-n-{{i}}">𝜑</p>
                     {% endif %}
                     {% else %}
                     {% if absData[currDate][j]['name'] != 'GP' %}
-                    <p class="highlightAbs n-1">V</p>
+                    <p class="highlightAbs n-1 view-n-{{i}}">V</p>
                     {% else %}
                     {% if (homeroomData[i]['GP_Class'][absData[currDate][j]['teacher']] in
                     absData[currDate][j]['signature'])%}
-                    <p class="highlightAbs n-1">V</p>
+                    <p class="highlightAbs n-1 view-n-{{i}}">V</p>
                     {% else %}
-                    <p class="highlightAbs n-2"></p>
+                    <p class="highlightAbs n-2 view-n-{{i}}"></p>
                     {% endif %}
                     {% endif %}
                     {% endif %}
@@ -124,14 +124,15 @@
                 <div class="col"></div>
                 <div class="col"></div>
                 {% for i in periods %}
-                <div class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
-                    {% if ('signature' in absData[currDate][i] or absData[currDate][i]['name'] == 'GP' or
-                    'confirm' in absData[currDate]) %}
-                    <button class="btn btn-primary afterSelButton" disabled="disabled"
-                        onclick="afterSelAbs('{{i|string}}')"></button>
+                <div id="btns-{{i}}" class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
+                    {% if (absData[currDate][i]['name'] == 'GP' or 'confirm' in absData[currDate]) %}
+                    <button class="btn btn-danger afterSelButton" disabled="disabled"></button>
+                    {% elif ('signature' in absData[currDate][i]) %}
+                    <button class="btn btn-danger afterSelButton" onclick="edit('{{i|string}}')">Edit
+                        <br>{{absData[currDate][i]['name']}}</button>
                     {% else %}
                     <button class="btn btn-primary afterSelButton"
-                        onclick="afterSelAbs('{{i|string}}')">Confirm<br>{{absData[currDate][i]['name']}}</button>
+                        onclick="afterSelAbs('{{i|string}}', 'newSubmit')">Confirm<br>{{absData[currDate][i]['name']}}</button>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -142,6 +143,7 @@
                 <input type="text" id="HR-signatureData" name="signatureData" value="">
                 <input type="text" id="HR-notes" name="notes" value="">
                 <input type="text" id="HR-homeroom" name="homeroom" value="{{homeroomCode[0]}}^{{homeroomCode[1]}}">
+                <input type="text" id="HR-type" name="stype" value="">
             </form>
             {% if 'confirm' in absData[currDate] %}
             <button class="btn btn-primary margin-top afterSelButton" onclick="homeroomCfrm()" disabled="disabled">
@@ -240,6 +242,118 @@
         {% for i in periods %}
         periodData['{{i}}'] = '{{ absData[currDate][i]['name'] }}'
         {% endfor %}
+
+        function loadingAnimation() {
+            $('.container').hide();
+            $('#loading').show();
+        }
+        function chgDate() {
+            loadingAnimation();
+            var url = '/manage/date/' + $('#date').val()
+            var new_form = document.createElement('form');
+            new_form.method = 'GET';
+            new_form.action = url;
+            document.body.appendChild(new_form);
+            new_form.submit();
+        }
+        function submitForm() {
+            if (!signaturePad.isEmpty()) {
+                loadingAnimation()
+                signaturePad.off();
+                var data = signaturePad.toDataURL('image/png');
+                if (hrCfrm) {
+                    $('#hrCfrm-sign').val(data);
+                    $('#hrCfrm-notes').val($('#subjectNotes').val());
+                    document.getElementById('homeroom_confirm').submit()
+                } else {
+                    var notes = $('#subjectNotes').val();
+                    document.getElementById('HR-signatureData').value = data;
+                    document.getElementById('HR-notes').value = notes;
+                    document.getElementById('postHomeroomAbs').submit();
+                }
+            }
+            else {
+                alert("Please sign first");
+            }
+        }
+        function showSignaturePad() {
+            $('#finalCheck').removeAttr('hidden');
+            var canvas = document.getElementById("signature_pad");
+            signaturePad = new SignaturePad(canvas);
+            width = $(window).width();
+            function resizeCanvas() {
+                var ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                signaturePad.clear(); // otherwise isEmpty() might return incorrect value
+            }
+            window.addEventListener("resize", () => {
+                if (width != $(window).width()) {
+                    resizeCanvas();
+                    width = $(window).width();
+                }
+            });
+            resizeCanvas();
+            $('html,body').unbind().animate({ scrollTop: $("#finalCheck").offset().top - $(".sticky-top").outerHeight() - 10 }, 'slow');
+        }
+        function afterSelAbs(period, typeofsubmit) {
+            var tobeformArr = [];
+            $("#postHomeroomAbs #HR-type").attr('value', typeofsubmit);
+            $('#postHomeroomAbs #HR-period').attr('value', period);
+            $('.tobeform').attr('disabled', 'disabled');
+            $('.afterSelButton, .editSaveButton').attr('disabled', 'disabled');
+            $('#showSignPeriod').text(period);
+            $('#showSignSubjectName').text(periodData[period]);
+            var cnt = 0;
+            $('.tobeform').each(function (i, obj) {
+                if ($(this).attr('class').split(' ')[1].split('^')[1] == period &&
+                    $(this).is(":checked")) {
+                    cnt++;
+                    $('#postHomeroomAbs').append('<input type="checkbox" name="' + $(this).attr('class').split(' ')[1].split('^')[0] + '^'
+                        + $(this).attr('class').split(' ')[1].split('^')[2]
+                        + '" checked="checked">');
+                }
+            });
+            if (cnt == 0) {
+                $('#allPresentWarning').removeAttr('hidden');
+            }
+            // show signature pad
+            showSignaturePad()
+        }
+        function edit(string) {
+            $('.view-' + string).each(function (i, obj) {
+                var num = $(this.firstElementChild).attr('class').split(' ')[2].replace('view-n-', '');
+                if ($(this.firstElementChild).attr('class').split(' ')[1] == "n-1") {
+                    $(this).html("")
+                    $(this).append("<input type=\"checkbox\" class=\"tobeform 2^" + string + "^" + num + " late\" id=\"late^" + string + "^" + num + "\" onchange=\"unCheckAbs('" + string + "^" + num + "')\">");
+                    $(this).append("\n<input type=\"checkbox\" class=\"tobeform 1^" + string + "^" + num + " absent\" id=\"absent^" + string + "^" + num + "\" onchange=\"unCheckLate('" + string + "^" + num + "')\">");
+                } else if ($(this.firstElementChild).attr('class').split(' ')[1] == "n-2") {
+                    $(this).html("")
+                    $(this).append("<input type=\"checkbox\" class=\"tobeform 2^" + string + "^" + num + " late\" id=\"late^" + string + "^" + num + "\" onchange=\"unCheckAbs('" + string + "^" + num + "')\">");
+                    $(this).append("\n<input type=\"checkbox\" class=\"tobeform 1^" + string + "^" + num + " absent\" id=\"absent^" + string + "^" + num + "\" onchange=\"unCheckLate('" + string + "^" + num + "')\" checked>");
+                } else {
+                    $(this).html("")
+                    $(this).append("<input type=\"checkbox\" class=\"tobeform 2^" + string + "^" + num + " late\" id=\"late^" + string + "^" + num + "\" onchange=\"unCheckAbs('" + string + "^" + num + "')\" checked>");
+                    $(this).append("\n<input type=\"checkbox\" class=\"tobeform 1^" + string + "^" + num + " absent\" id=\"absent^" + string + "^" + num + "\" onchange=\"unCheckLate('" + string + "^" + num + "')\" checked>");
+                }
+            });
+            $('#btns-' + string).html("")
+            $('.afterSelButton').attr('disabled', 'disabled');
+            $('#btns-' + string).append("<button class=\"btn btn-secondary editSaveButton\" onclick=\"afterSelAbs('" + string + "', 'edit')\">Save</button>");
+        }
+        function homeroomCfrm() {
+            hrCfrm = true;
+            $('.tobeform').attr('disabled', 'disabled');
+            $('.afterSelButton').attr('disabled', 'disabled');
+            showSignaturePad();
+        }
+        function unCheckLate(string) {
+            document.getElementById('late^' + string).checked = false;
+        }
+        function unCheckAbs(string) {
+            document.getElementById('absent^' + string).checked = false;
+        }
     </script>
     <script src="/static/pagejs/homeroom.js"></script>
     <script src="/static/time.js"></script>
