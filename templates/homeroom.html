@@ -243,84 +243,6 @@
         periodData['{{i}}'] = '{{ absData[currDate][i]['name'] }}'
         {% endfor %}
 
-        function loadingAnimation() {
-            $('.container').hide();
-            $('#loading').show();
-        }
-        function chgDate() {
-            loadingAnimation();
-            var url = '/manage/date/' + $('#date').val()
-            var new_form = document.createElement('form');
-            new_form.method = 'GET';
-            new_form.action = url;
-            document.body.appendChild(new_form);
-            new_form.submit();
-        }
-        function submitForm() {
-            if (!signaturePad.isEmpty()) {
-                loadingAnimation()
-                signaturePad.off();
-                var data = signaturePad.toDataURL('image/png');
-                if (hrCfrm) {
-                    $('#hrCfrm-sign').val(data);
-                    $('#hrCfrm-notes').val($('#subjectNotes').val());
-                    document.getElementById('homeroom_confirm').submit()
-                } else {
-                    var notes = $('#subjectNotes').val();
-                    document.getElementById('HR-signatureData').value = data;
-                    document.getElementById('HR-notes').value = notes;
-                    document.getElementById('postHomeroomAbs').submit();
-                }
-            }
-            else {
-                alert("Please sign first");
-            }
-        }
-        function showSignaturePad() {
-            $('#finalCheck').removeAttr('hidden');
-            var canvas = document.getElementById("signature_pad");
-            signaturePad = new SignaturePad(canvas);
-            width = $(window).width();
-            function resizeCanvas() {
-                var ratio = Math.max(window.devicePixelRatio || 1, 1);
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext("2d").scale(ratio, ratio);
-                signaturePad.clear(); // otherwise isEmpty() might return incorrect value
-            }
-            window.addEventListener("resize", () => {
-                if (width != $(window).width()) {
-                    resizeCanvas();
-                    width = $(window).width();
-                }
-            });
-            resizeCanvas();
-            $('html,body').unbind().animate({ scrollTop: $("#finalCheck").offset().top - $(".sticky-top").outerHeight() - 10 }, 'slow');
-        }
-        function afterSelAbs(period, typeofsubmit) {
-            var tobeformArr = [];
-            $("#postHomeroomAbs #HR-type").attr('value', typeofsubmit);
-            $('#postHomeroomAbs #HR-period').attr('value', period);
-            $('.tobeform').attr('disabled', 'disabled');
-            $('.afterSelButton, .editSaveButton').attr('disabled', 'disabled');
-            $('#showSignPeriod').text(period);
-            $('#showSignSubjectName').text(periodData[period]);
-            var cnt = 0;
-            $('.tobeform').each(function (i, obj) {
-                if ($(this).attr('class').split(' ')[1].split('^')[1] == period &&
-                    $(this).is(":checked")) {
-                    cnt++;
-                    $('#postHomeroomAbs').append('<input type="checkbox" name="' + $(this).attr('class').split(' ')[1].split('^')[0] + '^'
-                        + $(this).attr('class').split(' ')[1].split('^')[2]
-                        + '" checked="checked">');
-                }
-            });
-            if (cnt == 0) {
-                $('#allPresentWarning').removeAttr('hidden');
-            }
-            // show signature pad
-            showSignaturePad()
-        }
         function edit(string) {
             $('.view-' + string).each(function (i, obj) {
                 var num = $(this.firstElementChild).attr('class').split(' ')[2].replace('view-n-', '');
@@ -341,18 +263,6 @@
             $('#btns-' + string).html("")
             $('.afterSelButton').attr('disabled', 'disabled');
             $('#btns-' + string).append("<button class=\"btn btn-secondary editSaveButton\" onclick=\"afterSelAbs('" + string + "', 'edit')\">Save</button>");
-        }
-        function homeroomCfrm() {
-            hrCfrm = true;
-            $('.tobeform').attr('disabled', 'disabled');
-            $('.afterSelButton').attr('disabled', 'disabled');
-            showSignaturePad();
-        }
-        function unCheckLate(string) {
-            document.getElementById('late^' + string).checked = false;
-        }
-        function unCheckAbs(string) {
-            document.getElementById('absent^' + string).checked = false;
         }
     </script>
     <script src="/static/pagejs/homeroom.js"></script>
