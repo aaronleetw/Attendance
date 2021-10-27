@@ -82,6 +82,7 @@
                         {% if [grade,homeroom] in confirmed %}
                         <p class="highlightAbs">--</p>
                         {% else %}
+                        {% set alr_fill.found = false %}
                         <input type="checkbox" class="tobeform {{grade}}^{{homeroom}}^{{student}} late"
                             id="late^{{i}}^{{grade}}^{{homeroom}}^{{student}}"
                             name="2^{{grade}}^{{homeroom}}^{{student}}"
