@@ -1,8 +1,6 @@
-<div id="loading" width="100%" style="display: none; text-align: center;">
-    <video id="loading" oncontextmenu="return false;" height="100%" loop autoplay muted>
-        <source src="/static/loading.webm" type="video/webm" height="100%">
-    </video>
-</div>
+<video id="loading" oncontextmenu="return false;" width="100%" height="100%" loop autoplay muted style="display: none;">
+    <source src="/static/loading.webm" type="video/webm">
+</video>
 <footer>
     <hr>
     <p style="text-align: center;">&copy; 2021 Attendance (β) | Made by <a target="_blank"
@@ -10,3 +8,9 @@
         <br>for <a target="_blank" href="https://www.fhjh.tp.edu.tw">Taipei Fuhsing Private School</a>
     </p>
 </footer>
+
+<script>
+    function loadingAnimation() {
+        $('#loading').show();
+    }
+</script>
