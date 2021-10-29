@@ -1,13 +1,11 @@
 from flask import *
 from typing import OrderedDict
-from flask import *
 import pyrebase
 from datetime import datetime
 import pytz
 import os
 import base64
 import csv
-import os
 import pandas as pd
 from random import randint
 from dotenv import load_dotenv
