@@ -96,7 +96,7 @@ def manageProcess(fCommand, fData):
                                         tmpAbsData[i][j]['teacher'] == cclass['category']):
                                     periods.append(j)
                                     tmp = True
-                            if tmp == True:
+                            if tmp is True:
                                 break
             else:
                 for j in tmpAbsData[currDate]:

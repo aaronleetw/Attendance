@@ -44,7 +44,7 @@ def next_item(odic, key):
 
 def check_login_status():
     return ('is_logged_in' not in session or
-            session['is_logged_in'] == False or
+            session['is_logged_in'] is False or
             (datetime.now(tz) - session['loginTime']).total_seconds() > 3600)
 
 # LOGIN
