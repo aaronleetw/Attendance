@@ -105,7 +105,6 @@ def upload_gp_classes():
                                         csv_dict.columns[i+1]: tmp_csv[j],
                                         "type": 'group'
                                     }, session['token'])
-                                    accs.remove(allUsers[key]['origUsername'])
                 os.remove(filepath)
             except Exception as e:
                 os.remove(filepath)

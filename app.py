@@ -69,7 +69,6 @@ def index():
 @app.route('/select', methods=['GET', 'POST'])
 def selSubUser():
     if check_login_status():
-        print(session)
         session.clear()
         flash("Timeout. 遇時，請重新登入")
         return redirect('/')
@@ -130,7 +129,6 @@ def chgPassword():
                     old['token'] = oldUsr['idToken']
                     data = db.child("Users").child(
                         oldUsr['localId']).get(oldUsr['idToken']).val()
-                    print("data:", data, flush=True)
 
                     auth.delete_user_account(oldUsr['idToken'])
                     delUser = True
@@ -139,6 +137,7 @@ def chgPassword():
                         request.form['new_username'], request.form['new_password'])
                     db.child("Users").child(newUsr['localId']).set(
                         data, newUsr['idToken'])
+                    db.child("Users").child(oldUsr['localId']).remove(oldUsr['idToken'])
                     session.clear()
                     flash(
                         '修改密碼成功，請重新登入<br>Password changed successfully. Please login again.')
