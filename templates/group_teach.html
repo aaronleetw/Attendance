@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Group 分組 - Attendance 點名</title>
+    <title>Attendance 點名系統 2.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-    <link rel="stylesheet" href="/static/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="/static/allpages.css">
     <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -20,96 +20,113 @@
     <div class="showTime"><span id="showTime"></span></div>
     <div class="container">
         <h1 class="margin-top">Group Class View | 分組課頁面</h1>
-        <h2 class="margin-top">{{cclass['category']}}: {{cclass['class_id']}}: {{cclass['name']}}</h2>
         <h2>[{{currDate}}]</h2>
         <a href="/logout"><button class="btn btn-primary margin-top logout">Logout 登出</button></a>
         <a href="/select"><button class="btn btn-primary margin-top logout">Choose Subuser 選擇其他帳號</button></a>
         <select name="date" id="date" class="form-select logout" onchange="chgDate();">
-            {% for date in range(dateKeys|length) %}
-            {% if dateKeys[date] == currDate %}
-            {% if date-2 >= 0 %}<option value="{{dateKeys[date-2]}}">{{dateKeys[date-2]}}</option>{% endif %}
-            {% if date-1 >= 0 %}<option value="{{dateKeys[date-1]}}">{{dateKeys[date-1]}}</option>{% endif %}
-            <option value="{{dateKeys[date]}}" selected="selected">{{dateKeys[date]}} ★</option>
+            {% for date in range(dates|length) %}
+            {% if dates[date][0] == currDate %}
+            {% if date-2 >= 0 %}<option value="{{dates[date-2][0]}}">{{dates[date-2][0]}}</option>{% endif %}
+            {% if date-1 >= 0 %}<option value="{{dates[date-1][0]}}">{{dates[date-1][0]}}</option>{% endif %}
+            <option value="{{dates[date][0]}}" selected="selected">{{dates[date][0]}} ★</option>
             {% for i in range(1,5) %}
-            {% if date+i < dateKeys|length %}<option value="{{dateKeys[date+i]}}">{{dateKeys[date+i]}}</option>{%endif%}
-                {% endfor %}
-                {% endif %}
-                {% endfor %}
+            {% if date+i < dates|length %}<option value="{{dates[date+i][0]}}">{{dates[date+i][0]}}</option>{%endif%}
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
         </select>
-        {% for i in absData %}
-        {% set alr_fill = namespace(found=false) %}
-        <form action="/manage/group_teach_publish" id="attendanceData^{{i}}" method="post">
+        {% for c in data %}
+        {% for p in data[c] %}
+        {% if p == 'cdata' %}
+        {% continue %}
+        {% endif %}
+        <h3 class="nmb margin-top">Period {{p}}: {{data[c]['cdata']['name']}}</h3>
+        <form action="/manage/group_teach_publish" id="attendanceData^{{p}}" method="post">
             <input type="hidden" name="date" value="{{currDate}}">
-            <input type="hidden" name="period" value="{{i}}">
+            <input type="hidden" name="period" value="{{p}}">
             <input type="hidden" class="signatureData" name="signatureData" value="">
-            <div class="col" style="margin-top: 30px;">
+            <input type="hidden" name="category" value="{{data[c]['cdata']['category']}}">
+            <input type="hidden" name="class_id" value="{{data[c]['cdata']['class_id']}}">
+            <div class="col" style="margin-top: 5px;">
                 <div class="row title sticky-top" style="background-color: white">
                     <div class="col">Grade 年級</div>
-                    <div class="col">Class 班級</div>
                     <div class="col">Number 座號</div>
                     <div class="col">Name 姓名</div>
                     <div class="col">English Name 英文名</div>
-                    <div class="col">Period {{i}} | 第 {{i}} 節</div>
+                    <div class="col">Period {{p}} | 第 {{p}} 節</div>
                 </div>
-                {% if data != None %}
-                {% for grade in absData[i] %}
-                {% for homeroom in absData[i][grade] %}
-                {% for student in absData[i][grade][homeroom] %}
-                {% if student != 'notes' %}
+                {% set need_fill = namespace(found=false) %}
+                {% if data[c] != None %}
+                {% for grade in data[c][p] %}
+                {% for student in data[c][p][grade] %}
                 <div class="row">
                     <div class="col">{{grade}}</div>
-                    <div class="col">{{homeroom}}</div>
                     <div class="col">{{ student }}</div>
-                    <div class="col">{{ absData[i][grade][homeroom][student]['name'] }}</div>
-                    <div class="col">{{ absData[i][grade][homeroom][student]['eng_name'] }}</div>
-                    {% if absData[i][grade][homeroom][student]['alr_fill'] %}
-                    {% set alr_fill.found = true %}
-                    {% if absData[i][grade][homeroom][student]['absent'] == 1 %}
+                    <div class="col">{{ data[c][p][grade][student]['name'] }}</div>
+                    <div class="col">{{ data[c][p][grade][student]['ename'] }}</div>
+                    {% if data[c][p][grade][student]['status'] == 'L' %}
                     <div class="col">
-                        <p class="highlightAbs n-2">X</p>
+                        <p class="highlightAbs n-3">𝜑 <span style="color:black">{{data[c][p][grade][student]['note']}}</span></p>
                     </div>
-                    {% elif absData[i][grade][homeroom][student]['absent'] == 2 %}
+                    {% elif data[c][p][grade][student]['status'] == 'K' %}
                     <div class="col">
-                        <p class="highlightAbs n-3">𝜑</p>
+                        <p class="highlightAbs n-2">礦 <span style="color:black">{{data[c][p][grade][student]['note']}}</span></p>
                     </div>
-                    {% else %}
+                    {% elif data[c][p][grade][student]['status'] == 'G' %}
+                    <div class="col">
+                        <p class="highlightAbs n-2">事 <span style="color:black">{{data[c][p][grade][student]['note']}}</span></p>
+                    </div>
+                    {% elif data[c][p][grade][student]['status'] == 'S' %}
+                    <div class="col">
+                        <p class="highlightAbs n-2">病 <span style="color:black">{{data[c][p][grade][student]['note']}}</span></p>
+                    </div>
+                    {% elif data[c][p][grade][student]['status'] == 'F' %}
+                    <div class="col">
+                        <p class="highlightAbs n-2">喪 <span style="color:black">{{data[c][p][grade][student]['note']}}</span></p>
+                    </div>
+                    {% elif data[c][p][grade][student]['status'] == 'P' %}
+                    <div class="col">
+                        <p class="highlightAbs n-2">疫 <span style="color:black">{{data[c][p][grade][student]['note']}}</span></p>
+                    </div>
+                    {% elif data[c][p][grade][student]['status'] == 'O' %}
+                    <div class="col">
+                        <p class="highlightAbs n-2">公 <span style="color:black">{{data[c][p][grade][student]['note']}}</span></p>
+                    </div>
+                    {% elif data[c][p][grade][student]['status'] == '--' %}
+                    <div class="col">
+                        <p class="highlightAbs">--</p>
+                    </div>
+                    {% elif data[c][p][grade][student]['status'] == 'present' %}
                     <div class="col">
                         <p class="highlightAbs n-1">V</p>
                     </div>
-                    {% endif %}
                     {% else %}
-                    <div class="col">
-                        {% if [grade,homeroom] in confirmed %}
-                        <p class="highlightAbs">--</p>
-                        {% else %}
-                        {% set alr_fill.found = false %}
-                        <input type="checkbox" class="tobeform {{grade}}^{{homeroom}}^{{student}} late"
-                            id="late^{{i}}^{{grade}}^{{homeroom}}^{{student}}"
-                            name="2^{{grade}}^{{homeroom}}^{{student}}"
-                            onchange="unCheckAbs('{{i}}^{{grade}}^{{homeroom}}^{{student}}')">
-                        <input type="checkbox" class="tobeform {{grade}}^{{homeroom}}^{{student}} absent"
-                            id="absent^{{i}}^{{grade}}^{{homeroom}}^{{student}}"
-                            name="1^{{grade}}^{{homeroom}}^{{student}}"
-                            onchange="unCheckLate('{{i}}^{{grade}}^{{homeroom}}^{{student}}')">
-                        {% endif %}
+                    <div id="input^{{p}}^{{grade}}^{{student}}" class="col">
+                        {% set need_fill.found = true %}
+                        <input type="checkbox" class="tobeform {{grade}}^{{student}} late"
+                            id="late^{{p}}^{{grade}}^{{student}}"
+                            name="2^{{grade}}^{{student}}"
+                            onchange="unCheckAbs('{{p}}^{{grade}}^{{student}}')">
+                        <input type="checkbox" class="tobeform {{grade}}^{{student}} absent"
+                            id="absent^{{p}}^{{grade}}^{{student}}"
+                            name="1^{{grade}}^{{student}}"
+                            onchange="unCheckLate('{{p}}^{{grade}}^{{student}}')">
                     </div>
                     {% endif %}
                 </div>
-                {% endif %}
-                {% endfor %}
                 {% endfor %}
                 {% endfor %}
                 {% endif %}
-                {% if alr_fill.found %}
+                {% if not need_fill.found %}
                 <button class="btn btn-primary margin-bottom viewSignatureBtn" type="button"
-                    onclick="viewSignature('{{i}}')" disabled="disabled">
+                    onclick="viewSignature('{{p}}')" disabled="disabled">
                     Already Submitted</button>
                 {% else %}
                 <button class="btn btn-primary margin-bottom viewSignatureBtn" type="button"
-                    onclick="viewSignature('{{i}}')">
-                    ↑ Confirm 確認 (Period {{i}}) ↑</button>
+                    onclick="viewSignature('{{p}}')">
+                    ↑ Confirm 確認 (Period {{p}}) ↑</button>
                 {% endif %}
-                <div id="sign-{{i}}" class="signDiv modal fade" id="staticBackdrop" data-bs-backdrop="static"
+                <div id="sign-{{p}}" class="signDiv modal fade" id="staticBackdrop" data-bs-backdrop="static"
                     data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-xl">
                         <div class="modal-content">
@@ -117,14 +134,52 @@
                                 <h5 class="modal-title" id="staticBackdropLabel">Please Sign Below 請在下方簽名</h5>
                             </div>
                             <div class="modal-body">
-                                <div class="alert alert-warning margin-top" id="allPresentWarning-{{i}}" role="alert"
+                                <div class="alert alert-warning margin-top" id="allPresentWarning-{{p}}" role="alert"
                                     hidden="hidden">
                                     <h4 class="alert-heading">請確認是否全班全到！Please check if everyone is present!</h4>
                                 </div>
-                                <div class="forSign"><canvas id="signature_pad^{{i}}"></canvas></div>
+                                <div class="forSign"><canvas id="signature_pad^{{p}}"></canvas></div>
                                 <h3 class="margin-top">Notes 備註欄</h3>
-                                <input type="textarea" class="form-control" name="notes" id="subjectNotes^{{i}}"
+                                <input type="textarea" class="form-control" name="notes" id="subjectNotes^{{p}}"
                                     placeholder="Enter Notes 請輸入備註" style="width: 80%; margin-left: 10%;" row="3">
+                                <style>
+                                    #indds div {
+                                        padding-left: 0;
+                                    }
+                                    #indds button {
+                                        margin-top: 0;
+                                    }
+                                </style>
+                                <div class="ds">
+                                    <h3 class="margin-top">定心專案</h3>
+                                    <div id="indds" class="row margin-top" style="width: 90%; margin-left: 5%">
+                                        <div class="col-2">
+                                            <select class="form-select" name="dsnumbers" id="dsnumbersel">
+                                                <option value="">選擇號碼</option>
+                                                {% for grade in data[c][p] %}
+                                                {% for i in data[c][p][grade] %}   
+                                                {% if data[c][p][grade][i]['status'] == 'na' %}                             
+                                                <option value="{{grade}}-{{i}}-{{data[c][p][grade][i]['name']}}-{{data[c][p][grade][i]['ename']}}">{{grade}}-{{i}}-{{data[c][p][grade][i]['name']}}-{{data[c][p][grade][i]['ename']}}</option>
+                                                {% endif %}
+                                                {% endfor %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <select name="dsoffense" id="dsoffensesel" class="form-select">
+                                                <option value="">選擇違規事由</option>
+                                                {% for i in dsoffenses %}
+                                                <option value="{{i}}-{{dsoffenses[i]}}">{{i}}-{{dsoffenses[i]}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="text" class="form-control" name="dsoffenseother" id="dsoffenseother" placeholder="Other">
+                                        </div>
+                                        <div class="col noborder"><button type="button" class="btn btn-secondary" onclick="addDS()"><i class="fas fa-plus"></i></button></div>
+                                    </div>
+                                    <div id="inddsview" class="margin-top" style="width: 90%; margin-left: 5%;"><div class="col"></div></div>    
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear
@@ -139,6 +194,7 @@
                 </div>
             </div>
         </form>
+        {% endfor %}
         {% endfor %}
     </div>
     <script src=" https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>

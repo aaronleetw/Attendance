@@ -8,6 +8,7 @@
     <title>Admin 管理員 - Attendance 點名</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="/static/allpages.css">
     <link rel="stylesheet" href="/static/homeroom.css">
     <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
@@ -18,48 +19,17 @@
 
 <body>
     <div class="showTime"><span id="showTime"></span></div>
+    {% include 'sidebar.html' %}
     <div class="container">
         <h1 class="margin-top">Admin View | 管理頁面</h1>
-        <h2 class="margin-top">{{homeroomCode[0]}} {{homeroomCode[1]}}</h2>
+        <h2 class="margin-top">{{currRoom[0]}} {{currRoom[1]}}</h2>
         <h2>[{{currDate}}]</h2>
-        {% if 'confirm' in absData[currDate] %}
+        {% if 'c' in submission %}
         <h2 style="color: rgb(61, 194, 0); text-align: center;">Homeroom Confirmed 班導已確認</h2>
         {% else %}
         <h2 style="color: red; text-align: center;">Homeroom NOT Confirmed 班導尚未確認</h2>
         {% endif %}
-        <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
-        <div class="container margin-bottom">
-            <div class="row">
-                <div class="col">
-                    <select name="grade" id="sel-grade" class="form-select" onchange="getHR()" required>
-                        <option value="">選擇年級</option>
-                        {% for grade in homerooms %}
-                        <option value="{{grade}}">{{grade}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col">
-                    <select name="room" id="sel-room" class="form-select" disabled required>
-                        <option value="">請先選擇年級</option>
-                    </select>
-                </div>
-                <div class="col">
-                    <select name="date" id="date" class="form-select">
-                        {% for date in absData %}
-                        {% if date == currDate %}
-                        <option value="{{date}}" selected="selected">{{date}} ★</option>
-                        {% else %}
-                        <option value="{{date}}">{{date}}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-1">
-                    <button type="button" class="btn btn-primary" onclick="redirAdmin()">查詢</button>
-                </div>
-            </div>
-        </div>
-        <div class="col">
+        <div class="col margin-top">
             <div class="sticky-top" style="background-color:white;">
                 <div class="row title">
                     <div class="col">班級</div>
@@ -77,7 +47,7 @@
                     <div class="col"></div>
                     {% for i in periods %}
                     <div class="col">
-                        {{absData[currDate][i]['name']}}</div>
+                        {{schedule[i]['subject']}} {% if schedule[i]['special'] == True %} <span class="text-red">(換)</span> {% endif %}</div>
                     {% endfor %}
                 </div>
                 <div class="row title">
@@ -86,73 +56,101 @@
                     <div class="col"></div>
                     <div class="col"></div>
                     {% for i in periods %}
-                    <div class="col">{{absData[currDate][i]['teacher']}}</div>
+                    <div class="col">{{schedule[i]['teacher']}}</div>
                     {% endfor %}
                 </div>
             </div>
-            {% for i in homeroomData %}
+            {% for i in students %}
             <div class="row">
-                <div class="col">{{homeroomCode[0]}}{{homeroomCode[1]}}</div>
-                <div class="col">{{i}}</div>
-                <div class="col">{{ homeroomData[i]['name'] }}</div>
-                <div class="col">{{ homeroomData[i]['eng_name'] }}</div>
+                <div class="col">{{currRoom[0]}}{{currRoom[1]}}</div>
+                <div class="col">{{ i[0] }}</div>
+                <div class="col">{{ i[1] }}</div>
+                <div class="col">{{ i[2] }}</div>
                 {% for j in periods %}
                 <div class="col view-{{j}}">
-                    {% if 'signature' in absData[currDate][j] %}
-                    {% if i in absData[currDate][j] %}
-                    {% if absData[currDate][j][i] == 1 %}
-                    <p class="highlightAbs n-2 view-n-{{i}}">X</p>
+                    {% if schedule[j]['subject'] == 'GP' %}
+                    {% for k in submission[j] %}
+                    {% if studGP[i[0]][schedule[j]['teacher']] == k %}
+                    {% if i[0] in absentData[j] %}
+                    {% if absentData[j][i[0]]['status'] == 'L' %}
+                    <p class="highlightAbs n-3 view-n-{{i[0]}}">𝜑</p>
+                    {% elif absentData[j][i[0]]['status'] == 'K' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">礦</p>
+                    {% elif absentData[j][i[0]]['status'] == 'G' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">事</p>
+                    {% elif absentData[j][i[0]]['status'] == 'S' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">病</p>
+                    {% elif absentData[j][i[0]]['status'] == 'F' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">喪</p>
+                    {% elif absentData[j][i[0]]['status'] == 'P' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">疫</p>
+                    {% elif absentData[j][i[0]]['status'] == 'O' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">公</p>
                     {% else %}
-                    <p class="highlightAbs n-3 view-n-{{i}}">𝜑</p>
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">{{absentData[j][i[0]]['status']}}</p>
+                    {% endif %}
+                    <p class="highlightAbs">{{absentData[j][i[0]]['note']}}</p>
+                    {% else %}
+                    <p class="highlightAbs n-1 view-n-{{i[0]}}">V</p>
+                    {% if j in idvDS and i[0] in idvDS[j] %}
+                    <p class="highlightAbs n-2">{{idvDS[j][i[0]]}}</p>
+                    {% endif %}
                     {% endif %}
                     {% else %}
-                    {% if absData[currDate][j]['name'] != 'GP' %}
-                    <p class="highlightAbs n-1 view-n-{{i}}">V</p>
+                    <p class="highlightAbs view-n-{{i[0]}}"></p>
+                    {% endif %}
+                    {% endfor %}
                     {% else %}
-                    {% if (homeroomData[i]['GP_Class'][absData[currDate][j]['teacher']] in
-                    absData[currDate][j]['signature'] or 'STUD_AFFAIR_OFFICE' in absData[currDate][j]['signature'])%}
-                    <p class="highlightAbs n-1 view-n-{{i}}">V</p>
+                    {% if j in submission %}
+                    {% if i[0] in absentData[j] %}
+                    {% if absentData[j][i[0]]['status'] == 'L' %}
+                    <p class="highlightAbs n-3 view-n-{{i[0]}}">𝜑</p>
+                    {% elif absentData[j][i[0]]['status'] == 'K' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">礦</p>
+                    {% elif absentData[j][i[0]]['status'] == 'G' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">事</p>
+                    {% elif absentData[j][i[0]]['status'] == 'S' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">病</p>
+                    {% elif absentData[j][i[0]]['status'] == 'F' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">喪</p>
+                    {% elif absentData[j][i[0]]['status'] == 'P' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">疫</p>
+                    {% elif absentData[j][i[0]]['status'] == 'O' %}
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">公</p>
                     {% else %}
-                    <p class="highlightAbs n-2 view-n-{{i}}"></p>
+                    <p class="highlightAbs n-2 view-n-{{i[0]}}">{{absentData[j][i[0]]['status']}}</p>
+                    {% endif %}
+                    <p class="highlightAbs">{{absentData[j][i[0]]['note']}}</p>
+                    {% else %}
+                    <p class="highlightAbs n-1 view-n-{{i[0]}}">V</p>
+                    {% if j in idvDS and i[0] in idvDS[j] %}
+                    <p class="highlightAbs n-2">{{idvDS[j][i[0]]}}</p>
                     {% endif %}
                     {% endif %}
-                    {% endif %}
-                    {% elif absData[currDate][j]['name'] == 'GP' %}
-                    <p class="highlightAbs"></p>
                     {% else %}
-                    {% if 'confirm' in absData[currDate] %}
-                    <p class="highlightAbs"></p>
-                    {% else %}
-                    <p class="highlightAbs"></p>
+                    <p class="highlightAbs view-n-{{i[0]}}"></p>
                     {% endif %}
-                    <!-- <input type="checkbox" class="tobeform {{j}}^{{i}}"> -->
                     {% endif %}
                 </div>
                 {% endfor %}
             </div>
             {% endfor %}
-            {% if showUpload == '1' %}
-            <div class="row">
+            {% for i in range(7) %}
+            <div class="row" {%if i==0%}style="border-top: 2px solid black;"{%endif%} {% if i == 6 %} style="border-bottom: 2px solid black;" {% endif %}>
                 <div class="col"></div>
                 <div class="col"></div>
+                <div class="col" style="font-weight: bold;">{{dstext[i]}}</div>
+                <div class="col">{{dsboard[i]}}</div>
+                {% for j in periods %}
+                {% if j in submission and schedule[j] != 'GP' %}
+                <div class="col">
+                    {{submission[j]['ds' + (i+1)|string]}}</div>
+                {% else %}
                 <div class="col"></div>
-                <div class="col"></div>
-                {% for i in periods %}
-                <div id="btns-{{i}}" class="col">
-                    {% if ('signature' in absData[currDate][i] or 'confirm' in absData[currDate][i]) %}
-                    <button class="btn btn-danger afterSelButton" onclick="edit('{{i|string}}')">編輯
-                        <br>{{absData[currDate][i]['name']}}</button>
-                    {% endif %}
-                </div>
+                {% endif %}
                 {% endfor %}
             </div>
-            {% endif %}
-            <form action="/manage/edit_abs" id="postHomeroomAbs" hidden="hidden" method="post">
-                <input type="text" id="HR-date" name="date" value="{{currDate}}">
-                <input type="text" id="HR-period" name="period" value="">
-                <input type="text" id="HR-notes" name="notes" value="">
-                <input type="text" id="HR-homeroom" name="homeroom" value="{{homeroomCode[0]}}^{{homeroomCode[1]}}">
-            </form>
+            {% endfor %}
             {% for c in range(periods|length + 1) %}
             {% if c % 4 == 0 %}
             <div class="row signatures">
@@ -160,38 +158,41 @@
                 <div class="col half">
                     {% if c == 0 %}
                     <div class="row needborder">Homeroom Teacher 導師</div>
-                    {% if 'confirm' in absData[currDate] %}
-                    <div class="row"><img src="{{absData[currDate]['confirm']}}" alt=""></div>
-                    <div class="row">備註: {{absData[currDate]['notes']}}</div>
+                    {% if 'c' in submission %}
+                    <div class="row"><img src="{{submission['c']['signature']}}" alt=""></div>
+                    <div class="row">備註: {{submission['c']['notes']}}</div>
                     {% else %}
                     <div class="row"><span style="color:red;">No Signature 導師尚未簽名</span></div>
                     {% endif %}
                     {% else %}
-                    {% if absData[currDate][periods[c-1]]['name'] == 'GP' %}
-                    {% if 'signature' in absData[currDate][periods[c-1]] %}
-                    {% for i in absData[currDate][periods[c-1]]['signature'] %}
+                    {% if schedule[periods[c-1]]['subject'] == 'GP' %}
+                    {% if periods[c-1] in submission %}
+                    {% for i in submission[periods[c-1]] %}
+                    {% if i != 'notes' %}
                     <div class="row needborder">{{periods[c-1]}}:
-                        {{absData[currDate][periods[c-1]]['teacher']}}: {{i}}:
-                        {{absData[currDate][periods[c-1]]['names'][i]}}</div>
-                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature'][i]}}" alt="">
-                        {% if loop.index == loop.length %}
-                        <br>備註: {{absData[currDate][periods[c-1]]['notes']}}
+                        {{schedule[periods[c-1]]['teacher']}}: {{i}}</div>
+                    <div class="row"><img src="{{submission[periods[c-1]][i]['signature']}}" alt="">
+                        {% if loop.index == loop.length-1 %}
+                        <br>備註: {{submission[periods[c-1]]['notes']}}
                         {% endif %}
                     </div>
+                    {% endif %}
                     {% endfor %}
                     {% else %}
                     <div class="row needborder">{{periods[c-1]}}:
-                        {{absData[currDate][periods[c-1]]['teacher']}}: No
+                        {{schedule[periods[c-1]]['subject']}}: {{i}}: No
                         Signature
                     </div>
                     <div class="row"></div>
                     {% endif %}
                     {% else %}
-                    <div class="row needborder">{{periods[c-1]}}: {{absData[currDate][periods[c-1]]['name']}}:
-                        {{absData[currDate][periods[c-1]]['teacher']}}
+                    <div class="row needborder">{{periods[c-1]}}: {{schedule[periods[c-1]]['subject']}}:
+                        {{schedule[periods[c-1]]['teacher']}}
                     </div>
-                    <div class="row"><img src="{{absData[currDate][periods[c-1]]['signature']}}" alt=""><br>備註:
-                        {{absData[currDate][periods[c-1]]['notes']}}</div>
+                    {% if periods[c-1] in submission %}
+                    <div class="row"><img src="{{submission[periods[c-1]]['signature']}}" alt=""><br>備註:
+                        {{submission[periods[c-1]]['notes']}}</div>
+                    {% endif %}
                     {% endif %}
                     {% endif %}
                 </div>
@@ -199,29 +200,6 @@
             </div>
             {% endif %}
             {% endfor %}
-        </div>
-        <div id="finalCheck" class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
-            tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <form onsubmit="return false;">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <div class="alert alert-danger margin-top" id="allPresentWarning" role="alert">
-                                <h4 class="alert-heading">請確認更改！Please confirm that you are editting records!</h4>
-                            </div>
-                            <h3 class="margin-top">Notes 備註欄</h3>
-                            <input type="textarea" class="form-control" name="notes" id="subjectNotes"
-                                placeholder="Enter Notes 請輸入備註" style="width: 80%; margin-left: 10%;" row="3">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" onclick="location.reload();">Cancel
-                                取消</button>
-                            <button type="submit" class="btn btn-primary submitButton" onclick="submitForm()">Submit
-                                提交</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
         </div>
         {% if showUpload == '1' %}
         <div class="row margin-top">

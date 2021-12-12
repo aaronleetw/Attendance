@@ -18,3 +18,5 @@
     }
     startTime();
 })();
+$(window).resize();
+$(window).scroll();

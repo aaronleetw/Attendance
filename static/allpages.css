@@ -3,6 +3,9 @@
 
 body {
     font-family: "Lato", "Noto Sans TC", "Microsoft JhengHei", "sans-serif";
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    font-smooth: always;
 }
 
 div.col .row .col {
@@ -76,9 +79,29 @@ p.highlightAbs.n-2 {
 p.highlightAbs.n-3 {
     color: rgb(15, 184, 0);
 }
+.afterSelButton {
+    margin-top: 0;
+}
+.modal-footer>.row {
+    width: 70%;
+}
+.modal-footer>.row .col {
+    border: 0 !important;
+}
+.modal-footer>.row button {
+    margin-right: 10px;
+    margin-top: 0;
+}
+
 
 .margin-top {
     margin-top: 20px;
+}
+.nomargin-top {
+    margin-top: 0;
+}
+.nmb {
+    margin-bottom: 0;
 }
 
 input[type="checkbox"].absent, input[type="checkbox"].late {
@@ -179,4 +202,23 @@ label {
 .submitButton {
     width: 20vw;
     min-width: auto;
+}
+
+div.ds {
+    margin-top: 20px;
+}
+div.dsboard .col, .noborder {
+    border: 0 !important;
+}
+
+div.container {
+    text-align: center;
+}
+
+button {
+    width: 100%;
+    margin-top: 10px;
+}
+.text-red {
+    color: red;
 }

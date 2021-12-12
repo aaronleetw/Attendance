@@ -1,0 +1,83 @@
+<link rel="stylesheet" href="/static/nav.css">
+{% if session['subuser_type'] == 'homeroom' %}
+<nav id="sidebar" class="active">
+    <h1><a href="/manage" class="logo"><img src="/static/favicon.ico" alt="" width="100%"></a></h1>
+    <ul class="list-unstyled components mb-5">
+        <li class="active">
+            <a href="/manage"><span class="fa fa-home"></span> Home 主頁</a>
+        </li>
+        <li>
+            <a href="/manage/abs"><span class="fa fa-user-times"></span> All Absent<br>所有缺勤</a>
+        </li>
+        <li>
+            <a href="/manage/ds"><span class="fa fa-skull-crossbones"></span> All DS<br>所有定心</a>
+        </li>
+        <li style="position:absolute; bottom: 2px; left:3px;">
+            <a href="/select"><span class="fa fa-people-arrows"></span> Switch User<br>切換帳號</a>
+            <a href="/logout"><span class="fa fa-sign-out-alt"></span> Logout<br>登出</a>
+        </li>
+    </ul>
+</nav>
+{% elif session['subuser_type'] == 'admin' %}
+<nav id="sidebar" class="active" style="max-width: 150px;">
+    <h1><a href="/manage" class="logo"><img src="/static/favicon.ico" alt="" width="100%"></a></h1>
+    <ul class="list-unstyled components mb-5">
+        <li class="active">
+            <a href="/manage"><span class="fa fa-home"></span> Home 主頁</a>
+            <div class="col">
+                <div class="row">
+                    <select name="grade" id="sel-grade" class="form-select" onchange="getHR()" required>
+                        <option value="">選擇年級</option>
+                        {% for grade in homerooms %}
+                        <option value="{{grade}}">{{grade}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="row">
+                    <select name="room" id="sel-room" class="form-select" disabled required>
+                        <option value="">請先選擇年級</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <select name="date" id="date" class="form-select">
+                        {% for date in dates %}
+                        {% if date[0] == currDate %}
+                        <option value="{{date[0]}}" selected="selected">{{date[0]}} ★</option>
+                        {% else %}
+                        <option value="{{date[0]}}">{{date[0]}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="row-1">
+                    <button type="button" class="btn btn-primary" onclick="redirAdmin()">查詢</button>
+                </div>
+            </div>    
+        </li>
+        <li>
+            <a href="/admin"><span class="fa fa-toolbox"></span> Admin<br>資料庫管理</a>
+        </li>
+        <li style="position:absolute; bottom: 2px; left:50px;">
+            <a href="/logout"><span class="fa fa-sign-out-alt"></span> Logout<br>登出</a>
+        </li>
+    </ul>
+</nav>
+{% elif session['user_type'] == 'student' %}
+<nav id="sidebar" class="active">
+    <h1><a href="/student" class="logo"><img src="/static/favicon.ico" alt="" width="100%"></a></h1>
+    <ul class="list-unstyled components mb-5">
+        <li>
+            <a href="/student"><span class="fa fa-user-times"></span> All Absent<br>所有缺勤</a>
+        </li>
+        <li>
+            <a href="/student/ds"><span class="fa fa-skull-crossbones"></span> All DS<br>所有定心</a>
+        </li>
+        <li style="position:absolute; bottom: 2px; left:10px;">
+            <a href="/chgPassword"><span class="fa fa-user-cog"></span>Chg Pswd<br>更改帳密</a>
+            <a href="/logout"><span class="fa fa-sign-out-alt"></span> Logout<br>登出</a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="/static/nav.js"></script>

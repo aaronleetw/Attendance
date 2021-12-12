@@ -1,5 +1,6 @@
 var signaturePad, hrCfrm = false, canvas = document.getElementById("signature_pad");
 var width = $(window).width();
+var indDS = {};
 function loadingAnimation() {
     $('.container').hide();
     $('#loading').show();
@@ -25,6 +26,11 @@ function submitForm() {
             document.getElementById('homeroom_confirm').submit()
         } else {
             var notes = $('#subjectNotes').val();
+            for (var i = 0; i < 7; i++)
+                document.getElementById('HR-ds'+(i+1)).value = $('.dsboard input[name="ds'+(i+1)+'"]:checked').val();
+            for (var i in indDS) {
+                $('#postHomeroomAbs').append('<input type="text" name="dsidv^' + i.split('-')[0] + '" value="'+ indDS[i] +'">')
+            }
             document.getElementById('HR-signatureData').value = data;
             document.getElementById('HR-notes').value = notes;
             document.getElementById('postHomeroomAbs').submit();
@@ -70,6 +76,8 @@ function afterSelAbs(period) {
             $('#postHomeroomAbs').append('<input type="checkbox" name="' + $(this).attr('class').split(' ')[1].split('^')[0] + '^'
                 + $(this).attr('class').split(' ')[1].split('^')[2]
                 + '" checked="checked">');
+            $('#postHomeroomAbs').append('<input type="text" name="note^' + $(this).attr('class').split(' ')[1].split('^')[0] + '^'
+            + $(this).attr('class').split(' ')[1].split('^')[2] + '" value="'+ $('#note-' + $(this).attr('class').split(' ')[1].split('^')[1] + '-' + $(this).attr('class').split(' ')[1].split('^')[2]).val() +'">')
         }
     });
     if (cnt == 0) {
@@ -80,6 +88,7 @@ function afterSelAbs(period) {
 }
 function homeroomCfrm() {
     hrCfrm = true;
+    $('.ds').attr('hidden', 'hidden');
     $('#showSignPeriod').text("HOMEROOM CONFIRM");
     $('#showSignSubjectName').text("班導確認");
     $('.tobeform').attr('disabled', 'disabled');
@@ -88,7 +97,32 @@ function homeroomCfrm() {
 }
 function unCheckLate(string) {
     document.getElementById('late^' + string).checked = false;
+    if (document.getElementById("absent^" + string).checked == true && $('#note-'+string.split('^')[0]+'-'+string.split('^')[1]).length == 0) {
+        $('.input-'+string.split('^')[0]+'-'+string.split('^')[1]).append('<input type="text" class="form-control" id="note-'+string.split('^')[0]+'-'+string.split('^')[1]+'" name="'+ string +'">')
+    } else if (document.getElementById("absent^" + string).checked == false) {
+        $('#note-'+string.split('^')[0]+'-'+string.split('^')[1]).remove();
+    }
 }
 function unCheckAbs(string) {
     document.getElementById('absent^' + string).checked = false;
+    if (document.getElementById("late^" + string).checked == true && $('#note-'+string.split('^')[0]+'-'+string.split('^')[1]).length == 0) {
+        $('.input-'+string.split('^')[0]+'-'+string.split('^')[1]).append('<input type="text" class="form-control" id="note-'+string.split('^')[0]+'-'+string.split('^')[1]+'" name="'+ string +'">')
+    } else if (document.getElementById("late^" + string).checked == false) {
+        $('#note-'+string.split('^')[0]+'-'+string.split('^')[1]).remove();
+    }
+}
+function addDS() {
+    if ($('#dsnumbersel').val() == "" || $('#dsoffensesel').val() == "") {
+        return;
+    }
+    var text = $('#dsoffensesel').val()
+    if ($('#dsoffenseother').val() != "") {
+        text = text.concat(": ", $('#dsoffenseother').val());
+    }
+    indDS[$("#dsnumbersel").val()] = text;
+    $('#inddsview>.col').append('<div class="row"><div class="col">'+$("#dsnumbersel").val()+'</div><div class="col">'+text+'</div></div>')
+    $('#dsnumbersel option[value="'+$("#dsnumbersel").val()+'"]').remove();
+    $('#dsoffenseother').val("");
+    $('#dsoffensesel').val("");
+    $('#dsnumbersel').val("");
 }

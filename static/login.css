@@ -1,8 +1,39 @@
-div.container {
-    text-align: center;
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background: linear-gradient(to bottom right, #e4e4e4 0%, #afafaf 100%);
 }
 
-button {
-    width: 100%;
-    margin-top: 10px;
+div.loginPanel {
+    background: #effffc;
+    margin-top: 100px;
+    padding: 30px;
+    box-shadow: 0 0 10px black;
+    z-index: -1;
+}
+
+div.container {
+    max-width: 730px;
+}
+
+h1 .img {
+    height: calc(1.375rem + 1.5vw);
+}
+@media (min-width: 1200px) {
+    h1 .img {
+        height: 2.5rem;
+    }
+}
+h1 .img img {
+    vertical-align: sub;
+}
+#subuser_sel {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
 }

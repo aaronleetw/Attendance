@@ -1,0 +1,82 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<style>
+    td {
+        text-align: center;
+        border: 1px solid black;
+        padding: 5px;
+    }
+</style>
+<h1><img src="/static/favicon.ico" alt="" height="40px" style="vertical-align: bottom;"> 歡迎 後台管理</h1>
+<h2>請利用上方選單選取功能</h2>
+<h3>特殊功能</h3>
+<ul>
+    <li>為保障用戶安全，Users 的密碼欄為 <code>sha256_crypt.hash</code>，請使用 Python 產生出後輸入，或先改 Email，寄忘記密碼信，最後再改回來。</li>
+    <ul>
+        <li><small><code>password</code> 的 hash 為 <code>$5$rounds=535000$VjoY30Bt535dL/7x$xXmg8BZ3VJe/odbQQ5hd0uPmb1o9EhHkJmwWWTc8K21</code></small></li>
+    </ul>
+    <li>為簡化程式，Students->Classes, GPClasses->Accs, Homerooms->Accs, 分組課的 Submission->Notes 都使用標準 JSON 格式輸入，請留意</li>
+    <li>請假代碼<br>
+        <table>
+            <tbody>
+                <tr>
+                    <td>遲到</td>
+                    <td>曠課</td>
+                    <td>事假</td>
+                    <td>病假</td>
+                    <td>喪假</td>
+                    <td>疫情假</td>
+                    <td>公假</td>
+                </tr>
+                <tr>
+                    <td>L</td>
+                    <td>K</td>
+                    <td>G</td>
+                    <td>S</td>
+                    <td>F</td>
+                    <td>P</td>
+                    <td>O</td>
+            </tbody>
+        </table>
+    </li>
+    <li>使用者代碼<br>
+        <table>
+            <tbody>
+                <tr>
+                    <td>超級管理員</td>
+                    <td>管理員</td>
+                    <td>一般使用者</td>
+                </tr>
+                <tr>
+                    <td>S</td>
+                    <td>A</td>
+                    <td>R</td>
+                </tr>
+            </tbody>
+        </table>
+    </li>
+</ul>
+{% if session['showUpload'] %}
+<div class="row">
+    <div class="col">
+        <h3 style="color: red;">大量匯入</h3>
+    </div>
+    <div class="col">
+        <a href="/upload/1"><button class="btn btn-danger">1. Add Homeroom</button></a>
+    </div>
+    <div class="col">
+        <a href="/upload/2"><button class="btn btn-danger">2. Add GP Classes</button></a>
+    </div>
+    <div class="col">
+        <a href="/upload/3"><button class="btn btn-danger">3. Add GP Student List</button></a>
+    </div>
+    <div class="col">
+        <a href="/upload/4"><button class="btn btn-danger">4. Period List</button></a>
+    </div>
+    <div class="col">
+        <a href="/upload/dates"><button class="btn btn-warning">Dates</button></a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

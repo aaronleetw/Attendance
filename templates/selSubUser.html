@@ -5,11 +5,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Select Subuser 選擇子帳號</title>
+    <title>Attendance 點名系統 2.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/allpages.css">
-    <link rel="stylesheet" href="/static/homeroom.css">
+    <link rel="stylesheet" href="/static/login.css">
     <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
@@ -18,31 +18,29 @@
 
 <body>
     <div class="showTime"><span id="showTime"></span></div>
-    <div class="container">
-        <h1 class="margin-top">Select Subuser 選擇子帳號</h1>
-        <h2 class="margin-top">{{name}}</h2>
-        <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
-        <form action="/select" id="subuser_form_sel" method="post">
-            <select name="subuser_sel" id="subuser_sel" class="form-select logout" onchange="loadingAnimation();"
-                required>
-                <option value="" selected>Please select</option>
-                {% for key in data %}
-                {% if data[key]['type'] == 'homeroom' %}
-                <option value="homeroom^{{data[key]['homeroom']}}">🏠 {{data[key]['homeroom']}}
-                </option>
-                {% else %}
-                {% for i in data[key] %}
-                {% if i == 'type' %}
-                {% else %}
-                <option value="group^{{i}}^{{data[key][i]}}">🧑‍🏫 {{i}}: {{data[key][i]}}</option>
-                {% endif %}
-                {% endfor %}
-                {% endif %}
-                {% endfor %}
-            </select>
-        </form>
+    <div class="text-center container">
+        <div class="loginPanel">
+            <h1 class="margin-top margin-bottom">
+                <div class="img"><img src="/static/favicon.ico" alt="" style="height: 100%"> Select Subuser 選擇子帳號</div> </h1>
+            <h2 class="margin-top">Hi, {{name}}</h2>
+            <a href="/logout"><button class="btn btn-primary logout margin-top">Logout 登出</button></a>
+            <form action="/select" id="subuser_form_sel" method="post">
+                <select name="subuser_sel" id="subuser_sel" class="form-select logout" onchange="loadingAnimation();"
+                    required>
+                    <option value="" selected>Please select</option>
+                    {% for h in homeroom %}
+                    {% for c in homeroom[h] %}
+                    <option value="homeroom^{{h}}^{{c}}">🏠: {{h}}^{{c}}</option>
+                    {% endfor %}
+                    {% endfor %}
+                    {% if group %}
+                    <option value="group">💼: All Group Classes</option>
+                    {% endif %}
+                </select>
+            </form>
+            {% include 'footer.html' %}
+        </div>
     </div>
-    {% include 'footer.html' %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/static/pagejs/selSubUser.js"></script>
     <script src="/static/time.js"></script>

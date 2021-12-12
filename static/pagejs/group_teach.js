@@ -1,6 +1,14 @@
 var signaturePad, selPeriod, canvas, width = $(window).width(), modal;
+var indDS = {};
 function submitForm() {
     if (!signaturePad.isEmpty()) {
+        for (var i in indDS) {
+            var tmp = document.createElement('input');
+            tmp.type = 'hidden';
+            tmp.name = 'ds^' + i;
+            tmp.value = indDS[i];
+            document.getElementById('attendanceData^' + selPeriod).appendChild(tmp);
+        }
         $('#' + modal).modal('hide');
         loadingAnimation();
         signaturePad.off();
@@ -50,12 +58,36 @@ function viewSignature(period) {
     });
     resizeCanvas();
 }
-function unCheckAbs(string) {
-    document.getElementById('absent^' + string).checked = false;
-}
 function unCheckLate(string) {
     document.getElementById('late^' + string).checked = false;
+    strForNote = string.substring(string.indexOf("^") + 1);
+    if (document.getElementById("absent^" + string).checked == true && !!!document.getElementById("note^"+strForNote)) {
+        var tmp = document.createElement('input')
+        tmp.type = 'text'
+        tmp.id = 'note^'+strForNote
+        tmp.name = 'note^'+strForNote
+        tmp.className = 'form-control'
+        document.getElementById('input^' + string).appendChild(tmp)
+    } else if (document.getElementById("absent^" + string).checked == false) {
+        document.getElementById('note^' + strForNote).remove();
+    }
+
 }
+function unCheckAbs(string) {
+    document.getElementById('absent^' + string).checked = false;
+    strForNote = string.substring(string.indexOf("^") + 1);
+    if (document.getElementById("late^" + string).checked == true && !!!document.getElementById("note^"+strForNote)) {
+        var tmp = document.createElement('input')
+        tmp.type = 'text'
+        tmp.id = 'note^'+strForNote
+        tmp.name = 'note^'+strForNote
+        tmp.className = 'form-control'
+        document.getElementById('input^' + string).appendChild(tmp)
+    } else if (document.getElementById("late^" + string).checked == false) {
+        document.getElementById('note^' + strForNote).remove();
+    }
+}
+
 
 function loadingAnimation() {
     $("div.container").hide();
@@ -69,4 +101,19 @@ function chgDate(sel) {
     new_form.action = url;
     document.body.appendChild(new_form);
     new_form.submit();
+}
+function addDS() {
+    if ($('#dsnumbersel').val() == "" || $('#dsoffensesel').val() == "") {
+        return;
+    }
+    var text = $('#dsoffensesel').val()
+    if ($('#dsoffenseother').val() != "") {
+        text = text.concat(": ", $('#dsoffenseother').val());
+    }
+    indDS[$("#dsnumbersel").val()] = text;
+    $('#inddsview>.col').append('<div class="row"><div class="col">'+$("#dsnumbersel").val()+'</div><div class="col">'+text+'</div></div>')
+    $('#dsnumbersel option[value="'+$("#dsnumbersel").val()+'"]').remove();
+    $('#dsoffenseother').val("");
+    $('#dsoffensesel').val("");
+    $('#dsnumbersel').val("");
 }
