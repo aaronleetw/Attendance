@@ -76,7 +76,6 @@ CREATE TABLE homerooms (
     */
 );
 
-DELETE FROM submission WHERE grade=9;
 CREATE TABLE submission (
     id INT NOT NULL AUTO_INCREMENT,
     PRIMARY KEY (id),

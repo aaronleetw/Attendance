@@ -190,7 +190,7 @@ def chgPassword():
                         <hr>
                         <small>This email was sent automatically. Please do not reply.<br>
                         這個郵件是自動發送的，請不要回覆。</small>
-                        """ % (str(datetime.now(tz)), request.form['new_username'], str(datetime.now(tz)), request.form['new_username']))
+                        """ % (datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"), request.form['new_username'], datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"), request.form['new_username']))
                     flash(
                         '修改密碼成功，請重新登入<br>Password changed successfully. Please login again.')
                     return redirect('/')
@@ -284,9 +284,10 @@ def resetPassword():
                 """, (request.args.get('resetCode'),))
                 user = cursor.fetchone()
                 cursor.close()
+                dtnow = datetime.now(tz).replace(tzinfo=None)
                 if user == None:
                     raise Exception('無此重置密碼代碼<br>Invalid reset password code')
-                if (datetime.now(tz) - datetime.strptime(user[2], '%Y-%m-%d %H:%M:%S')).seconds > 3600:
+                if (dtnow - datetime.strptime(user[2], '%Y-%m-%d %H:%M:%S')).seconds > 3600:
                     cursor.execute("DELETE FROM forgot WHERE resetID = %s", (user[0],))
                     db.commit()
                     cursor.close()
