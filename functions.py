@@ -77,7 +77,7 @@ def next_item(odic, key):
 def check_login_status():
     return ('is_logged_in' not in session or
             session['is_logged_in'] == False or
-            (datetime.now(tz) - session['loginTime']).total_seconds() > 3600)
+            (datetime.now(tz) - session['loginTime']).total_seconds() > 43200)
 
 def send_email(to, subject, text):
     return requests.post(
