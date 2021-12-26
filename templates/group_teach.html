@@ -47,6 +47,7 @@
             <input type="hidden" class="signatureData" name="signatureData" value="">
             <input type="hidden" name="category" value="{{data[c]['cdata']['category']}}">
             <input type="hidden" name="class_id" value="{{data[c]['cdata']['class_id']}}">
+            <input type="hidden" name="submissionType" class="submissionType" value="">
             <div class="col" style="margin-top: 5px;">
                 <div class="row title sticky-top" style="background-color: white">
                     <div class="col">Grade 年級</div>
@@ -56,6 +57,7 @@
                     <div class="col">Period {{p}} | 第 {{p}} 節</div>
                 </div>
                 {% set need_fill = namespace(found=false) %}
+                {% set need_ds   = namespace(found=false) %}
                 {% if data[c] != None %}
                 {% for grade in data[c][p] %}
                 {% for student in data[c][p][grade] %}
@@ -113,18 +115,25 @@
                             onchange="unCheckLate('{{p}}^{{grade}}^{{student}}')">
                     </div>
                     {% endif %}
+                    {% if data[c][p][grade][student]['needDS'] == True %}
+                        {% set need_ds.found = true %}
+                    {% endif %}
                 </div>
                 {% endfor %}
                 {% endfor %}
                 {% endif %}
-                {% if not need_fill.found %}
-                <button class="btn btn-primary margin-bottom viewSignatureBtn" type="button"
-                    onclick="viewSignature('{{p}}')" disabled="disabled">
-                    Already Submitted</button>
-                {% else %}
+                {% if need_fill.found %}
                 <button class="btn btn-primary margin-bottom viewSignatureBtn" type="button"
                     onclick="viewSignature('{{p}}')">
                     ↑ Confirm 確認 (Period {{p}}) ↑</button>
+                {% elif need_ds.found %}
+                <button class="btn btn-warning margin-bottom viewSignatureBtn" type="button"
+                    onclick="signDS('{{p}}')">
+                    ↑ Confirm DS 定心專案 (Period {{p}}) ↑</button>
+                {% else %}
+                <button class="btn btn-primary margin-bottom viewSignatureBtn" type="button"
+                    onclick="viewSignature('{{p}}')" disabled="disabled">
+                    Already Submitted</button>
                 {% endif %}
                 <div id="sign-{{p}}" class="signDiv modal fade" id="staticBackdrop" data-bs-backdrop="static"
                     data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -150,15 +159,47 @@
                                         margin-top: 0;
                                     }
                                 </style>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear
+                                    Signature 清除簽名</button>
+                                <button type="button" class="btn btn-danger" onclick="location.reload();">Cancel
+                                    取消</button>
+                                <button type="button" class="btn btn-primary submitButton" onclick="submitForm()">Submit
+                                    提交</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="ds-{{p}}" class="signDiv modal fade" id="staticBackdrop" data-bs-backdrop="static"
+                    data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="staticBackdropLabel">定心專案 DS</h5>
+                            </div>
+                            <div class="modal-body">
                                 <div class="ds">
-                                    <h3 class="margin-top">定心專案</h3>
+                                    {% for i in range(dsboard|length) %}
+                                    <div class="row dsboard" style="width: 40%; margin-left: 30%;">
+                                        <div class="col col-4">
+                                            <span>{{dsboard[i]}}</span>
+                                        </div>
+                                        {% for j in range(6) %}
+                                        <div class="col">
+                                            <input class="form-check-input" type="radio" name="ds{{i+1}}" id="ds{{i+1}}{{j}}" value="{{j}}" {%if j==5%}checked{%endif%}>
+                                            <label class="form-check-label" for="ds{{i+1}}{{j}}">{{j}}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endfor %}
                                     <div id="indds" class="row margin-top" style="width: 90%; margin-left: 5%">
                                         <div class="col-2">
                                             <select class="form-select" name="dsnumbers" id="dsnumbersel">
                                                 <option value="">選擇號碼</option>
                                                 {% for grade in data[c][p] %}
                                                 {% for i in data[c][p][grade] %}   
-                                                {% if data[c][p][grade][i]['status'] == 'na' %}                             
+                                                {% if data[c][p][grade][i]['needDS'] == True %}                             
                                                 <option value="{{grade}}-{{i}}-{{data[c][p][grade][i]['name']}}-{{data[c][p][grade][i]['ename']}}">{{grade}}-{{i}}-{{data[c][p][grade][i]['name']}}-{{data[c][p][grade][i]['ename']}}</option>
                                                 {% endif %}
                                                 {% endfor %}
@@ -176,18 +217,17 @@
                                         <div class="col-5">
                                             <input type="text" class="form-control" name="dsoffenseother" id="dsoffenseother" placeholder="Other">
                                         </div>
-                                        <div class="col noborder"><button type="button" class="btn btn-secondary" onclick="addDS()"><i class="fas fa-plus"></i></button></div>
+                                        <div class="col noborder"><button type="button" class="btn btn-secondary nomargin-top" onclick="addDS()"><i class="fas fa-plus"></i></button></div>
                                     </div>
-                                    <div id="inddsview" class="margin-top" style="width: 90%; margin-left: 5%;"><div class="col"></div></div>    
+                                    <div id="inddsview" class="margin-top" style="width: 90%; margin-left: 5%;"><div class="col"></div></div>
                                 </div>
+                                <h3 class="margin-top">Notes 備註欄</h3>
+                                <input type="textarea" class="form-control" name="notes" id="dsNotesEnter"
+                                    placeholder="Enter Notes 請輸入備註" style="width: 80%; margin-left: 10%;" row="3">
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear
-                                    Signature 清除簽名</button>
-                                <button type="button" class="btn btn-danger" onclick="location.reload();">Cancel
-                                    取消</button>
-                                <button type="button" class="btn btn-primary submitButton" onclick="submitForm()">Submit
-                                    提交</button>
+                                <button type="button" class="btn btn-danger" onclick="location.reload();">Cancel 取消</button>
+                                <button type="button" class="btn btn-primary" onclick="submitDSForm()">Submit 提交</button>
                             </div>
                         </div>
                     </div>

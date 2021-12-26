@@ -1,5 +1,5 @@
 from functions import *
-from manage import manage
+from manage.manage import manage
 from upload import upload
 from login import login
 load_dotenv()
@@ -20,6 +20,7 @@ class DefaultModelView(ModelView):
     restricted = True
     def __init__(self, model, session, restricted=True, name=None, category=None, endpoint=None, url=None, **kwargs):
         self.restricted = restricted
+        self.column_default_sort = ('id', True)
         for k, v in kwargs.items():
             setattr(self, k, v)
         setattr(self, 'can_export', True)
@@ -145,4 +146,4 @@ admin.add_link(MenuLink(name='Back to Home 返回一般管理', category='', url
 admin.add_link(MenuLink(name='Logout 登出', category='', url='/logout'))
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5050)

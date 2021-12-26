@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin 管理員 - Attendance 點名</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/static/allpages.css">
+    <link rel="stylesheet" href="/static/homeroom.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
+    <script src="/static/gtag.js"></script>
+</head>
+
+<body>
+    <div class="showTime"><span id="showTime"></span></div>
+    {% include 'sidebar.html' %}
+    <style>
+        .row .col {
+            padding: 10px;
+        }
+        .row.border .col {
+            border: 1px solid black;
+            padding: 0;
+        }
+        .row.border {
+            border: 0 !important;
+        }
+    </style>
+    <div class="container">
+        <h1 class="margin-top">Mark Absent | 新增請假</h1>
+        <form action="/manage/admin/mark" id="newabs" method="POST">
+            <div class="row">
+                <div class="col col-3">
+                    <div class="form-group">
+                        <label for="date">日期</label>
+                        <input name="date" type="date" class="form-control" id="date" value="{{ date }}" required>
+                    </div>
+                </div>
+                <div class="col-5" style="margin-top: 40px;">
+                    <div class="form-group checkbox-group">
+                        <label for="period">節次</label>
+                        {% for p in periods %}
+                        <div class="form-check-inline">
+                            <input name="period-{{p}}" class="form-check-input" type="checkbox" value="1" id="period-{{p}}">
+                            <label class="form-check-label" for="period{{p}}">{{p}}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col col-2">
+                    <div class="form-group">
+                        <label for="type">假別</label>
+                        <select name="type" class="form-select" id="type" onchange="refresh_homeroom()" required>
+                            <option value="G">事假</option>
+                            <option value="S">病假</option>
+                            <option value="F">喪假</option>
+                            <option value="P">疫情假</option>
+                            <option value="O">公假</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col col-2">
+                    <div class="form-group">
+                        <label for="notes">備註</label>
+                        <input name="notes" type="text" class="form-control" id="notes" placeholder="備註">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="grade">年級</label>
+                        <select name="grade" class="form-select" id="grade" onchange="refresh_homeroom()" required>
+                            <option value="">請選擇...</option>
+                            {% for c in students %}
+                            <option value="{{c}}">{{c}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label name="class" for="class">班級</label>
+                        <select name="class" class="form-select" id="class" onchange="refresh_numbers()" disabled="disabled" required>
+                            <option value="">請先選擇年級</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="number">座號</label>
+                        <select name="num" class="form-select" id="number" onchange="showName()" disabled="disabled" required>
+                            <option value="">請先選擇年級、班級</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-1" style="margin-top: 40px;"><span id="name"></span></div>
+                <div class="col col-1" style="margin-top: 15px;"><button class="btn btn-secondary" type="button" onclick="clearForm();">清除</button></div>
+                <div class="col col-1" style="margin-top: 15px;"><button class="btn btn-primary" type="submit">確認送出</button></div>
+            </div>
+        </form>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        {% if message[0] == '`' %}
+        <div class="alert alert-success" role="alert">
+            {% autoescape false %}{{message[1:]}}{% endautoescape %}
+        </div>
+        {% else %}
+        <div class="alert alert-danger" role="alert">
+            {% autoescape false %}{{message[1:]}}{% endautoescape %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <br>
+        <h2>最新 10 筆資料 (完整資料請到 <a href="/admin/absent">這裡</a>)</h2>
+        <div class="row border">
+            <div class="col">日期</div>
+            <div class="col">節次</div>
+            <div class="col">班級</div>
+            <div class="col">座號</div>
+            <div class="col">姓名</div>
+            <div class="col">假別</div>
+            <div class="col">備註</div>
+        </div>
+        {% for r in records %}
+        <div class="row border">
+            <div class="col">{{r[0]}}</div>
+            <div class="col">{{r[1]}}</div>
+            <div class="col">{{r[2]}}{{r[3]}}</div>
+            <div class="col">{{r[4]}}</div>
+            <div class="col">{{students[r[2]][r[3]][r[4]]}}</div>
+            <div class="col">
+                {% if r[5] == 'L' %}遲到{% endif %}
+                {% if r[5] == 'K' %}曠課{% endif %}
+                {% if r[5] == 'G' %}事假{% endif %}
+                {% if r[5] == 'S' %}病假{% endif %}
+                {% if r[5] == 'F' %}喪假{% endif %}
+                {% if r[5] == 'P' %}疫情假{% endif %}
+                {% if r[5] == 'O' %}公假{% endif %}
+            </div>
+            <div class="col">{{r[6]}}</div>
+        </div>
+        {% endfor %}
+        {% include 'footer.html' %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        var students = {};
+        var homerooms = [];
+        {% for i in students %}
+        students['{{i}}'] = {};
+        homerooms['{{i}}'] = [];
+        {% for j in students[i] %}
+        students['{{i}}']['{{j}}'] = {};
+        homerooms['{{i}}'].push({{j}});
+        {% for k in students[i][j] %}
+        students['{{i}}']['{{j}}']['{{k}}'] = '{{students[i][j][k]}}';
+        {% endfor %}
+        {% endfor %}
+        {% endfor %}
+    </script>
+    <script src="/static/pagejs/admin.js"></script>
+    <script src="/static/time.js"></script>
+</body>
+
+</html>

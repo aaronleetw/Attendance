@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin 管理員 - Attendance 點名</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/static/allpages.css">
+    <link rel="stylesheet" href="/static/homeroom.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H6D61RSBHR"></script>
+    <script src="/static/gtag.js"></script>
+</head>
+
+<body>
+    <div class="showTime"><span id="showTime"></span></div>
+    {% include 'sidebar.html' %}
+    <style>
+        .col-1 label {
+            margin-top: 8px;
+        }
+        .reqpadding {
+            padding: 20px;
+            border: 3px solid black;
+            margin: 6px;
+        }
+    </style>
+    <div class="container">
+        <h1 class="margin-top">Export | 匯出資料</h1>
+        <div class="row">
+            <div class="col reqpadding">
+                <h2>班級課表</h2>
+                <form action="/manage/admin/export/homeroom_period" method="post">
+                    <div class="form-group row">
+                        <label for="grade">年級</label>
+                        <input type="text" name="grade" id="grade" class="form-control" required>
+                    </div>
+                    <div class="form-group row">
+                        <label for="class">班級</label>
+                        <input type="text" name="class" id="class" class="form-control" required>
+                    </div>
+                    <button class="btn btn-primary">確認</button>
+                    <a href="/manage/admin/export/homeroom_period/all"><button type="button" class="btn btn-secondary">匯出所有班級</button></a>
+                </form>
+            </div>
+            <div class="col reqpadding">
+                <h2>學生名單</h2>
+                <form action="/manage/admin/export/student_list" method="post">
+                    <div class="form-group row">
+                        <label for="grade">年級</label>
+                        <input type="text" name="grade" id="grade" class="form-control" required>
+                    </div>
+                    <div class="form-group row">
+                        <label for="class">班級</label>
+                        <input type="text" name="class" id="class" class="form-control" required>
+                    </div>
+                    <button class="btn btn-primary">確認</button>
+                    <a href="/manage/admin/export/student_list/all"><button type="button" class="btn btn-secondary">匯出所有班級</button></a>
+                </form>
+            </div>
+            <div class="col reqpadding">
+                <h2>老師課表</h2>
+                <form action="/manage/admin/export/teacher_period" method="post">
+                    <div class="form-group row">
+                        <label for="name">老師姓名</label>
+                        <input type="text" name="name" id="name" class="form-control" required>
+                    </div>
+                    <div class="form-group row">
+                        <label for="orig_username">老師原始帳號</label>
+                        <input type="text" name="orig_username" id="orig_username" class="form-control">
+                    </div>
+                    <button class="btn btn-primary">確認</button>
+                    <a href="/manage/admin/export/teacher_period/all"><button type="button" class="btn btn-secondary">匯出所有老師</button></a>
+                </form>
+            </div>
+        </div>
+        {% include 'footer.html' %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/static/pagejs/admin.js"></script>
+    <script src="/static/time.js"></script>
+</body>
+
+</html>

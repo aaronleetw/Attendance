@@ -26,11 +26,6 @@ function submitForm() {
             document.getElementById('homeroom_confirm').submit()
         } else {
             var notes = $('#subjectNotes').val();
-            for (var i = 0; i < 7; i++)
-                document.getElementById('HR-ds'+(i+1)).value = $('.dsboard input[name="ds'+(i+1)+'"]:checked').val();
-            for (var i in indDS) {
-                $('#postHomeroomAbs').append('<input type="text" name="dsidv^' + i.split('-')[0] + '" value="'+ indDS[i] +'">')
-            }
             document.getElementById('HR-signatureData').value = data;
             document.getElementById('HR-notes').value = notes;
             document.getElementById('postHomeroomAbs').submit();
@@ -39,6 +34,16 @@ function submitForm() {
     else {
         alert("Please sign first");
     }
+}
+function submitDSForm() {
+    for (var i = 0; i < 7; i++)
+        document.getElementById('DS-ds'+(i+1)).value = $('.dsboard input[name="ds'+(i+1)+'"]:checked').val();
+    for (var i in indDS) {
+        $('#postHomeroomDS').append('<input type="text" name="dsidv^' + i.split('-')[0] + '" value="'+ indDS[i] +'">')
+    }
+    $('#DS-notes').val($('input#dsNotesEnter').val());
+    loadingAnimation()
+    document.getElementById('postHomeroomDS').submit();
 }
 function resizeCanvas() {
     var ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -88,7 +93,6 @@ function afterSelAbs(period) {
 }
 function homeroomCfrm() {
     hrCfrm = true;
-    $('.ds').attr('hidden', 'hidden');
     $('#showSignPeriod').text("HOMEROOM CONFIRM");
     $('#showSignSubjectName').text("班導確認");
     $('.tobeform').attr('disabled', 'disabled');
@@ -125,4 +129,8 @@ function addDS() {
     $('#dsoffenseother').val("");
     $('#dsoffensesel').val("");
     $('#dsnumbersel').val("");
+}
+function showSelDS(period) {
+    $('#DS-period').val(period)
+    $('#dsCheck').modal('show');
 }

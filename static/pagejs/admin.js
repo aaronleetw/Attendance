@@ -76,3 +76,50 @@ function submitForm() {
     $('.container').hide();
     $('#loading').show();
 }
+
+function refresh_homeroom() {
+    var grade = $('#grade').val();
+    $('#class').html('<option value="">請先選擇年級</option>');
+    $('span#name').html = ""
+    if (grade === "") {
+        $('#class').attr('disabled', 'disabled')
+        return
+    }
+    // get keys in dict
+    var keys = Object.keys(students[grade]);
+    keys.forEach(element => {
+        $('#class').append(`<option value="${element}">${element}</option>`)
+    });
+    $('#class').removeAttr('disabled')
+}
+function refresh_numbers() {
+    var grade = $('#grade').val();
+    var class_ = $('#class').val();
+    $('span#name').html = ""
+    $('#number').html('<option value="">請先選擇年級、班級</option>');
+    if (grade === "") {
+        $('#class').attr('disabled', 'disabled')
+        if (clas_ !== "") return
+    } if (class_ === "") {
+        $('#number').attr('disabled', 'disabled')
+        return
+    }
+    // get keys in dict
+    var keys = Object.keys(students[grade][class_]);
+    keys.forEach(element => {
+        $('#number').append(`<option value="${element}">${element}</option>`)
+    });
+    $('#number').removeAttr('disabled')
+}
+function showName() {
+    var grade = $('#grade').val();
+    var class_ = $('#class').val();
+    var number = $('#number').val();
+    $('#name').html(students[grade][class_][number]);
+}
+function clearForm() {
+    document.getElementById('newabs').reset();
+    $('#class').attr('disabled', 'disabled')
+    $('#number').attr('disabled', 'disabled')
+    $('span#name').html = ""
+}

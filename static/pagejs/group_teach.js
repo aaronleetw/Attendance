@@ -2,13 +2,6 @@ var signaturePad, selPeriod, canvas, width = $(window).width(), modal;
 var indDS = {};
 function submitForm() {
     if (!signaturePad.isEmpty()) {
-        for (var i in indDS) {
-            var tmp = document.createElement('input');
-            tmp.type = 'hidden';
-            tmp.name = 'ds^' + i;
-            tmp.value = indDS[i];
-            document.getElementById('attendanceData^' + selPeriod).appendChild(tmp);
-        }
         $('#' + modal).modal('hide');
         loadingAnimation();
         signaturePad.off();
@@ -20,6 +13,18 @@ function submitForm() {
         alert("Please sign first");
     }
 }
+function submitDSForm() {
+    for (var i in indDS) {
+        var tmp = document.createElement('input');
+        tmp.type = 'hidden';
+        tmp.name = 'ds^' + i;
+        tmp.value = indDS[i];
+        document.getElementById('attendanceData^' + selPeriod).appendChild(tmp);
+    }
+    $('#' + modal).modal('hide');
+    loadingAnimation();
+    document.getElementById("attendanceData^" + selPeriod).submit();
+}
 function resizeCanvas() {
     var ratio = Math.max(window.devicePixelRatio || 1, 1);
     canvas.width = canvas.offsetWidth * ratio;
@@ -29,8 +34,7 @@ function resizeCanvas() {
 }
 function viewSignature(period) {
     selPeriod = period
-    $('.viewSignatureBtn').attr({ 'disabled': 'disabled' });
-    $('.viewSignatureBtn').removeClass('margin-bottom');
+    document.getElementById("attendanceData^" + selPeriod).getElementsByClassName("submissionType")[0].value = "newAbsent";
     modal = 'sign-' + period;
     $('#' + modal).modal('show');
     var cnt = 0;
@@ -57,6 +61,12 @@ function viewSignature(period) {
         resizeCanvas();
     });
     resizeCanvas();
+}
+function signDS(period) {
+    selPeriod = period
+    document.getElementById("attendanceData^" + selPeriod).getElementsByClassName("submissionType")[0].value = "dsSubmit";
+    modal = 'ds-' + period;
+    $('#' + modal).modal('show');
 }
 function unCheckLate(string) {
     document.getElementById('late^' + string).checked = false;

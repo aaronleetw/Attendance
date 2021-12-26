@@ -82,37 +82,35 @@
                 {% for j in periods %}
                 <div class="col view-{{j}}" {% if currPeriod==j %}style="background-color: #ffdf81;"{%endif%}>
                     {% if schedule[j]['subject'] == 'GP' %}
-                    {% for k in submission[j] %}
-                    {% if studGP[i[0]][schedule[j]['teacher']] == k %}
-                    {% if i[0] in absentData[j] %}
-                    {% if absentData[j][i[0]]['status'] == 'L' %}
-                    <p class="highlightAbs n-3 view-n-{{i[0]}}">𝜑</p>
-                    {% elif absentData[j][i[0]]['status'] == 'K' %}
-                    <p class="highlightAbs n-2 view-n-{{i[0]}}">礦</p>
-                    {% elif absentData[j][i[0]]['status'] == 'G' %}
-                    <p class="highlightAbs n-2 view-n-{{i[0]}}">事</p>
-                    {% elif absentData[j][i[0]]['status'] == 'S' %}
-                    <p class="highlightAbs n-2 view-n-{{i[0]}}">病</p>
-                    {% elif absentData[j][i[0]]['status'] == 'F' %}
-                    <p class="highlightAbs n-2 view-n-{{i[0]}}">喪</p>
-                    {% elif absentData[j][i[0]]['status'] == 'P' %}
-                    <p class="highlightAbs n-2 view-n-{{i[0]}}">疫</p>
-                    {% elif absentData[j][i[0]]['status'] == 'O' %}
-                    <p class="highlightAbs n-2 view-n-{{i[0]}}">公</p>
-                    {% else %}
-                    <p class="highlightAbs n-2 view-n-{{i[0]}}">{{absentData[j][i[0]]['status']}}</p>
-                    {% endif %}
-                    <p class="highlightAbs">{{absentData[j][i[0]]['note']}}</p>
-                    {% else %}
-                    <p class="highlightAbs n-1 view-n-{{i[0]}}">V</p>
-                    {% if j in idvDS and i[0] in idvDS[j] %}
-                    <p class="highlightAbs n-2">{{idvDS[j][i[0]]}}</p>
-                    {% endif %}
-                    {% endif %}
-                    {% else %}
-                    <p class="highlightAbs view-n-{{i[0]}}"></p>
-                    {% endif %}
-                    {% endfor %}
+                        {% for k in submission[j] %}
+                            {% if k!='notes' and i[0] in absentData[j] %}
+                                {% if absentData[j][i[0]]['status'] == 'L' %}
+                                <p class="highlightAbs n-3 view-n-{{i[0]}}">𝜑</p>
+                                {% elif absentData[j][i[0]]['status'] == 'K' %}
+                                <p class="highlightAbs n-2 view-n-{{i[0]}}">礦</p>
+                                {% elif absentData[j][i[0]]['status'] == 'G' %}
+                                <p class="highlightAbs n-2 view-n-{{i[0]}}">事</p>
+                                {% elif absentData[j][i[0]]['status'] == 'S' %}
+                                <p class="highlightAbs n-2 view-n-{{i[0]}}">病</p>
+                                {% elif absentData[j][i[0]]['status'] == 'F' %}
+                                <p class="highlightAbs n-2 view-n-{{i[0]}}">喪</p>
+                                {% elif absentData[j][i[0]]['status'] == 'P' %}
+                                <p class="highlightAbs n-2 view-n-{{i[0]}}">疫</p>
+                                {% elif absentData[j][i[0]]['status'] == 'O' %}
+                                <p class="highlightAbs n-2 view-n-{{i[0]}}">公</p>
+                                {% else %}
+                                <p class="highlightAbs n-2 view-n-{{i[0]}}">{{absentData[j][i[0]]['status']}}</p>
+                                {% endif %}
+                            <p class="highlightAbs">{{absentData[j][i[0]]['note']}}</p>
+                            {% elif studGP[i[0]][schedule[j]['teacher']] == k %}
+                                <p class="highlightAbs n-1 view-n-{{i[0]}}">V</p>
+                                {% if j in idvDS and i[0] in idvDS[j] %}
+                                    <p class="highlightAbs n-2">{{idvDS[j][i[0]]}}</p>
+                                {% endif %}
+                            {% else %}
+                                <p class="highlightAbs view-n-{{i[0]}}"></p>
+                            {% endif %}
+                        {% endfor %}
                     {% else %}
                     {% if j in submission or j in absentData %}
                     {% if i[0] in absentData[j] %}
@@ -162,8 +160,10 @@
                 <div class="col"></div>
                 {% for i in periods %}
                 <div id="btns-{{i}}" class="col" {% if currPeriod==i %} style="background-color: #ffdf81;" {% endif %}>
-                    {% if (schedule[i]['subject'] == 'GP' or i in submission or 'c' in submission) %}
+                    {% if (schedule[i]['subject'] == 'GP' or 'c' in submission) or (i in submission and submission[i]['dscfrm'] == True) %}
                     <button class="btn btn-primary afterSelButton" disabled="disabled"></button>
+                    {% elif i in submission and submission[i]['dscfrm'] != True %}
+                    <button class="btn btn-warning afterSelButton" onclick="showSelDS('{{i|string}}')">定心<br>{{schedule[i]['subject']}}</button>
                     {% else %}
                     <button class="btn btn-primary afterSelButton"
                         onclick="afterSelAbs('{{i|string}}', 'newSubmit')">Confirm<br>{{schedule[i]['subject']}}</button>
@@ -193,13 +193,19 @@
                 <input type="text" id="HR-signatureData" name="signatureData" value="">
                 <input type="text" id="HR-notes" name="notes" value="">
                 <input type="text" id="HR-homeroom" name="homeroom" value="{{currRoom[0]}}^{{currRoom[1]}}">
-                <input type="text" id="HR-ds1" name="ds^1" value="">
-                <input type="text" id="HR-ds2" name="ds^2" value="">
-                <input type="text" id="HR-ds3" name="ds^3" value="">
-                <input type="text" id="HR-ds4" name="ds^4" value="">
-                <input type="text" id="HR-ds5" name="ds^5" value="">
-                <input type="text" id="HR-ds6" name="ds^6" value="">
-                <input type="text" id="HR-ds7" name="ds^7" value="">
+            </form>
+            <form action="/manage/homeroom_ds" id="postHomeroomDS" hidden="hidden" method="POST">
+                <input type="text" id="DS-date" name="date" value="{{currDate}}">
+                <input type="text" id="DS-period" name="period" value="">
+                <input type="text" id="DS-ds1" name="ds^1" value="">
+                <input type="text" id="DS-ds2" name="ds^2" value="">
+                <input type="text" id="DS-ds3" name="ds^3" value="">
+                <input type="text" id="DS-ds4" name="ds^4" value="">
+                <input type="text" id="DS-ds5" name="ds^5" value="">
+                <input type="text" id="DS-ds6" name="ds^6" value="">
+                <input type="text" id="DS-ds7" name="ds^7" value="">
+                <input type="text" id="DS-notes" name="notes" value="">
+                <input type="text" id="DS-homeroom" name="homeroom" value="{{currRoom[0]}}^{{currRoom[1]}}">
             </form>
             {% if 'c' in submission %}
             <button class="btn btn-primary margin-top afterSelButton" onclick="homeroomCfrm()" disabled="disabled">
@@ -223,8 +229,30 @@
                                 <h4 class="alert-heading">請確認是否全班全到！Please check if everyone is present!</h4>
                             </div>
                             <div class="forSign"><canvas id="signature_pad"></canvas></div>
+                            <h3 class="margin-top">Notes 備註欄</h3>
+                            <input type="textarea" class="form-control" name="notes" id="subjectNotes"
+                                placeholder="Enter Notes 請輸入備註" style="width: 80%; margin-left: 10%;" row="3">
+                        </div>
+                        <div class="modal-footer">
+                            <div class="row">
+                                <div class="col"><button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear Signature 清除簽名</button></div>
+                                <div class="col"><button type="button" class="btn btn-danger" onclick="location.reload();">Cancel 取消</button></div>
+                                <div class="col"><button type="button" class="btn btn-primary" onclick="submitForm()">Submit 提交</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dsCheck" class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
+                data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">定心專案 DS</h5>
+                        </div>
+                        <div class="modal-body">
                             <div class="ds">
-                                <h3 class="margin-top">定心專案 DS</h3>
                                 {% for i in range(dsboard|length) %}
                                 <div class="row dsboard" style="width: 40%; margin-left: 30%;">
                                     <div class="col col-4">
@@ -263,14 +291,13 @@
                                 <div id="inddsview" class="margin-top" style="width: 90%; margin-left: 5%;"><div class="col"></div></div>
                             </div>
                             <h3 class="margin-top">Notes 備註欄</h3>
-                            <input type="textarea" class="form-control" name="notes" id="subjectNotes"
+                            <input type="textarea" class="form-control" name="notes" id="dsNotesEnter"
                                 placeholder="Enter Notes 請輸入備註" style="width: 80%; margin-left: 10%;" row="3">
                         </div>
                         <div class="modal-footer">
                             <div class="row">
-                                <div class="col"><button class="btn btn-secondary" type="button" onclick="signaturePad.clear()">Clear Signature 清除簽名</button></div>
                                 <div class="col"><button type="button" class="btn btn-danger" onclick="location.reload();">Cancel 取消</button></div>
-                                <div class="col"><button type="button" class="btn btn-primary" onclick="submitForm()">Submit 提交</button></div>
+                                <div class="col"><button type="button" class="btn btn-primary" onclick="submitDSForm()">Submit 提交</button></div>
                             </div>
                         </div>
                     </div>
@@ -326,13 +353,13 @@
             {% endif %}
             {% endfor %}
         </div>
+        {% include 'footer.html' %}
     </div>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
-    {% include 'footer.html' %}
     <script>
         var periodData = {}
         {% for i in periods %}

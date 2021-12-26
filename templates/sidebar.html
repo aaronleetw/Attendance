@@ -24,6 +24,7 @@
     <ul class="list-unstyled components mb-5">
         <li class="active">
             <a href="/manage"><span class="fa fa-home"></span> Home 主頁</a>
+            {% if not hideSel %}
             <div class="col">
                 <div class="row">
                     <select name="grade" id="sel-grade" class="form-select" onchange="getHR()" required>
@@ -52,7 +53,14 @@
                 <div class="row-1">
                     <button type="button" class="btn btn-primary" onclick="redirAdmin()">查詢</button>
                 </div>
-            </div>    
+            </div>
+            {% endif %}
+        </li>
+        <li>
+            <a href="/manage/admin/mark"><span class="fa fa-user-times"></span> Mark New Absent<br>新增請假</a>
+        </li>
+        <li>
+            <a href="/manage/admin/export"><span class="fa fa-download"></span> Export<br>匯出</a>
         </li>
         <li>
             <a href="/admin"><span class="fa fa-toolbox"></span> Admin<br>資料庫管理</a>

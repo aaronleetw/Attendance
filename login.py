@@ -283,7 +283,6 @@ def resetPassword():
                     WHERE resetID = %s
                 """, (request.args.get('resetCode'),))
                 user = cursor.fetchone()
-                cursor.close()
                 dtnow = datetime.now(tz).replace(tzinfo=None)
                 if user == None:
                     raise Exception('無此重置密碼代碼<br>Invalid reset password code')
