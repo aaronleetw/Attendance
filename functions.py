@@ -20,6 +20,7 @@ from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.menu import MenuLink
 from flask_admin.contrib.sqla import ModelView
 from flask_babelex import Babel
+
 load_dotenv()
 
 tz = pytz.timezone('Asia/Taipei')
@@ -44,7 +45,7 @@ DSTEXT = [
 ]
 DSOFFENSES = {
     'A': "把玩物品、不專心聽講",
-    'B': "書寫或傳遞紙條、物品", 
+    'B': "書寫或傳遞紙條、物品",
     'C': "自言自語或與同學交談",
     'D': "接話、大聲笑、起哄、發出怪聲",
     'E': "亂動、逗弄同學、影響教學情境",
@@ -54,16 +55,20 @@ DSOFFENSES = {
     'Z': "上課睡覺"
 }
 
+
 def refresh_db():
     return mysql.connector.connect(user=os.environ.get('MYSQL_USER'), password=os.environ.get('MYSQL_PASSWORD'),
                                    host=os.environ.get('MYSQL_HOST'),
                                    database='attendance')
 
+
 def genHash(password):
     return sha256_crypt.hash(password)
 
+
 def verifyPassword(password, hash):
     return sha256_crypt.verify(password, hash)
+
 
 def refresh_token():
     session['is_logged_in'] = True
@@ -79,6 +84,7 @@ def check_login_status():
             session['is_logged_in'] == False or
             (datetime.now(tz) - session['loginTime']).total_seconds() > 43200)
 
+
 def send_email(to, subject, text):
     return requests.post(
         "https://api.mailgun.net/v3/mg.aaronlee.tech/messages",
@@ -87,6 +93,7 @@ def send_email(to, subject, text):
               "to": [to],
               "subject": subject,
               "html": text})
+
 
 def getName(grade, class_, number):
     db = refresh_db()
@@ -97,6 +104,7 @@ def getName(grade, class_, number):
     cursor.close()
     db.close()
     return name[0]
+
 
 # LOGIN
 
@@ -113,18 +121,14 @@ def verify_recaptcha(response):
     print(r.json())
     return r.json()['success']
 
+
 # UPLOAD
 def is_admin():
     return 'subuser_type' in session and session['subuser_type'] == 'admin'
+
 
 def check_permission():
     if 'subuser_type' in session and session['subuser_type'] == 'admin':
         return session['showUpload']
     else:
         return False
-
-# MANAGE
-def removeprefix(s, prefix):
-    if s.startswith(prefix):
-        return s[len(prefix):]
-    return s

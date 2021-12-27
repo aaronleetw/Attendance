@@ -1,9 +1,11 @@
 from functions import *
+
 group = Blueprint('group', __name__)
+
 
 @group.route('/manage/group_teach_publish', methods=['POST'])
 def group_teach_publish():
-    if (check_login_status()):
+    if check_login_status():
         return redirect('/logout')
     refresh_token()
     data = request.form.to_dict()
@@ -13,10 +15,11 @@ def group_teach_publish():
     }
     db = refresh_db()
     cursor = db.cursor()
-    cursor.execute("SELECT about FROM gpclasses WHERE category=%s AND subclass=%s", 
-                    (cclass['category'], cclass['class_id']))
+    cursor.execute("SELECT about FROM gpclasses WHERE category=%s AND subclass=%s",
+                   (cclass['category'], cclass['class_id']))
     cclass["name"] = cursor.fetchone()[0]
-    cursor.execute("SELECT grade,class_,num,name,ename FROM students WHERE classes LIKE " + '\'%\"'+ cclass['category'] + '\": \"' + cclass['class_id'] +'\"%\'' + " ORDER BY grade ASC,class_ ASC,num ASC")
+    cursor.execute("SELECT grade,class_,num,name,ename FROM students WHERE classes LIKE " + '\'%\"' + cclass[
+        'category'] + '\": \"' + cclass['class_id'] + '\"%\'' + " ORDER BY grade ASC,class_ ASC,num ASC")
     students = cursor.fetchall()
     homerooms = []
     for x in students:
@@ -37,7 +40,8 @@ def group_teach_publish():
             if xs[0] == 'note':
                 continue
             else:
-                absentData.append([xs[1], xs[2], xs[3], 'K' if xs[0] == '1' else 'L', data['note^'+xs[1]+'^'+xs[2]+'^'+xs[3]]])
+                absentData.append([xs[1], xs[2], xs[3], 'K' if xs[0] == '1' else 'L',
+                                   data['note^' + xs[1] + '^' + xs[2] + '^' + xs[3]]])
         for h in homerooms:
             h = h.split('^')
             cursor = db.cursor()

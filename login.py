@@ -1,5 +1,8 @@
 from functions import *
+
 login = Blueprint('login', __name__)
+
+
 @login.after_request
 def add_header(response):
     response.headers['SameSite'] = "Strict"
@@ -13,10 +16,10 @@ def index():
             return render_template('login.html')
         return redirect('/select')
     elif request.method == 'POST':
-        email = request.form['username']
+        email = request.form['username'].strip()
         if check_login_status():
             try:
-                if (verify_recaptcha("")):
+                if verify_recaptcha(""):
                     if request.form['user_type'] == 'teacher':
                         db = refresh_db()
                         cursor = db.cursor(buffered=True)
@@ -26,7 +29,7 @@ def index():
                         if user == None or not verifyPassword(request.form['password'], user[3]):
                             raise Exception('Invalid Login')
                         usrRole = user[1]
-                        if (usrRole == 'R'):
+                        if usrRole == 'R':
                             print("RealPerson Login SUCC:", email, flush=True)
                             session['is_logged_in'] = True
                             session['email'] = email
@@ -34,7 +37,7 @@ def index():
                             session['oldUsername'] = user[2]
                             session['loginTime'] = datetime.now(tz)
                             return redirect('/select')
-                        if (usrRole == 'A' or usrRole == 'S'):
+                        if usrRole == 'A' or usrRole == 'S':
                             print("Admin Login SUCC:", email, flush=True)
                             session['subuser_type'] = 'admin'
                             session['is_logged_in'] = True
@@ -47,7 +50,8 @@ def index():
                     elif request.form['user_type'] == 'student':
                         db = refresh_db()
                         cursor = db.cursor(buffered=True)
-                        cursor.execute("SELECT password, grade, class_, num, name FROM students WHERE email = %s", (email,))
+                        cursor.execute("SELECT password, grade, class_, num, name FROM students WHERE email = %s",
+                                       (email,))
                         user = cursor.fetchone()
                         cursor.close()
                         if user == None or not verifyPassword(request.form['password'], user[0]):
@@ -83,12 +87,14 @@ def selSubUser():
         flash("Timeout. 遇時，請重新登入")
         return redirect('/')
     refresh_token()
-    if 'subuser_type' in session and session['subuser_type'] == 'admin' or 'user_type' in session and session['user_type'] == 'student':
+    if 'subuser_type' in session and session['subuser_type'] == 'admin' or 'user_type' in session and session[
+        'user_type'] == 'student':
         return redirect('/manage')
     if request.method == 'GET':
         db = refresh_db()
         cursor = db.cursor(buffered=True)
-        cursor.execute("SELECT category, subclass FROM gpclasses WHERE accs LIKE %s LIMIT 1", ('%'+session['oldUsername']+'%',))
+        cursor.execute("SELECT category, subclass FROM gpclasses WHERE accs LIKE %s LIMIT 1",
+                       ('%' + session['oldUsername'] + '%',))
         classes = cursor.fetchone()
         cursor.close()
         hasGroup = False
@@ -96,7 +102,7 @@ def selSubUser():
             hasGroup = True
         db = refresh_db()
         cursor = db.cursor(buffered=True)
-        cursor.execute("SELECT grade, class_ FROM homerooms WHERE accs LIKE %s", ('%'+session['oldUsername']+'%',))
+        cursor.execute("SELECT grade, class_ FROM homerooms WHERE accs LIKE %s", ('%' + session['oldUsername'] + '%',))
         homerooms = cursor.fetchall()
         cursor.close()
         hrC = {}
@@ -109,11 +115,11 @@ def selSubUser():
         if data == []:
             return redirect('/select')
         try:
-            if (verify_recaptcha("")):
-                if (data[0] == 'homeroom'):
+            if verify_recaptcha(""):
+                if data[0] == 'homeroom':
                     session['homeroom'] = data[1] + '^' + data[2]
                     session['subuser_type'] = 'homeroom'
-                elif (data[0] == 'group'):
+                elif data[0] == 'group':
                     session['subuser_type'] = 'group'
                 return redirect('/manage')
             else:
@@ -141,7 +147,7 @@ def chgPassword():
         if not check_login_status():
             refresh_token()
             try:
-                if (verify_recaptcha("")):
+                if verify_recaptcha(""):
                     db = refresh_db()
                     cursor = db.cursor(buffered=True)
                     if ('user_type' in session and session['user_type'] == 'student'):
@@ -167,21 +173,24 @@ def chgPassword():
                             raise Exception('帳號已被使用<br>Username already used')
                     db = refresh_db()
                     cursor = db.cursor(buffered=True)
-                    if ('user_type' in session and session['user_type'] == 'student'):
-                        cursor.execute("UPDATE students SET password = %s WHERE email = %s", (genHash(request.form['new_password']), oldEmail))
-                        if (request.form['new_username'] != oldEmail and request.form['new_username'] != ''):
-                            cursor.execute("UPDATE students SET email = %s WHERE email = %s", (request.form['new_username'], oldEmail))
+                    if 'user_type' in session and session['user_type'] == 'student':
+                        cursor.execute("UPDATE students SET password = %s WHERE email = %s",
+                                       (genHash(request.form['new_password']), oldEmail))
+                        if request.form['new_username'] != oldEmail and request.form['new_username'] != '':
+                            cursor.execute("UPDATE students SET email = %s WHERE email = %s",
+                                           (request.form['new_username'], oldEmail))
                     else:
                         cursor.execute("UPDATE users SET password = %s WHERE email = %s", (
                             genHash(request.form['new_password']), oldEmail))
-                        if (request.form['new_username'] != oldEmail and request.form['new_username'] != ''):
-                            cursor.execute("UPDATE users SET email = %s WHERE email = %s", (request.form['new_username'], oldEmail))
+                        if request.form['new_username'] != oldEmail and request.form['new_username'] != '':
+                            cursor.execute("UPDATE users SET email = %s WHERE email = %s",
+                                           (request.form['new_username'], oldEmail))
                     db.commit()
                     cursor.close()
                     session.clear()
-                    if (request.form['new_username'] != oldEmail and request.form['new_username'] != ''):
+                    if request.form['new_username'] != oldEmail and request.form['new_username'] != '':
                         send_email(oldEmail, "Email Changed 信箱已更改",
-                        """<hr>
+                                   """<hr>
                         Your email was changed at %s to %s.<br>
                         If you did not change your email, please contact the student affair's office immediately.
                         <hr>
@@ -190,7 +199,8 @@ def chgPassword():
                         <hr>
                         <small>This email was sent automatically. Please do not reply.<br>
                         這個郵件是自動發送的，請不要回覆。</small>
-                        """ % (datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"), request.form['new_username'], datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"), request.form['new_username']))
+                        """ % (datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"), request.form['new_username'],
+                               datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"), request.form['new_username']))
                     flash(
                         '修改密碼成功，請重新登入<br>Password changed successfully. Please login again.')
                     return redirect('/')
@@ -211,12 +221,12 @@ def forgotPassword():
     elif request.method == 'POST':
         email = request.form['username']
         try:
-            if (verify_recaptcha("")):
+            if verify_recaptcha(""):
                 db = refresh_db()
                 cursor = db.cursor(buffered=True)
-                if (request.form['user_type'] == 'student'):
+                if request.form['user_type'] == 'student':
                     cursor.execute("SELECT * FROM students WHERE email = %s", (email,))
-                elif (request.form['user_type'] == 'teacher'):
+                elif request.form['user_type'] == 'teacher':
                     cursor.execute("SELECT email FROM users WHERE email = %s", (email,))
                 user = cursor.fetchone()
                 cursor.close()
@@ -235,11 +245,12 @@ def forgotPassword():
                 cursor.execute("""
                     INSERT INTO forgot (resetID, email, reqTime, userType)
                     VALUES (%s, %s, %s, %s)
-                """, (resetID, email, datetime.strftime(datetime.now(tz), '%Y-%m-%d %H:%M:%S'), 'T' if request.form['user_type'] == 'teacher' else 'S'))
+                """, (resetID, email, datetime.strftime(datetime.now(tz), '%Y-%m-%d %H:%M:%S'),
+                      'T' if request.form['user_type'] == 'teacher' else 'S'))
                 db.commit()
                 cursor.close()
                 send_email(email, "Password Reset 重置密碼",
-                """<hr>
+                           """<hr>
                 Please go to the following link to reset your password:<br>
                 https://abs.aaronlee.tech/resetPassword?resetCode=%s<br>
                 If you did not request a password reset, please ignore this email.
@@ -274,7 +285,7 @@ def resetPassword():
         return render_template('verifiedChgPassword.html', resetCode=request.args.get('resetCode'))
     else:
         try:
-            if (verify_recaptcha("")):
+            if verify_recaptcha(""):
                 db = refresh_db()
                 cursor = db.cursor(buffered=True)
                 cursor.execute("""

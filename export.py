@@ -9,6 +9,7 @@ side = Side(border_style='thin')
 border = Border(left=side, right=side, top=side, bottom=side)
 bold_bottom = Border(left=side, right=side, top=side, bottom=Side(border_style='medium', color='FF000000'))
 
+
 def create_period_sheets(workbook, class_code):
     ws = workbook.create_sheet(class_code[0] + class_code[1])
     ws.merge_cells('A1:F1')
@@ -41,7 +42,7 @@ def create_period_sheets(workbook, class_code):
         ws.cell(row=2, column=i).font = Font(size=14, bold=True)
         ws.cell(row=2, column=i).alignment = center
         ws.cell(row=2, column=i).border = border
-    
+
     # loop over C:G
     for i in range(2, 8):
         ws.column_dimensions[str(chr(ord('A') + i))].width = 13
@@ -49,7 +50,8 @@ def create_period_sheets(workbook, class_code):
     # get data
     db = refresh_db()
     cursor = db.cursor()
-    cursor.execute("SELECT dow,period,subject,teacher FROM schedule WHERE grade=%s AND class_=%s", (class_code[0], class_code[1]))
+    cursor.execute("SELECT dow,period,subject,teacher FROM schedule WHERE grade=%s AND class_=%s",
+                   (class_code[0], class_code[1]))
     sql = cursor.fetchall()
     data = {}
     subject_teacher = {}
@@ -64,7 +66,7 @@ def create_period_sheets(workbook, class_code):
         if i[2] != 'GP' and i[2] != '--' and i[3] != '--' and i[2] not in subject_teacher:
             subject_teacher[i[2]] = i[3]
 
-    periods=['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9']
+    periods = ['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9']
     times = {
         'm': ['7:30', '8:10'],
         '1': ['8:20', '9:05'],
@@ -100,25 +102,27 @@ def create_period_sheets(workbook, class_code):
         if p == 'm' or p == 'n':
             ws.merge_cells('C' + str(curr) + ':G' + str(curr + 1))
             for i in range(1, 6):
-                ws[chr(ord('C') + i-1) + str(curr)].font = std_font
-                ws[chr(ord('C') + i-1) + str(curr)].alignment = center
-                ws[chr(ord('C') + i-1) + str(curr)].border = border
-                ws[chr(ord('C') + i-1) + str(curr + 1)].border = border
+                ws[chr(ord('C') + i - 1) + str(curr)].font = std_font
+                ws[chr(ord('C') + i - 1) + str(curr)].alignment = center
+                ws[chr(ord('C') + i - 1) + str(curr)].border = border
+                ws[chr(ord('C') + i - 1) + str(curr + 1)].border = border
             if p == 'm':
                 ws['C' + str(curr)] = '早自習'
             else:
                 ws['C' + str(curr)] = '午餐 / 午休'
         else:
             for i in range(1, 6):
-                ws.merge_cells(chr(ord('C') + i-1) + str(curr) + ':' + chr(ord('C') + i-1) + str(curr + 1))
-                ws[chr(ord('C') + i-1) + str(curr)].font = std_font
-                ws[chr(ord('C') + i-1) + str(curr)].alignment = center
-                ws[chr(ord('C') + i-1) + str(curr)].border = border
-                ws[chr(ord('C') + i-1) + str(curr + 1)].border = border
+                ws.merge_cells(chr(ord('C') + i - 1) + str(curr) + ':' + chr(ord('C') + i - 1) + str(curr + 1))
+                ws[chr(ord('C') + i - 1) + str(curr)].font = std_font
+                ws[chr(ord('C') + i - 1) + str(curr)].alignment = center
+                ws[chr(ord('C') + i - 1) + str(curr)].border = border
+                ws[chr(ord('C') + i - 1) + str(curr + 1)].border = border
                 if i in data:
                     if p in data[i]:
-                        ws[chr(ord('C') + i-1) + str(curr)] = (data[i][p]['subject'] if data[i][p]['subject'] != 'GP' 
-                            and data[i][p]['subject'] != '--' else '' if data[i][p]['subject'] == '--' else data[i][p]['teacher'])
+                        ws[chr(ord('C') + i - 1) + str(curr)] = (data[i][p]['subject'] if data[i][p]['subject'] != 'GP'
+                                                                                          and data[i][p][
+                                                                                              'subject'] != '--' else '' if
+                        data[i][p]['subject'] == '--' else data[i][p]['teacher'])
         curr += 2
     ws.merge_cells('A26:G26')
     ws['A26'] = '科任老師一覽表'
@@ -136,7 +140,7 @@ def create_period_sheets(workbook, class_code):
             pos = ['D', 'E']
         else:
             pos = ['F', 'G']
-        loc = str(27+ int(curr/3))
+        loc = str(27 + int(curr / 3))
         ws.merge_cells(pos[0] + loc + ':' + pos[1] + loc)
         ws[pos[0] + loc].font = std_font
         ws[pos[0] + loc].alignment = center
@@ -147,6 +151,7 @@ def create_period_sheets(workbook, class_code):
         ws.row_dimensions[curr + 27].height = 20
         curr += 1
     return workbook
+
 
 def create_student_list(workbook, class_code):
     ws = workbook.create_sheet(class_code[0] + class_code[1])
@@ -186,26 +191,28 @@ def create_student_list(workbook, class_code):
         ws.column_dimensions[str(chr(ord('A') + i))].width = 5.8
     db = refresh_db()
     cursor = db.cursor()
-    cursor.execute('SELECT num,name,ename FROM students WHERE grade=%s AND class_=%s ORDER BY num ASC', (class_code[0], class_code[1]))
+    cursor.execute('SELECT num,name,ename FROM students WHERE grade=%s AND class_=%s ORDER BY num ASC',
+                   (class_code[0], class_code[1]))
     data = cursor.fetchall()
     last = data[-1][0]
     delcnt = 0
     for i in range(0, last):
-        ws['A' + str(3 + i)] = i+1
+        ws['A' + str(3 + i)] = i + 1
         ws['A' + str(3 + i)].font = std_font
         ws['A' + str(3 + i)].alignment = center
-        ws['B' + str(3 + i)] = data[i - delcnt][1] if data[i - delcnt][0] == i+1 else ''
+        ws['B' + str(3 + i)] = data[i - delcnt][1] if data[i - delcnt][0] == i + 1 else ''
         ws['B' + str(3 + i)].font = Font(name="DFKai-SB", size=14)
         ws['B' + str(3 + i)].alignment = center
-        ws['C' + str(3 + i)] = data[i - delcnt][2] if data[i - delcnt][0] == i+1 else ''
+        ws['C' + str(3 + i)] = data[i - delcnt][2] if data[i - delcnt][0] == i + 1 else ''
         ws['C' + str(3 + i)].font = std_font
         ws['C' + str(3 + i)].alignment = center
         ws.row_dimensions[3 + i].height = 19
         for j in range(0, 12):
-            ws[str(chr(ord('A') + j)) + str(3 + i)].border = bold_bottom if (i+1)%5==0 else border
-        if data[i - delcnt][0] != i+1:
+            ws[str(chr(ord('A') + j)) + str(3 + i)].border = bold_bottom if (i + 1) % 5 == 0 else border
+        if data[i - delcnt][0] != i + 1:
             delcnt += 1
     return workbook
+
 
 def create_teacher_periods(workbook, teacher_name, orig_username=''):
     ws = workbook.create_sheet(teacher_name)
@@ -241,7 +248,7 @@ def create_teacher_periods(workbook, teacher_name, orig_username=''):
         ws.cell(row=2, column=i).font = Font(size=14, bold=True)
         ws.cell(row=2, column=i).alignment = center
         ws.cell(row=2, column=i).border = border
-    
+
     # loop over C:G
     for i in range(2, 8):
         ws.column_dimensions[str(chr(ord('A') + i))].width = 13
@@ -251,10 +258,10 @@ def create_teacher_periods(workbook, teacher_name, orig_username=''):
     db = refresh_db()
     cursor = db.cursor()
     if orig_username is not '':
-        cursor.execute('SELECT category,subclass FROM gpclasses WHERE accs LIKE %s', ('%'+orig_username+'%',))
+        cursor.execute('SELECT category,subclass FROM gpclasses WHERE accs LIKE %s', ('%' + orig_username + '%',))
         gp_sql = cursor.fetchall()
         for i in gp_sql:
-            cursor.execute('SELECT dow,period FROM schedule WHERE teacher=%s', (i[0], ))
+            cursor.execute('SELECT dow,period FROM schedule WHERE teacher=%s', (i[0],))
             tmp_sql = cursor.fetchall()
             for j in tmp_sql:
                 if j[0] not in data:
@@ -263,7 +270,7 @@ def create_teacher_periods(workbook, teacher_name, orig_username=''):
                     'subject': i[0],
                     'class': i[1]
                 }
-    cursor.execute("SELECT dow,period,subject,grade,class_ FROM schedule WHERE teacher=%s", (teacher_name, ))
+    cursor.execute("SELECT dow,period,subject,grade,class_ FROM schedule WHERE teacher=%s", (teacher_name,))
     sql = cursor.fetchall()
     # loop over data
     for i in sql:
@@ -274,7 +281,7 @@ def create_teacher_periods(workbook, teacher_name, orig_username=''):
             'class': str(i[3]) + str(i[4])
         }
 
-    periods=['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9']
+    periods = ['m', '1', '2', '3', '4', 'n', '5', '6', '7', '8', '9']
     times = {
         'm': ['7:30', '8:10'],
         '1': ['8:20', '9:05'],
@@ -310,24 +317,27 @@ def create_teacher_periods(workbook, teacher_name, orig_username=''):
         if p == 'm' or p == 'n':
             ws.merge_cells('C' + str(curr) + ':G' + str(curr + 1))
             for i in range(1, 6):
-                ws[chr(ord('C') + i-1) + str(curr)].font = std_font
-                ws[chr(ord('C') + i-1) + str(curr)].alignment = center
-                ws[chr(ord('C') + i-1) + str(curr)].border = border
-                ws[chr(ord('C') + i-1) + str(curr + 1)].border = border
+                ws[chr(ord('C') + i - 1) + str(curr)].font = std_font
+                ws[chr(ord('C') + i - 1) + str(curr)].alignment = center
+                ws[chr(ord('C') + i - 1) + str(curr)].border = border
+                ws[chr(ord('C') + i - 1) + str(curr + 1)].border = border
             if p == 'm':
                 ws['C' + str(curr)] = '早自習'
             else:
                 ws['C' + str(curr)] = '午餐 / 午休'
         else:
             for i in range(1, 6):
-                ws.merge_cells(chr(ord('C') + i-1) + str(curr) + ':' + chr(ord('C') + i-1) + str(curr + 1))
-                ws[chr(ord('C') + i-1) + str(curr)].font = std_font
-                ws[chr(ord('C') + i-1) + str(curr)].border = border
-                ws[chr(ord('C') + i-1) + str(curr + 1)].border = border
-                ws[chr(ord('C') + i-1) + str(curr)].alignment = center + Alignment(wrapText=True)
+                ws.merge_cells(chr(ord('C') + i - 1) + str(curr) + ':' + chr(ord('C') + i - 1) + str(curr + 1))
+                ws[chr(ord('C') + i - 1) + str(curr)].font = std_font
+                ws[chr(ord('C') + i - 1) + str(curr)].border = border
+                ws[chr(ord('C') + i - 1) + str(curr + 1)].border = border
+                ws[chr(ord('C') + i - 1) + str(curr)].alignment = center + Alignment(wrapText=True)
                 if i in data:
                     if p in data[i]:
-                        ws[chr(ord('C') + i-1) + str(curr)] = (data[i][p]['subject'] + '\n' + data[i][p]['class'] if data[i][p]['subject'] != 'GP' 
-                            and data[i][p]['subject'] != '--' else '' if data[i][p]['subject'] == '--' else data[i][p]['teacher'])
+                        ws[chr(ord('C') + i - 1) + str(curr)] = (
+                            data[i][p]['subject'] + '\n' + data[i][p]['class'] if data[i][p]['subject'] != 'GP'
+                                                                                  and data[i][p][
+                                                                                      'subject'] != '--' else '' if
+                            data[i][p]['subject'] == '--' else data[i][p]['teacher'])
         curr += 2
     return workbook
