@@ -15,6 +15,9 @@ Flask_SQLAlchemy == 2.5.1
 # Attendance/functions.py: 15
 mysql_connector_python == 8.0.27
 
+# Attendance/export.py: 3
+openpyxl == 3.0.9
+
 # Attendance/functions.py: 10
 pandas == 1.1.3
 
