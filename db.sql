@@ -1,3 +1,4 @@
+CREATE DATABASE attendance;
 USE attendance;
 CREATE TABLE users (
     id INT NOT NULL AUTO_INCREMENT,
@@ -84,6 +85,7 @@ CREATE TABLE submission (
     date VARCHAR(11),
     period CHAR,
     signature LONGTEXT,
+    dscfrm TEXT,
     /*
         Save as JSON
         {
