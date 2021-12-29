@@ -214,6 +214,72 @@ def create_student_list(workbook, class_code):
     return workbook
 
 
+def create_group_student_list(workbook, cclass, data):
+    class_code = [cclass['category'], cclass['class_id']]
+    ws = workbook.create_sheet(class_code[0] + '.' + class_code[1])
+    ws.merge_cells('A1:H1')
+    ws['A1'] = '台北市私立復興實驗高級中學分組課學生名單'
+    ws['A1'].font = Font(name="DFKai-SB", size=15, bold=True)
+    ws['A1'].alignment = center
+    # loop over A:I
+    for i in range(0, 10):
+        ws[str(chr(ord('A') + i)) + '1'].border = border
+    ws.merge_cells('I1:L1')
+    ws['I1'] = class_code[0] + class_code[1]
+    ws['I1'].font = Font(name='Calibri', size=15, bold=True)
+    ws['I1'].alignment = center
+    ws['I1'].border = border
+    ws['J1'].border = border
+    ws['K1'].border = border
+    ws['L1'].border = border
+    ws.column_dimensions['A'].width = 6
+    ws.column_dimensions['B'].width = 4
+    ws.column_dimensions['C'].width = 11
+    ws.column_dimensions['D'].width = 12
+    ws.row_dimensions[1].height = 25
+    ws.row_dimensions[2].height = 20
+
+    ws['A2'] = '班級'
+    ws['A2'].font = Font(name="Calibri", size=13, bold=True)
+    ws['A2'].alignment = center
+    ws['A2'].border = bold_bottom
+    ws['B2'] = '#'
+    ws['B2'].font = Font(name="Calibri", size=13, bold=True)
+    ws['B2'].alignment = center
+    ws['B2'].border = bold_bottom
+    ws['C2'] = '姓名'
+    ws['C2'].font = Font(name="DFKai-SB", size=13, bold=True)
+    ws['C2'].alignment = center
+    ws['C2'].border = bold_bottom
+    ws['D2'] = 'Name'
+    ws['D2'].font = Font(name="Calibri", size=13, bold=True)
+    ws['D2'].alignment = center
+    ws['D2'].border = bold_bottom
+    for i in range(4, 12):
+        ws[str(chr(ord('A') + i)) + '2'].border = bold_bottom
+        ws.column_dimensions[str(chr(ord('A') + i))].width = 5.8
+
+    cnt = 0
+    for i in data:
+        ws['A' + str(3 + cnt)] = str(i[0]) + str(i[1])
+        ws['A' + str(3 + cnt)].font = std_font
+        ws['A' + str(3 + cnt)].alignment = center
+        ws['B' + str(3 + cnt)] = i[2]
+        ws['B' + str(3 + cnt)].font = std_font
+        ws['B' + str(3 + cnt)].alignment = center
+        ws['C' + str(3 + cnt)] = i[3]
+        ws['C' + str(3 + cnt)].font = Font(name="DFKai-SB", size=14)
+        ws['C' + str(3 + cnt)].alignment = center
+        ws['D' + str(3 + cnt)] = i[4]
+        ws['D' + str(3 + cnt)].font = std_font
+        ws['D' + str(3 + cnt)].alignment = center
+        ws.row_dimensions[3 + cnt].height = 19
+        for j in range(0, 12):
+            ws[str(chr(ord('A') + j)) + str(3 + cnt)].border = bold_bottom if (cnt + 1) % 5 == 0 else border
+        cnt += 1
+    return workbook
+
+
 def create_teacher_periods(workbook, teacher_name, orig_username=''):
     ws = workbook.create_sheet(teacher_name)
     ws.merge_cells('A1:E1')

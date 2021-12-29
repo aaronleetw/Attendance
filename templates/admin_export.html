@@ -78,6 +78,21 @@
                     <a href="/manage/admin/export/teacher_period/all"><button type="button" class="btn btn-secondary">匯出所有老師</button></a>
                 </form>
             </div>
+            <div class="col reqpadding">
+                <h2>分組課學生名單</h2>
+                <form action="/manage/admin/export/group_student_list" method="post" id="group_student_list">
+                    <div class="form-group row">
+                        <label for="category">類別</label>
+                        <input type="text" name="category" id="category" class="form-control" required>
+                    </div>
+                    <div class="form-group row">
+                        <label for="class_id">分組課</label>
+                        <input type="text" name="class_id" id="class_id" class="form-control">
+                    </div>
+                    <button class="btn btn-primary">確認</button>
+                    <button type="button" class="btn btn-secondary" onclick="onlyCategory()">匯出該類別</button>
+                </form>
+            </div>
         </div>
         {% include 'footer.html' %}
     </div>
@@ -87,6 +102,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/static/pagejs/admin.js"></script>
     <script src="/static/time.js"></script>
+    <script>
+        function onlyCategory() {
+            document.getElementById('group_student_list').action = '/manage/admin/export/group_student_list_only_category';
+            document.getElementById('group_student_list').submit();
+        }
+    </script>
 </body>
 
 </html>

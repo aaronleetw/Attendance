@@ -4,3 +4,5 @@ test*.*
 __pycache__/*
 excel/*
 venv/*
+.idea/*
+__pycache__/*

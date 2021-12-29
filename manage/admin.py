@@ -124,6 +124,54 @@ def admin_export_student_list_all():
     return send_file(excel_stream, attachment_filename='student_list_all.xlsx', as_attachment=True)
 
 
+@admin.route('/manage/admin/export/group_student_list', methods=['POST'])
+def admin_export_group_student_list():
+    if check_login_status() or session['subuser_type'] != 'admin':
+        return redirect('/logout')
+    refresh_token()
+    cclass = {
+        'category': request.form['category'],
+        'class_id': request.form['class_id'],
+    }
+    db = refresh_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT grade,class_,num,name,ename FROM students WHERE classes LIKE " + '\'%\"' + cclass[
+        'category'] + '\": \"' + cclass['class_id'] + '\"%\'' + " ORDER BY grade ASC,class_ ASC,num ASC")
+    students = cursor.fetchall()
+    workbook = Workbook()
+    workbook.remove_sheet(workbook.get_sheet_by_name('Sheet'))
+    workbook = create_group_student_list(workbook, cclass, students)
+    excel_stream = io.BytesIO()
+    workbook.save(excel_stream)
+    excel_stream.seek(0)
+    return send_file(excel_stream, attachment_filename='student_list_' + cclass['category'] + '_' + cclass[
+        'class_id'] + '.xlsx', as_attachment=True)
+
+@admin.route('/manage/admin/export/group_student_list_only_category', methods=['POST'])
+def admin_export_group_student_list_only_category():
+    if check_login_status() or session['subuser_type'] != 'admin':
+        return redirect('/logout')
+    refresh_token()
+    cclass = {
+        'category': request.form['category'],
+    }
+    db = refresh_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT subclass FROM gpclasses WHERE category=%s", (cclass['category'], ))
+    classes = cursor.fetchall()
+    workbook = Workbook()
+    workbook.remove_sheet(workbook.get_sheet_by_name('Sheet'))
+    for i in classes:
+        cclass['class_id'] = i[0]
+        cursor.execute("SELECT grade,class_,num,name,ename FROM students WHERE classes LIKE " + '\'%\"' + cclass[
+            'category'] + '\": \"' + cclass['class_id'] + '\"%\'' + " ORDER BY grade ASC,class_ ASC,num ASC")
+        students = cursor.fetchall()
+        workbook = create_group_student_list(workbook, cclass, students)
+    excel_stream = io.BytesIO()
+    workbook.save(excel_stream)
+    excel_stream.seek(0)
+    return send_file(excel_stream, attachment_filename='student_list_' + cclass['category'] + '.xlsx', as_attachment=True)
+
 @admin.route('/manage/admin/export/teacher_period', methods=['POST'])
 def admin_export_teacher_period():
     if check_login_status() or session['subuser_type'] != 'admin':
