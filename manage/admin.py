@@ -138,6 +138,9 @@ def admin_export_group_student_list():
     cursor.execute("SELECT grade,class_,num,name,ename FROM students WHERE classes LIKE " + '\'%\"' + cclass[
         'category'] + '\": \"' + cclass['class_id'] + '\"%\'' + " ORDER BY grade ASC,class_ ASC,num ASC")
     students = cursor.fetchall()
+    if students == []:
+        flash("該課程不存在或沒有學生!")
+        return redirect('/manage/admin/export')
     workbook = Workbook()
     workbook.remove_sheet(workbook.get_sheet_by_name('Sheet'))
     workbook = create_group_student_list(workbook, cclass, students)
@@ -146,6 +149,7 @@ def admin_export_group_student_list():
     excel_stream.seek(0)
     return send_file(excel_stream, attachment_filename='student_list_' + cclass['category'] + '_' + cclass[
         'class_id'] + '.xlsx', as_attachment=True)
+
 
 @admin.route('/manage/admin/export/group_student_list_only_category', methods=['POST'])
 def admin_export_group_student_list_only_category():
@@ -157,8 +161,11 @@ def admin_export_group_student_list_only_category():
     }
     db = refresh_db()
     cursor = db.cursor()
-    cursor.execute("SELECT subclass FROM gpclasses WHERE category=%s", (cclass['category'], ))
+    cursor.execute("SELECT subclass FROM gpclasses WHERE category=%s", (cclass['category'],))
     classes = cursor.fetchall()
+    if classes == []:
+        flash("該分類不存在!")
+        return redirect('/manage/admin/export')
     workbook = Workbook()
     workbook.remove_sheet(workbook.get_sheet_by_name('Sheet'))
     for i in classes:
@@ -170,7 +177,9 @@ def admin_export_group_student_list_only_category():
     excel_stream = io.BytesIO()
     workbook.save(excel_stream)
     excel_stream.seek(0)
-    return send_file(excel_stream, attachment_filename='student_list_' + cclass['category'] + '.xlsx', as_attachment=True)
+    return send_file(excel_stream, attachment_filename='student_list_' + cclass['category'] + '.xlsx',
+                     as_attachment=True)
+
 
 @admin.route('/manage/admin/export/teacher_period', methods=['POST'])
 def admin_export_teacher_period():

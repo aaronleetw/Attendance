@@ -155,19 +155,20 @@ def create_period_sheets(workbook, class_code):
 
 def create_student_list(workbook, class_code):
     ws = workbook.create_sheet(class_code[0] + class_code[1])
-    ws.merge_cells('A1:J1')
+    ws.merge_cells('A1:K1')
     ws['A1'] = '台北市私立復興實驗高級中學學生名單'
     ws['A1'].font = Font(name="DFKai-SB", size=15, bold=True)
     ws['A1'].alignment = center
-    # loop over A:J
-    for i in range(0, 11):
+    # loop over A:K
+    for i in range(0, 12):
         ws[str(chr(ord('A') + i)) + '1'].border = border
-    ws.merge_cells('K1:L1')
-    ws['K1'] = class_code[0] + class_code[1]
-    ws['K1'].font = Font(name='Courier New', size=20, bold=True)
-    ws['K1'].alignment = center
-    ws['K1'].border = border
+    ws.merge_cells('L1:N1')
+    ws['L1'] = class_code[0] + class_code[1]
+    ws['L1'].font = Font(name='Courier New', size=20, bold=True)
+    ws['L1'].alignment = center
     ws['L1'].border = border
+    ws['M1'].border = border
+    ws['N1'].border = border
     ws.column_dimensions['A'].width = 5
     ws.column_dimensions['B'].width = 11
     ws.column_dimensions['C'].width = 12
@@ -186,14 +187,16 @@ def create_student_list(workbook, class_code):
     ws['C2'].font = Font(name="Calibri", size=13, bold=True)
     ws['C2'].alignment = center
     ws['C2'].border = bold_bottom
-    for i in range(3, 12):
+    for i in range(3, 14):
         ws[str(chr(ord('A') + i)) + '2'].border = bold_bottom
-        ws.column_dimensions[str(chr(ord('A') + i))].width = 5.8
+        ws.column_dimensions[str(chr(ord('A') + i))].width = 4.6
     db = refresh_db()
     cursor = db.cursor()
     cursor.execute('SELECT num,name,ename FROM students WHERE grade=%s AND class_=%s ORDER BY num ASC',
                    (class_code[0], class_code[1]))
     data = cursor.fetchall()
+    if data == []:
+        return workbook
     last = data[-1][0]
     delcnt = 0
     for i in range(0, last):
@@ -207,7 +210,7 @@ def create_student_list(workbook, class_code):
         ws['C' + str(3 + i)].font = std_font
         ws['C' + str(3 + i)].alignment = center
         ws.row_dimensions[3 + i].height = 19
-        for j in range(0, 12):
+        for j in range(0, 14):
             ws[str(chr(ord('A') + j)) + str(3 + i)].border = bold_bottom if (i + 1) % 5 == 0 else border
         if data[i - delcnt][0] != i + 1:
             delcnt += 1
@@ -217,65 +220,77 @@ def create_student_list(workbook, class_code):
 def create_group_student_list(workbook, cclass, data):
     class_code = [cclass['category'], cclass['class_id']]
     ws = workbook.create_sheet(class_code[0] + '.' + class_code[1])
-    ws.merge_cells('A1:H1')
+    ws.merge_cells('A1:J1')
     ws['A1'] = '台北市私立復興實驗高級中學分組課學生名單'
     ws['A1'].font = Font(name="DFKai-SB", size=15, bold=True)
     ws['A1'].alignment = center
-    # loop over A:I
-    for i in range(0, 10):
+    # loop over A:J
+    for i in range(0, 12):
         ws[str(chr(ord('A') + i)) + '1'].border = border
-    ws.merge_cells('I1:L1')
-    ws['I1'] = class_code[0] + class_code[1]
-    ws['I1'].font = Font(name='Calibri', size=15, bold=True)
-    ws['I1'].alignment = center
-    ws['I1'].border = border
-    ws['J1'].border = border
+    ws.merge_cells('K1:O1')
+    ws['K1'] = class_code[0] + class_code[1]
+    ws['K1'].font = Font(name='Calibri', size=15, bold=True)
+    ws['K1'].alignment = center
     ws['K1'].border = border
     ws['L1'].border = border
+    ws['M1'].border = border
+    ws['N1'].border = border
+    ws['O1'].border = border
     ws.column_dimensions['A'].width = 6
     ws.column_dimensions['B'].width = 4
     ws.column_dimensions['C'].width = 11
     ws.column_dimensions['D'].width = 12
     ws.row_dimensions[1].height = 25
     ws.row_dimensions[2].height = 20
+    ws.row_dimensions[3].height = 20
 
-    ws['A2'] = '班級'
+    ws['A3'] = '班級'
+    ws['A3'].font = Font(name="Calibri", size=13, bold=True)
+    ws['A3'].alignment = center
+    ws['A3'].border = bold_bottom
+    ws['B3'] = '#'
+    ws['B3'].font = Font(name="Calibri", size=13, bold=True)
+    ws['B3'].alignment = center
+    ws['B3'].border = bold_bottom
+    ws['C3'] = '姓名'
+    ws['C3'].font = Font(name="DFKai-SB", size=13, bold=True)
+    ws['C3'].alignment = center
+    ws['C3'].border = bold_bottom
+    ws['D3'] = 'Name'
+    ws['D3'].font = Font(name="Calibri", size=13, bold=True)
+    ws['D3'].alignment = center
+    ws['D3'].border = bold_bottom
+
+    db = refresh_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT about FROM gpclasses WHERE category=%s AND subclass=%s LIMIT 1", (class_code[0], class_code[1]))
+    ws.merge_cells('A2:O2')
+    ws['A2'] = cursor.fetchone()[0]
     ws['A2'].font = Font(name="Calibri", size=13, bold=True)
     ws['A2'].alignment = center
-    ws['A2'].border = bold_bottom
-    ws['B2'] = '#'
-    ws['B2'].font = Font(name="Calibri", size=13, bold=True)
-    ws['B2'].alignment = center
-    ws['B2'].border = bold_bottom
-    ws['C2'] = '姓名'
-    ws['C2'].font = Font(name="DFKai-SB", size=13, bold=True)
-    ws['C2'].alignment = center
-    ws['C2'].border = bold_bottom
-    ws['D2'] = 'Name'
-    ws['D2'].font = Font(name="Calibri", size=13, bold=True)
-    ws['D2'].alignment = center
-    ws['D2'].border = bold_bottom
-    for i in range(4, 12):
-        ws[str(chr(ord('A') + i)) + '2'].border = bold_bottom
-        ws.column_dimensions[str(chr(ord('A') + i))].width = 5.8
+    for i in range(0, 15):
+        ws[str(chr(ord('A') + i)) + '2'].border = border
+    for i in range(4, 15):
+        ws[str(chr(ord('A') + i)) + '3'].border = bold_bottom
+        ws.column_dimensions[str(chr(ord('A') + i))].width = 4.4
 
     cnt = 0
     for i in data:
-        ws['A' + str(3 + cnt)] = str(i[0]) + str(i[1])
-        ws['A' + str(3 + cnt)].font = std_font
-        ws['A' + str(3 + cnt)].alignment = center
-        ws['B' + str(3 + cnt)] = i[2]
-        ws['B' + str(3 + cnt)].font = std_font
-        ws['B' + str(3 + cnt)].alignment = center
-        ws['C' + str(3 + cnt)] = i[3]
-        ws['C' + str(3 + cnt)].font = Font(name="DFKai-SB", size=14)
-        ws['C' + str(3 + cnt)].alignment = center
-        ws['D' + str(3 + cnt)] = i[4]
-        ws['D' + str(3 + cnt)].font = std_font
-        ws['D' + str(3 + cnt)].alignment = center
-        ws.row_dimensions[3 + cnt].height = 19
-        for j in range(0, 12):
-            ws[str(chr(ord('A') + j)) + str(3 + cnt)].border = bold_bottom if (cnt + 1) % 5 == 0 else border
+        ws['A' + str(4 + cnt)] = str(i[0]) + str(i[1])
+        ws['A' + str(4 + cnt)].font = std_font
+        ws['A' + str(4 + cnt)].alignment = center
+        ws['B' + str(4 + cnt)] = i[2]
+        ws['B' + str(4 + cnt)].font = std_font
+        ws['B' + str(4 + cnt)].alignment = center
+        ws['C' + str(4 + cnt)] = i[3]
+        ws['C' + str(4 + cnt)].font = Font(name="DFKai-SB", size=14)
+        ws['C' + str(4 + cnt)].alignment = center
+        ws['D' + str(4 + cnt)] = i[4]
+        ws['D' + str(4 + cnt)].font = std_font
+        ws['D' + str(4 + cnt)].alignment = center
+        ws.row_dimensions[4 + cnt].height = 19
+        for j in range(0, 15):
+            ws[str(chr(ord('A') + j)) + str(4 + cnt)].border = bold_bottom if (cnt + 1) % 5 == 0 else border
         cnt += 1
     return workbook
 
@@ -323,7 +338,7 @@ def create_teacher_periods(workbook, teacher_name, orig_username=''):
     data = {}
     db = refresh_db()
     cursor = db.cursor()
-    if orig_username is not '':
+    if orig_username != '':
         cursor.execute('SELECT category,subclass FROM gpclasses WHERE accs LIKE %s', ('%' + orig_username + '%',))
         gp_sql = cursor.fetchall()
         for i in gp_sql:

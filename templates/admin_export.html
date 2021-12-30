@@ -94,6 +94,16 @@
                 </form>
             </div>
         </div>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-danger" role="alert">
+            {% autoescape false %}{{message}}{% endautoescape %}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
         {% include 'footer.html' %}
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
@@ -106,6 +116,7 @@
         function onlyCategory() {
             document.getElementById('group_student_list').action = '/manage/admin/export/group_student_list_only_category';
             document.getElementById('group_student_list').submit();
+            document.getElementById('group_student_list').action = '/manage/admin/export/group_student_list';
         }
     </script>
 </body>
